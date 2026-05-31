@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Súper Mates de 3º de Primaria - Edición Arcade</title>
+    <title>Súper Mates de 3º de Primaria - Edición Arcade y Tutor</title>
     <style>
         /* --- VARIABLES DE COLOR DINÁMICAS --- */
         :root {
@@ -11,7 +11,7 @@
             --color-principal: #1e90ff;
         }
 
-        /* --- ESTILOS GENERALES Y DISEÑO --- */
+        /* --- ESTILOS GENERALES --- */
         body {
             font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
             background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
@@ -22,12 +22,12 @@
             background: rgba(255, 255, 255, 0.96); padding: 25px; border-radius: 30px; 
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             max-width: 480px; width: 92%; text-align: center; box-sizing: border-box;
-            transition: all 0.5s ease;
+            transition: all 0.5s ease; position: relative;
         }
         .oculto { display: none !important; }
         h1, h2 { color: #2f3542; margin: 10px 0; font-weight: 900; }
         
-        /* --- ANIMACIONES DE ENTRADA Y FEEDBACK --- */
+        /* --- ANIMACIONES --- */
         .animar-rebote { animation: rebote 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .animar-error { animation: vibrar 0.4s ease-in-out; }
         .animar-victoria { animation: celebrar 0.6s ease-in-out; }
@@ -57,11 +57,11 @@
         .btn {
             background-color: var(--color-principal); color: white; border: none; padding: 15px; font-size: 18px; font-weight: bold;
             border-radius: 20px; cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            box-shadow: 0 6px 0 idc; border-bottom: 5px solid rgba(0,0,0,0.2); width: 100%; margin-bottom: 12px;
+            border-bottom: 5px solid rgba(0,0,0,0.2); width: 100%; margin-bottom: 12px;
             position: relative; top: 0;
         }
-        .btn:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 8px 0 rgba(0,0,0,0.15); }
-        .btn:active { top: 4px; border-bottom-width: 1px; box-shadow: 0 2px 0 rgba(0,0,0,0.15); }
+        .btn:hover { transform: translateY(-3px); filter: brightness(1.1); }
+        .btn:active { top: 4px; border-bottom-width: 1px; }
         
         .btn-volver { 
             background-color: #576574; color: white; border: none; padding: 8px 18px; border-radius: 50px; 
@@ -69,9 +69,16 @@
         }
         .btn-volver:active { transform: translateY(2px); box-shadow: none; }
 
+        .btn-aprender {
+            background-color: #ff9f43; color: white; border: none; padding: 10px 20px; font-size: 16px; font-weight: bold;
+            border-radius: 15px; cursor: pointer; margin-top: 15px; width: 100%; border-bottom: 4px solid #d35400;
+        }
+        .btn-aprender:hover { filter: brightness(1.1); }
+        .btn-aprender:active { transform: translateY(2px); border-bottom-width: 1px; }
+
         /* --- MENÚ DE JUEGOS --- */
         .zona-progreso { background: #f1f2f6; padding: 12px; border-radius: 20px; margin-bottom: 15px; border: 3px dashed var(--color-principal); }
-        .lista-juegos-scroll { max-height: 380px; overflow-y: auto; padding-right: 5px; }
+        .lista-juegos-scroll { max-height: 350px; overflow-y: auto; padding-right: 5px; }
         .tarjeta-juego {
             background-color: #f1f2f6; border-radius: 20px; padding: 14px; display: flex; align-items: center; gap: 15px;
             cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-bottom: 12px; border: 3px solid transparent;
@@ -82,21 +89,31 @@
         .tarjeta-juego h3 { margin: 0; font-size: 16px; color: #2f3542; }
         .tarjeta-juego p { margin: 3px 0 0 0; font-size: 12px; color: #747d8c; }
 
-        /* --- INTERFAZ DE PANTALLA DE JUEGO --- */
+        /* --- INTERFAZ DE JUEGO --- */
         .cabecera { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; background: #eee; padding: 10px 15px; border-radius: 12px; font-weight: bold; }
         .display-reto { 
             font-size: 30px; font-weight: bold; background: var(--bg-juego); color: white; padding: 25px; 
             border-radius: 25px; margin: 15px 0; min-height: 70px; display: flex; align-items: center; justify-content: center; 
-            line-height: 1.4; box-shadow: inset 0 5px 15px rgba(0,0,0,0.3);
-            border: 4px solid rgba(255,255,255,0.2);
+            line-height: 1.4; box-shadow: inset 0 5px 15px rgba(0,0,0,0.3); border: 4px solid rgba(255,255,255,0.2);
         }
         .mensaje { font-size: 20px; font-weight: bold; margin-top: 12px; min-height: 30px; }
         
-        /* Elementos del Súper y Fracciones */
         .item-super { font-size: 75px; margin: 0; display: inline-block; }
-        .precio-tag { background: #ff4757; color: white; padding: 6px 18px; border-radius: 12px; font-size: 20px; display: inline-block; font-weight: bold; box-shadow: 0 4px 0 #c23616; }
+        .precio-tag { background: #ff4757; color: white; padding: 6px 18px; border-radius: 12px; font-size: 20px; display: inline-block; font-weight: bold; }
         .fraccion { display: inline-flex; flex-direction: column; vertical-align: middle; align-items: center; font-size: 26px; padding: 0 8px; font-weight: bold; }
         .linea-fraccion { border-top: 3px solid white; width: 120%; margin: 2px 0; }
+
+        /* --- VENTANA FLOTANTE: LA PIZARRA DIDÁCTICA --- */
+        .pizarra-modal {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #2f3542; color: white; border-radius: 30px; padding: 25px;
+            box-sizing: border-box; text-align: left; display: flex; flex-direction: column;
+            z-index: 10; justify-content: space-between; overflow-y: auto;
+        }
+        .pizarra-modal h2 { color: #ff9f43; margin-top: 0; }
+        .pizarra-contenido { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; font-size: 16px; line-height: 1.5; margin-bottom: 15px; }
+        .pizarra-contenido b { color: #2ed573; }
+        .pizarra-ejemplo { background: #fff; color: #333; padding: 10px; border-radius: 10px; font-weight: bold; font-family: monospace; text-align: center; margin-top: 10px; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -137,28 +154,33 @@
             <div class="cabecera"><span id="juego-titulo">Juego</span> <span>Puntos: <span id="juego-puntos">0</span> ⭐</span></div>
             
             <div id="grafico-personalizado" class="icono-flotante" style="font-size: 65px; margin: 10px 0; min-height: 75px;"></div>
-            
             <div id="juego-reto" class="display-reto">Pregunta</div>
-            
             <div id="juego-opciones"></div>
-            
             <div id="juego-msg" class="mensaje"></div>
+
+            <button class="btn-aprender" onclick="mostrarPizarra()">💡 ¡Quiero aprender cómo se hace!</button>
+        </div>
+
+        <div id="pizarra-tutorial" class="pizarra-modal oculto">
+            <div>
+                <h2 id="pizarra-titulo">💡 Pizarra de Ayuda</h2>
+                <div class="pizarra-contenido" id="pizarra-texto-ayuda">
+                    Explicación matemática cargada aquí.
+                </div>
+            </div>
+            <button class="btn" style="background-color: #2ed573;" onclick="cerrarPizarra()">¡Ya lo he entendido! 🚀</button>
         </div>
 
     </div>
 
     <script>
-        // --- MOTOR CENTRAL DE AUDIO SINTETIZADO (Sinfonías Retro sin Archivos) ---
+        // --- MOTOR CENTRAL DE AUDIO SINTETIZADO ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function reproducirSonido(tipo) {
-            // Asegurar que el contexto de audio esté activo tras interacción del usuario
             if (audioCtx.state === 'suspended') { audioCtx.resume(); }
-
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
 
             if (tipo === 'click') {
                 osc.type = 'sine'; osc.frequency.setValueAtTime(400, audioCtx.currentTime);
@@ -166,17 +188,13 @@
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.1);
             } else if (tipo === 'correcto') {
-                // Tono doble ascendente feliz
-                osc.type = 'triangle'; 
-                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // Nota C5
-                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // Nota E5
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
                 gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.3);
             } else if (tipo === 'error') {
-                // Tono grave descendente triste
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, audioCtx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(70, audioCtx.currentTime + 0.25);
                 gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
@@ -184,7 +202,76 @@
             }
         }
 
-        // --- MOTOR CENTRAL DE ALMACENAMIENTO (LocalStorage) ---
+        // --- BASE DE DATOS DIDÁCTICA (LECCIONES DE LA PIZARRA) ---
+        const leccionesAyuda = {
+            monstruo: {
+                titulo: "👾 Multiplicar es Sumar Rápido",
+                texto: "Multiplicar es repetir un número muchas veces.<br><br>Si ves <b>3 x 4</b>, significa tener el número 4 sumado 3 veces.<br>¡Es como tener 3 bolsas con 4 caramelos dentro de cada una!"
+            },
+            reloj: {
+                titulo: "⏰ Las Horas del Reloj digital",
+                texto: "• Si los minutos marcan <b>:00</b> es 'En punto'.<br>• Si marcan <b>:15</b> es 'Y cuarto'.<br>• Si marcan <b>:30</b> es 'Y media'.<br>• Si marcan <b>:45</b> es 'Menos cuarto' (¡falta poquito para la siguiente hora!)."
+            },
+            super: {
+                titulo: "🛒 El Truco de las Vueltas en el Súper",
+                texto: "Para saber cuánto dinero te tienen que devolver, haz una <b>Resta</b>:<br><br>Resta al billete con el que pagas el precio de lo que compras.<br>Si pagas con 10€ y vale 7€... haces 10 - 7 = <b>3€ de devolución</b>."
+            },
+            romanos: {
+                titulo: "🏛️ Guía de Números Romanos",
+                texto: "Los romanos usaban letras especiales:<br>• <b>I</b> vale 1<br>• <b>V</b> vale 5<br>• <b>X</b> vale 10<br><br>Si pones una letra menor a la izquierda, RESTA (ej: IV es 5-1 = 4). Si la pones a la derecha, SUMA (ej: VI es 5+1 = 6)."
+            },
+            mayorMenor: {
+                titulo: "🐊 La Boca del Cocodrilo Tragón",
+                texto: "Al cocodrilo le encanta comer números grandes. ¡Tiene mucha hambre!<br><br>• La boca abierta apunta siempre al <b>número más grande</b>: 800 &gt; 200.<br>• Si son idénticos, se pone el signo igual: 500 = 500."
+            },
+            series: {
+                titulo: "🚂 ¿Cómo resolver Series?",
+                texto: "Mira los dos primeros números para descubrir el <b>Secreto del Salto</b>.<br><br>Si la serie hace: 5 - 10 - 15... ¡El secreto es que va sumando de 5 en 5! Sigue sumando ese secreto para adivinar el número que falta."
+            },
+            fracciones: {
+                titulo: "🍕 El Secreto de las Fracciones",
+                texto: "• El número de <b>ABAJO</b> (Denominador) dice en cuántos trozos iguales hemos cortado la pizza entera.<br>• El número de <b>ARRIBA</b> (Numerador) dice cuántos trozos nos vamos a comer nosotros."
+            },
+            geometria: {
+                titulo: "📐 Guía de Cuerpos y Formas",
+                texto: "• Las figuras planas son planas como un folio (Triángulo 🔺, Cuadrado 🟪).<br>• Los cuerpos geométricos tienen volumen y espacio dentro (un dado es un <b>Cubo</b>, un tejado es un <b>Prisma</b>, un balón es una <b>Esfera</b>)."
+            },
+            mitadDoble: {
+                titulo: "🧪 Doble y Mitad",
+                texto: "• Para calcular el <b>DOBLE</b>: Multiplica por 2 (o suma el número consigo mismo). El doble de 5 es 5 + 5 = 10.<br>• Para calcular la <b>MITAD</b>: Reparte en 2 partes iguales. La mitad de 10 es 5."
+            },
+            problemas: {
+                titulo: "💡 Detectives de Problemas",
+                texto: "Lee despacio y busca la palabra mágica:<br>• Si te piden el 'Total' o te dan más cosas: <b>Suma</b>.<br>• Si pierdes, vuelan, se rompen o gastas dinero: <b>Resta</b>.<br>• Si repartes en partes iguales: <b>Divide (Reparte)</b>."
+            },
+            unidades: {
+                titulo: "📦 Unidades, Decenas y Centenas",
+                texto: "¡Los números se desarman en paquetes!<br>• <b>U</b> (Unidades): Sueltos (valen 1).<br>• <b>D</b> (Decenas): Paquetes de 10.<br>• <b>C</b> (Centenas): Paquetes grandes de 100.<br><br>El número 125 tiene 1 Centena, 2 Decenas y 5 Unidades."
+            },
+            paresImpares: {
+                titulo: "🔢 El Truco del Par o Impar",
+                texto: "Mira siempre el <b>ÚLTIMO número</b> de todos:<br>• Si termina en 0, 2, 4, 6 u 8 es <b>PAR</b> (se pueden hacer parejas perfectas sin que sobre nada).<br>• Si termina en 1, 3, 5, 7 o 9 es <b>IMPAR</b> (¡siempre sobra uno solo!)."
+            },
+            aproximar: {
+                titulo: "🎯 ¿A qué decena se acerca más?",
+                texto: "Mira el número de las unidades (el último):<br>• Si termina en <b>1, 2, 3 o 4</b>, se queda en la decena más baja.<br>• Si termina en <b>5, 6, 7, 8 o 9</b>, sube a la decena más alta.<br>Ejemplo: El 43 se acerca al 40. El 47 se acerca al 50."
+            }
+        };
+
+        function mostrarPizarra() {
+            reproducirSonido('click');
+            const lec = leccionesAyuda[juegoActual];
+            document.getElementById('pizarra-titulo').innerText = lec.titulo;
+            document.getElementById('pizarra-texto-ayuda').innerHTML = lec.texto;
+            document.getElementById('pizarra-tutorial').classList.remove('oculto');
+        }
+
+        function cerrarPizarra() {
+            reproducirSonido('click');
+            document.getElementById('pizarra-tutorial').classList.add('oculto');
+        }
+
+        // --- MOTOR CENTRAL DE JUEGOS Y LOCALSTORAGE ---
         let puntos = parseInt(localStorage.getItem('pts_arcade_v3')) || 0;
         let medallas = JSON.parse(localStorage.getItem('med_arcade_v3')) || [];
         let juegoActual = "";
@@ -212,7 +299,6 @@
         function irAlMenu() {
             document.getElementById('pantalla-juego').classList.add('oculto');
             document.getElementById('menu-mates').classList.remove('oculto');
-            // Resetear colores del contenedor al volver al menú
             document.documentElement.style.setProperty('--color-principal', '#1e90ff');
             actualizarUI();
         }
@@ -224,21 +310,18 @@
             document.getElementById('pantalla-juego').classList.remove('oculto');
             document.getElementById('juego-msg').innerText = "";
             
-            // Cambiar colores temáticos según el juego para dar dinamismo visual
             const paletas = {
-                monstruo: '#ff4757', reloj: '#ffa502', super: '#2ed573', romanos: '#747d8c',
+                monstruo: '#ff4757', reloj: '#ffa502', super: '#2ed573', romans: '#747d8c',
                 mayorMenor: '#1e90ff', series: '#9b59b6', fracciones: '#ff6b81', geometria: '#341f97'
             };
             document.documentElement.style.setProperty('--color-principal', paletas[tipo] || '#1e90ff');
-
             cargarNuevoReto();
         }
 
         function cargarNuevoReto() {
             const cont = document.getElementById('modulo-contenedor');
             cont.classList.remove('animar-victoria', 'animar-error', 'animar-rebote');
-            void cont.offsetWidth; // Truco de renderizado CSS para reiniciar animaciones
-            
+            void cont.offsetWidth;
             document.getElementById('grafico-personalizado').innerHTML = "";
             
             switch(juegoActual) {
@@ -258,7 +341,7 @@
             }
         }
 
-        // --- ENLACES DE LÓGICA DE LOS 13 JUEGOS ---
+        // --- LÓGICA DE RETOS DE JUEGOS ---
         function juegoMonstruo() {
             document.getElementById('juego-titulo').innerText = "El Monstruo de las Tablas";
             let n = puntos < 150 ? 1 : puntos < 500 ? 2 : 3;
@@ -414,7 +497,7 @@
             construirBotones(solucionCorrectaGlobal, [solucionCorrectaGlobal === deAbajo ? deArriba : deAbajo, deAbajo+5]);
         }
 
-        // --- RENDERIZADORES DE BOTONES ---
+        // --- RENDERIZADORES ---
         function construirBotones(correcta, falsos, esString = false, forzarUnicos = false) {
             let opciones = forzarUnicos ? [...falsos] : [...new Set([correcta, ...falsos])].sort(() => 0.5 - Math.random());
             let cont = document.getElementById('juego-opciones'); cont.innerHTML = "";
@@ -433,7 +516,7 @@
             });
         }
 
-        // --- VALIDADOR CON ANIMACIONES Y SONIDOS ---
+        // --- VALIDADOR ---
         function verificar(elegido, correcto) {
             let m = document.getElementById('juego-msg');
             let contenedor = document.getElementById('modulo-contenedor');
