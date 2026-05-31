@@ -1,22 +1,28 @@
-let score = 0;
-let num1, num2;
-
 function generateQuestion() {
-    num1 = Math.floor(Math.random() * 10) + 1; // Tablas del 1 al 10
-    num2 = Math.floor(Math.random() * 10) + 1;
-    document.getElementById('question').innerText = `${num1} x ${num2} = ?`;
+    // 1. Elegimos un divisor pequeño (del 2 al 9)
+    let divisor = Math.floor(Math.random() * 8) + 2; 
+    // 2. Elegimos un resultado (del 1 al 10)
+    let resultado = Math.floor(Math.random() * 10) + 1;
+    // 3. Calculamos el dividendo (el número grande)
+    let dividendo = divisor * resultado;
+
+    // Guardamos el resultado correcto para comparar después
+    window.respuestaCorrecta = resultado;
+
+    document.getElementById('question').innerText = `${dividendo} ÷ ${divisor} = ?`;
 }
 
 function checkAnswer() {
     const userAnswer = document.getElementById('answer').value;
     const feedback = document.getElementById('feedback');
     
-    if (parseInt(userAnswer) === num1 * num2) {
+    // Comparamos con la variable que guardamos arriba
+    if (parseInt(userAnswer) === window.respuestaCorrecta) {
         score++;
-        feedback.innerText = "¡Correcto! 🎉";
+        feedback.innerText = "¡Muy bien! 🎉";
         feedback.style.color = "green";
     } else {
-        feedback.innerText = `Casi... era ${num1 * num2}. ¡Sigue intentándolo!`;
+        feedback.innerText = `Casi... la respuesta era ${window.respuestaCorrecta}.`;
         feedback.style.color = "red";
     }
     
@@ -24,5 +30,3 @@ function checkAnswer() {
     document.getElementById('answer').value = '';
     generateQuestion();
 }
-
-generateQuestion(); // Iniciar al cargar
