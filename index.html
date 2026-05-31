@@ -1,23 +1,27 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-   <div id="game-container">
-    <div class="stats">
-        <div>Record: <span id="high-score">0</span></div>
-        <div>Vidas: <span id="lives">❤️❤️❤️</span></div>
-    </div>
-    
-    <div id="question-box">
-        <h1 id="question">Cargando...</h1>
-        <input type="number" id="answer" placeholder="Respuesta" autofocus>
-        <button id="submit-btn" onclick="checkAnswer()">Enviar</button>
-    </div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dojo Math | Danna</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="app-container">
+        <header>
+            <h1>Dojo Matemático</h1>
+            <div class="hud">
+                <span>Nivel: <b id="level">1</b></span>
+                <span>Vidas: <b id="lives">3</b></span>
+            </div>
+        </header>
 
-    <div id="result-overlay" class="hidden">
-        <h2 id="msg">Game Over</h2>
-        <button onclick="resetGame()">Jugar de nuevo</button>
-    </div>
-</div>
-></script>
+        <section id="game-card">
+            <h2 id="question">Cargando...</h2>
+            <input type="number" id="answer" placeholder="Respuesta" inputmode="numeric">
+            <button onclick="checkAnswer()">Confirmar</button>
+        </section>
+    </main>
+    <script src="script.js"></script>
 </body>
 </html>
