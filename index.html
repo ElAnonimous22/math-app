@@ -3,26 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dojo Espacial | Danna</title>
-    <!-- Librerías profesionales -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <title>Mates Divertidas para Mi Hermana</title>
+    <style>
+        /* --- ESTILOS VISUALES (CSS) --- */
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
+            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .contenedor {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #ff4757;
+            margin-top: 0;
+            font-size: 28px;
+        }
+
+        .marcador {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2ed573;
+            margin-bottom: 20px;
+        }
+
+        .monstruo {
+            font-size: 70px;
+            margin: 20px 0;
+            transition: transform 0.3s ease;
+        }
+
+        .operacion {
+            font-size: 42px;
+            font-weight: bold;
+            color: #2f3542;
+            margin: 20px 0;
+            background-color: #f1f2f6;
+            padding: 10px;
+            border-radius: 15px;
+        }
+
+        .opciones {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .boton-respuesta {
+            background-color: #1e90ff;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .boton-respuesta:hover {
+            transform: scale(1.03);
+            background-color: #3742fa;
+        }
+
+        .boton-respuesta:active {
+            transform: scale(0.98);
+        }
+
+        .mensaje {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+            min-height: 30px;
+        }
+    </style>
 </head>
 <body>
-    <div id="game-card">
-        <div class="hud">
-            <div>Nivel: <span id="level">1</span></div>
-            <div>Vidas: <span id="lives">❤️❤️❤️</span></div>
+
+    <div class="contenedor">
+        <h1>👾 ¡Alimenta al Monstruo! 👾</h1>
+        <div class="marcador">Puntos: <span id="puntos">0</span> ⭐</div>
+        
+        <div class="monstruo" id="monstruo">😋</div>
+        
+        <div class="operacion" id="pregunta">2 x 3</div>
+        
+        <div class="opciones">
+            <button class="boton-respuesta" onclick="comprobarRespuesta(0)" id="opc0">?</button>
+            <button class="boton-respuesta" onclick="comprobarRespuesta(1)" id="opc1">?</button>
+            <button class="boton-respuesta" onclick="comprobarRespuesta(2)" id="opc2">?</button>
         </div>
         
-        <h1 id="question">Cargando...</h1>
-        <input type="number" id="answer" placeholder="?" inputmode="numeric" autofocus>
-        <button id="btn-submit" onclick="checkAnswer()">¡Responder!</button>
-        
-        <p id="feedback"></p>
-        <div id="score-board">Puntos: <span id="score">0</span></div>
+        <div class="mensaje" id="mensaje"></div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        /* --- LÓGICA DEL JUEGO (JAVASCRIPT) --- */
+        let puntos = 0;
+        let respuestaCorrecta = 0;
+
+        const monstruo = document.getElementById('monstruo');
+        const preguntaElemento = document.getElementById('pregunta');
+        const mensaje = document.getElementById('mensaje');
+        const puntosElemento = document.getElementById('puntos');
+
+        // Función para generar una nueva pregunta aleatoria
+        function nuevaPregunta() {
+            // En 3º de primaria se repasan las tablas del 2 al 9
+            const tabla = Math.floor(Math.random() * 8) + 2; 
+            const numero = Math.floor(Math.random() * 10) + 1; 
+            
+            respuestaCorrecta = tabla * numero;
+            preguntaElemento.innerText = `${tabla} x ${numero}`;
+
+            // Generar dos respuestas falsas que estén cerca de la correcta
+            let falso1 = respuestaCorrecta + (Math.random() > 0.5 ? 2 : -2);
+            let falso2 = respuestaCorrecta + (Math.random() > 0.5 ? 4 : -4);
+
+            // Asegurarnos de que no se repitan los números
+            if (falso1 === respuestaCorrecta) falso1 += 3;
+            if (falso2 === respuestaCorrecta || falso2 === falso1) falso2 += 5;
+            if (falso1 < 0) falso1 = Math.abs(falso1) + 1;
+            if (falso2 < 0) falso2 = Math.abs(falso2) + 2;
+
+            // Guardar opciones en un array y desordenarlas
+            let opciones = [respuestaCorrecta, falso1, falso2];
+            opciones.sort(() => Math.random() - 0.5);
+
+            // Colocar los textos en los botones
+            for (let i = 0; i < 3; i++) {
+                document.getElementById(`opc${i}`).innerText = opciones[i];
+            }
+        }
+
+        // Función que se ejecuta cuando tu hermana pulsa un botón
+        function comprobarRespuesta(indiceBotón) {
+            const botonSeleccionado = document.getElementById(`opc${indiceBotón}`);
+            const respuestaUsuario = parseInt(botonSeleccionado.innerText);
+
+            if (respuestaUsuario === respuestaCorrecta) {
+                puntos += 10;
+                puntosElemento.innerText = puntos;
+                mensaje.innerText = "🎉 ¡Riquísimo! ¡Acertaste! 🎉";
+                mensaje.style.color = "#2ed573";
+                monstruo.innerText = "🥳"; // Monstruo feliz
+                monstruo.style.transform = "scale(1.2)";
+                
+                // Bloquear clics rápidos mientras cambia de pregunta
+                desactivarBotones(true);
+
+                setTimeout(() => {
+                    monstruo.innerText = "😋";
+                    monstruo.style.transform = "scale(1)";
+                    mensaje.innerText = "";
+                    desactivarBotones(false);
+                    nuevaPregunta();
+                }, 1500);
+
+            } else {
+                mensaje.innerText = "❌ ¡Casi! El monstruo sigue con hambre. ¡Inténtalo otra vez! 💪";
+                mensaje.style.color = "#ff4757";
+                monstruo.innerText = "🥺"; // Monstruo triste
+                
+                setTimeout(() => {
+                    monstruo.innerText = "😋";
+                }, 1500);
+            }
+        }
+
+        function desactivarBotones(estado) {
+            for (let i = 0; i < 3; i++) {
+                document.getElementById(`opc${i}`).disabled = estado;
+            }
+        }
+
+        // Iniciar el juego por primera vez al cargar la página
+        nuevaPregunta();
+    </script>
 </body>
 </html>
