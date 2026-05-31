@@ -165,10 +165,11 @@
             <h2>Matemáticas</h2>
             <p>¡Multiplicaciones, retos de tiempo y lógica divertida!</p>
         </a>
+
+        <a href="lengua.html" class="tarjeta" onclick="reproducirClick()">
             <div class="materia-emoji">✍️</div>
             <h2>Lengua</h2>
-            <p>¡Conviértete en detective de palabras y ortografía!</p>
-        <button onclick="window.location.href='lengua.html'">🌍 Ir a Language-Lab</button>
+            <p>¡Conviértete en detective de palabras y domina 5 idiomas!</p>
         </a>
 
     </div>
@@ -193,7 +194,10 @@
         const sonidoSuccess = document.getElementById('sonido-success');
 
         function reproducirClick() {
-            sonidoClick.play();
+            // Intentar reproducir el archivo de audio si existe
+            if(sonidoClick && sonidoClick.play) {
+                sonidoClick.play().catch(() => { /* Evita errores si el navegador bloquea el audio inicial */ });
+            }
         }
 
         // Funciones del formulario flotante
@@ -244,7 +248,9 @@
             document.getElementById('contenedor-materias').appendChild(nuevaTarjeta);
             
             // Sonido de éxito
-            sonidoSuccess.play();
+            if(sonidoSuccess && sonidoSuccess.play) {
+                sonidoSuccess.play().catch(() => {});
+            }
 
             // Cerrar ventana
             document.getElementById('miModal').style.display = 'none';
