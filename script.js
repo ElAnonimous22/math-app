@@ -1,32 +1,39 @@
+let state = { score: 0, lives: 3, level: 1, currentAnswer: 0 };
+
+function getRangeForLevel() {
+    // Aumenta la dificultad según el nivel
+    if (state.score < 5) return 10;
+    if (state.score < 15) return 20;
+    return 50;
+}
+
 function generateQuestion() {
-    // 1. Elegimos un divisor pequeño (del 2 al 9)
+    const range = getRangeForLevel();
     let divisor = Math.floor(Math.random() * 8) + 2; 
-    // 2. Elegimos un resultado (del 1 al 10)
-    let resultado = Math.floor(Math.random() * 10) + 1;
-    // 3. Calculamos el dividendo (el número grande)
-    let dividendo = divisor * resultado;
-
-    // Guardamos el resultado correcto para comparar después
-    window.respuestaCorrecta = resultado;
-
-    document.getElementById('question').innerText = `${dividendo} ÷ ${divisor} = ?`;
+    let res = Math.floor(Math.random() * range) + 1;
+    state.currentAnswer = res;
+    state.level = range === 10 ? 1 : (range === 20 ? 2 : 3);
+    
+    document.getElementById('question').innerText = `${divisor * res} ÷ ${divisor} = ?`;
+    document.getElementById('level').innerText = state.level;
 }
 
 function checkAnswer() {
-    const userAnswer = document.getElementById('answer').value;
-    const feedback = document.getElementById('feedback');
-    
-    // Comparamos con la variable que guardamos arriba
-    if (parseInt(userAnswer) === window.respuestaCorrecta) {
-        score++;
-        feedback.innerText = "¡Muy bien! 🎉";
-        feedback.style.color = "green";
+    const input = document.getElementById('answer');
+    if (parseInt(input.value) === state.currentAnswer) {
+        state.score++;
     } else {
-        feedback.innerText = `Casi... la respuesta era ${window.respuestaCorrecta}.`;
-        feedback.style.color = "red";
+        state.lives--;
+        document.getElementById('lives').innerText = '❤️'.repeat(state.lives);
     }
     
-    document.getElementById('score').innerText = score;
-    document.getElementById('answer').value = '';
+    if (state.lives <= 0) {
+        alert(`¡Juego terminado! Tu récord: ${state.score}`);
+        location.reload();
+    }
+    
+    input.value = '';
     generateQuestion();
 }
+
+generateQuestion();
