@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art-Studio Arcade 🎨</title>
+    <style>
+        :root {
+            --bg-juego: #2f3542;
+            --color-principal: #ff4757;
+        }
+
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #333;
+            overflow-x: hidden;
+        }
+        .contenedor-principal {
+            background: rgba(255, 255, 255, 0.96); padding: 25px; border-radius: 30px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            max-width: 480px; width: 92%; text-align: center; box-sizing: border-box;
+            transition: all 0.5s ease; position: relative;
+        }
+        .oculto { display: none !important; }
+        h1, h2 { color: #2f3542; margin: 10px 0; font-weight: 900; }
+        
+        /* --- ANIMACIONES --- */
+        .animar-rebote { animation: rebote 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .animar-error { animation: vibrar 0.4s ease-in-out; }
+        .animar-victoria { animation: celebrar 0.6s ease-in-out; }
+
+        @keyframes rebote { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes vibrar { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+        @keyframes celebrar { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1) rotate(5deg); } }
+
+        /* --- BOTONES --- */
+        .btn {
+            background-color: var(--color-principal); color: white; border: none; padding: 15px; font-size: 18px; font-weight: bold;
+            border-radius: 20px; cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            border-bottom: 5px solid rgba(0,0,0,0.2); width: 100%; margin-bottom: 12px; position: relative; top: 0;
+        }
+        .btn:hover { transform: translateY(-3px); filter: brightness(1.1); }
+        .btn:active { top: 4px; border-bottom-width: 1px; }
+        
+        .btn-volver { 
+            background-color: #576574; color: white; border: none; padding: 8px 18px; border-radius: 50px; 
+            cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 3px 0 #2f3542;
+        }
+
+        .btn-aprender {
+            background-color: #ff9f43; color: white; border: none; padding: 10px 20px; font-size: 16px; font-weight: bold;
+            border-radius: 15px; cursor: pointer; margin-top: 15px; width: 100%; border-bottom: 4px solid #d35400;
+        }
+
+        /* --- MENÚ DE JUEGOS --- */
+        .tarjeta-juego {
+            background-color: #f1f2f6; border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 20px;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-bottom: 12px;
+        }
+        .tarjeta-juego:hover { transform: scale(1.03); background-color: #fff; border-color: var(--color-principal); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .icono { font-size: 45px; }
+
+        /* --- LIENZO DE DIBUJO --- */
+        .zona-canvas { background: white; border: 4px solid #2f3542; border-radius: 20px; overflow: hidden; margin: 15px 0; }
+        canvas { background: white; cursor: crosshair; display: block; }
+        .paleta-colores { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; padding: 5px; }
+        .color-bloque { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 3px solid #eee; transition: transform 0.2s; }
+        .color-bloque:hover { transform: scale(1.2); }
+
+        /* --- INTERFAZ RETOS --- */
+        .display-reto { font-size: 24px; font-weight: bold; background: var(--bg-juego); color: white; padding: 20px; border-radius: 25px; margin: 15px 0; }
+        .mensaje { font-size: 20px; font-weight: bold; margin-top: 12px; min-height: 30px; }
+
+        /* --- PIZARRA --- */
+        .pizarra-modal {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #2f3542; color: white; border-radius: 30px; padding: 25px;
+            box-sizing: border-box; text-align: left; display: flex; flex-direction: column; z-index: 10; justify-content: space-between; overflow-y: auto;
+        }
+        .pizarra-contenido { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; font-size: 16px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-principal animar-rebote" id="modulo-contenedor">
+        
+        <div id="menu-plastica">
+            <button class="btn-volver" onclick="window.location.href='menuprincipal.html'">🔙 Ir al Mapa</button>
+            <h1>🎨 Art-Studio Arcade 🖌️</h1>
+            
+            <div style="background: #f1f2f6; padding: 12px; border-radius: 20px; margin-bottom: 15px; border: 3px dashed #ff4757;">
+                <b>🏆 Puntos de Artista: <span id="puntos-globales" style="color:#ff4757;">0</span> ⭐</b>
+            </div>
+
+            <div class="lista-juegos">
+                <div class="tarjeta-juego" onclick="abrirJuego('mezclas')"><div class="icono">🧪</div><div><h3>Laboratorio de Color</h3><p>¿Qué pasa si juntas el azul y el amarillo?</p></div></div>
+                <div class="tarjeta-juego" onclick="abrirJuego('formas')"><div class="icono">📐</div><div><h3>Líneas y Formas</h3><p>Aprende sobre figuras, fondos y simetría.</p></div></div>
+                <div class="tarjeta-juego" onclick="abrirJuego('lienzo')"><div class="icono">✏️</div><div><h3>Pizarra Mágica Libre</h3><p>¡Dibuja y pinta lo que tú quieras aquí!</p></div></div>
+            </div>
+        </div>
+
+        <div id="pantalla-retos" class="oculto">
+            <button class="btn-volver" onclick="irAlMenu()">🔙 Cambiar de Juego</button>
+            <div class="display-reto" id="juego-reto">Pregunta</div>
+            <div id="juego-opciones"></div>
+            <div id="juego-msg" class="mensaje"></div>
+            <button class="btn-aprender" onclick="mostrarPizarra()">💡 ¡Ver Truco de Pintura!</button>
+        </div>
+
+        <div id="pantalla-lienzo" class="oculto">
+            <button class="btn-volver" onclick="irAlMenu()">🔙 Volver al Menú</button>
+            <h3>🎨 ¡Dibuja tu Obra de Arte!</h3>
+            
+            <div class="paleta-colores">
+                <div class="color-bloque" style="background: #000000;" onclick="cambiarColor('#000000')"></div>
+                <div class="color-bloque" style="background: #ff4757;" onclick="cambiarColor('#ff4757')"></div>
+                <div class="color-bloque" style="background: #2ed573;" onclick="cambiarColor('#2ed573')"></div>
+                <div class="color-bloque" style="background: #1e90ff;" onclick="cambiarColor('#1e90ff')"></div>
+                <div class="color-bloque" style="background: #ffa502;" onclick="cambiarColor('#ffa502')"></div>
+                <div class="color-bloque" style="background: #ffffff; border: 3px solid #ccc;" onclick="cambiarColor('#ffffff')"></div>
+            </div>
+
+            <div class="zona-canvas">
+                <canvas id="pizarraCanvas" width="400" height="280"></canvas>
+            </div>
+            
+            <button class="btn" style="background-color: #747d8c;" onclick="limpiarLienzo()">🧼 Borrar Todo e Iniciar</button>
+        </div>
+
+        <div id="pizarra-tutorial" class="pizarra-modal oculto">
+            <div>
+                <h2 style="color: #ff9f43;">💡 Lección de Artista</h2>
+                <div class="pizarra-contenido" id="pizarra-texto-ayuda">
+                    Conceptos cargados dinámicamente...
+                </div>
+            </div>
+            <button class="btn" style="background-color: #2ed573; margin-top: 15px;" onclick="cerrarPizarra()">¡Entendido! 🚀</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- MOTOR AUDIO NATIVO ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function sonido(tipo) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            if (tipo === 'ok') {
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+            } else if (tipo === 'err') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(140, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            }
+        }
+
+        // --- BANCO DIDÁCTICO ---
+        const lecciones = {
+            mezclas: "• Los colores <b>Primarios</b> son tres: Rojo, Amarillo y Azul (no se pueden crear mezclando).<br><br>• ¡Mezclas Mágicas (Secundarios)!:<br> Azul + Amarillo = <b>Verde</b> 🟢<br> Rojo + Amarillo = <b>Naranja</b> 🟠<br> Rojo + Azul = <b>Violeta/Morado</b> 🟣",
+            formas: "• Las líneas pueden ser <b>Horizontales</b> (acostadas como el mar 🌊) o <b>Verticales</b> (de pie como un árbol 🌲).<br><br>• Los dibujos <b>Simétricos</b> son los que si los cortas por la mitad, el lado izquierdo y el derecho son exactamente iguales (¡como una hermosa mariposa! 🦋)."
+        };
+
+        const preguntasJuegos = {
+            mezclas: [
+                {q:"Si mezclas pintura ROJA y AMARILLA, ¿qué color consigues?", r:"Naranja", f:["Verde", "Morado"]},
+                {q:"¿Cuál de estos colores es un COLOR PRIMARIO?", r:"Azul", f:["Verde", "Rosa"]},
+                {q:"¿Qué dos colores necesitas para fabricar el color VERDE?", r:"Azul y Amarillo", f:["Rojo y Azul", "Blanco y Negro"]}
+            ],
+            formas: [
+                {q:"¿Qué elemento de la naturaleza tiene simetría perfecta?", r:"Una mariposa 🦋", f:["Una roca rota 🪨", "Una nube ☁️"]},
+                {q:"¿Cómo es una línea VERTICAL?", r:"De pie, recta hacia arriba", f:["Acostada, como el suelo", "Dando vueltas como un muelle"]}
+            ]
+        };
+
+        let puntos = parseInt(localStorage.getItem('pts_plastica_v1')) || 0;
+        let juegoActual = "";
+
+        function actualizarUI() { document.getElementById('puntos-globales').innerText = puntos; }
+        function irAlMenu() {
+            document.getElementById('pantalla-retos').classList.add('oculto');
+            document.getElementById('pantalla-lienzo').classList.add('oculto');
+            document.getElementById('menu-plastica').classList.remove('oculto');
+            actualizarUI();
+        }
+
+        function abrirJuego(tipo) {
+            juegoActual = tipo;
+            document.getElementById('menu-plastica').classList.add('oculto');
+            if(tipo === 'lienzo') {
+                document.getElementById('pantalla-lienzo').classList.remove('oculto');
+                inicializarCanvas();
+            } else {
+                document.getElementById('pantalla-retos').classList.remove('oculto');
+                document.getElementById('juego-msg').innerText = "";
+                cargarReto();
+            }
+        }
+
+        function cargarReto() {
+            const lista = preguntasJuegos[juegoActual];
+            const p = lista[Math.floor(Math.random() * lista.length)];
+            document.getElementById('juego-reto').innerText = p.q;
+            
+            let opciones = [p.r, ...p.f].sort(() => 0.5 - Math.random());
+            let cont = document.getElementById('juego-opciones'); cont.innerHTML = "";
+            
+            opciones.forEach(op => {
+                let b = document.createElement('button'); b.className = "btn"; b.innerText = op;
+                b.onclick = () => {
+                    if(op === p.r) {
+                        puntos += 10; localStorage.setItem('pts_plastica_v1', puntos);
+                        sonido('ok'); document.getElementById('modulo-contenedor').classList.add('animar-victoria');
+                        document.getElementById('juego-msg').innerText = "🎉 ¡Qué gran artista! ¡Acertaste! 🌟";
+                        setTimeout(() => { document.getElementById('modulo-contenedor').classList.remove('animar-victoria'); cargarReto(); document.getElementById('juego-msg').innerText = ""; }, 1500);
+                    } else {
+                        sonido('err'); document.getElementById('modulo-contenedor').classList.add('animar-error');
+                        document.getElementById('juego-msg').innerText = "❌ ¡Prueba otra vez! Revisa el botón de ayuda.";
+                        setTimeout(() => document.getElementById('modulo-contenedor').classList.remove('animar-error'), 800);
+                    }
+                };
+                cont.appendChild(b);
+            });
+        }
+
+        // --- SISTEMA PIZARRA TUTORA ---
+        function mostrarPizarra() {
+            document.getElementById('pizarra-texto-ayuda').innerHTML = lecciones[juegoActual];
+            document.getElementById('pizarra-tutorial').classList.remove('oculto');
+        }
+        function cerrarPizarra() { document.getElementById('pizarra-tutorial').classList.add('oculto'); }
+
+        // --- MOTOR DEL LIENZO INTERACTIVO (CANVAS) ---
+        let canvas, ctx, pintando = false, colorActual = "#000000";
+
+        function inicializarCanvas() {
+            canvas = document.getElementById('pizarraCanvas');
+            ctx = canvas.getContext('2d');
+            ctx.lineCap = 'round'; ctx.lineWidth = 6;
+            
+            // Eventos de ratón
+            canvas.onmousedown = () => pintando = true;
+            canvas.onmouseup = () => { pintando = false; ctx.beginPath(); };
+            canvas.onmousemove = dibujarMouse;
+
+            // Eventos táctiles para móvil/tablet
+            canvas.ontouchstart = (e) => { pintando = true; e.preventDefault(); };
+            canvas.ontouchend = () => { pintando = false; ctx.beginPath(); };
+            canvas.ontouchmove = dibujarTouch;
+        }
+
+        function cambiarColor(c) { colorActual = c; }
+        function limpiarLienzo() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+        function dibujarMouse(e) {
+            if (!pintando) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.strokeStyle = colorActual;
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke(); ctx.beginPath(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function dibujarTouch(e) {
+            if (!pintando) return;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            ctx.strokeStyle = colorActual;
+            ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+            ctx.stroke(); ctx.beginPath(); ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        }
+
+        actualizarUI();
+    </script>
+</body>
+</html>
