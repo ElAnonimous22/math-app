@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio de Matemáticas</title>
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .contenedor-principal {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h1, h2 { color: #2f3542; margin-top: 0; }
+        .subtitulo { color: #576574; margin-bottom: 25px; font-size: 18px; }
+        .oculto { display: none !important; }
+
+        /* --- BOTONES --- */
+        .btn {
+            background-color: #1e90ff;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+        }
+        .btn:hover { transform: scale(1.03); background-color: #3742fa; }
+        .btn:active { transform: scale(0.98); }
+
+        .btn-volver {
+            background-color: #576574;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .btn-volver:hover { background-color: #2f3542; }
+
+        /* --- ESTILOS DEL MENÚ DE SELECCIÓN --- */
+        .lista-juegos { display: flex; flex-direction: column; gap: 15px; }
+        .tarjeta-juego {
+            background-color: #f1f2f6;
+            border: 3px solid transparent;
+            border-radius: 20px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        .tarjeta-juego:hover {
+            transform: translateY(-3px);
+            background-color: #ffffff;
+            border-color: #1e90ff;
+            box-shadow: 0 5px 15px rgba(30, 144, 255, 0.2);
+        }
+        .icono-juego { font-size: 40px; }
+        .info-juego h3 { margin: 0 0 5px 0; color: #1e90ff; }
+        .info-juego p { margin: 0; color: #747d8c; font-size: 14px; }
+        .bloqueado { opacity: 0.5; cursor: not-allowed; }
+        .bloqueado:hover { transform: none; background-color: #f1f2f6; border-color: transparent; box-shadow: none; }
+
+        /* --- ESTILOS DEL JUEGO DEL MONSTRUO --- */
+        .marcador { font-size: 22px; font-weight: bold; color: #2ed573; margin-bottom: 15px; }
+        .monstruo { font-size: 80px; margin: 15px 0; transition: transform 0.2s; }
+        .caja-pregunta { font-size: 46px; font-weight: bold; background-color: #f1f2f6; padding: 15px; border-radius: 20px; margin-bottom: 20px; }
+        .opciones-verticales { display: flex; flex-direction: column; gap: 12px; }
+        .mensaje-feedback { font-size: 20px; font-weight: bold; margin-top: 20px; min-height: 30px; }
+        
+        /* Sistema de Logros/Medallas */
+        .medallas-contenedor { margin-top: 20px; display: flex; justify-content: center; gap: 10px; font-size: 30px; min-height: 40px; }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-principal">
+        
+        <div id="pantalla-menu-mates">
+            <button class="btn-volver" onclick="volverAlMapa()">🔙 Mapa Principal</button>
+            <h1>🔢 Laboratorio de Mates 🧮</h1>
+            <p class="subtitulo">¡Elige tu misión matemática!</p>
+
+            <div class="lista-juegos">
+                <div class="tarjeta-juego" onclick="comenzarMonstruo()">
+                    <div class="icono-juego">👾</div>
+                    <div class="info-juego">
+                        <h3>El Monstruo Numérico</h3>
+                        <p>¡Repasa las tablas de multiplicar y dale de comer!</p>
+                    </div>
+                </div>
+
+                <div class="tarjeta-juego bloqueado" onclick="alertaProximamente()">
+                    <div class="icono-juego">⏰</div>
+                    <div class="info-juego">
+                        <h3>El Reloj Mágico</h3>
+                        <p>¡Controla las horas del día! (Próximamente)</p>
+                    </div>
+                </div>
+
+                <div class="tarjeta-juego bloqueado" onclick="alertaProximamente()">
+                    <div class="icono-juego">🛒</div>
+                    <div class="info-juego">
+                        <h3>Desafío en el Súper</h3>
+                        <p>Maneja monedas y calcula el cambio. (Próximamente)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pantalla-juego-monstruo" class="oculto">
+            <button class="btn-volver" onclick="volverAlMenuMates()">🔙 Cambiar de Juego</button>
+            <h2>👾 ¡Alimenta al Monstruo! 👾</h2>
+            
+            <div class="marcador">Puntos: <span id="puntos-texto">0</span> ⭐</div>
+            <div class="monstruo" id="monstruo-emoji">😋</div>
+            <div class="caja-pregunta" id="pregunta-texto">0 x 0</div>
+            
+            <div class="opciones-verticales">
+                <button class="btn" id="btn-opc0" onclick="verificarRespuesta(0)">?</button>
+                <button class="btn" id="btn-opc1" onclick="verificarRespuesta(1)">?</button>
+                <button class="btn" id="btn-opc2" onclick="verificarRespuesta(2)">?</button>
+            </div>
+            
+            <div class="mensaje-feedback" id="feedback-texto"></div>
+            
+            <div class="medallas-contenedor" id="contenedor-medallas"></div>
+        </div>
+
+    </div>
+
+    <audio id="audio-click" src="click.mp3"></audio>
+
+    <script>
+        const audioClick = document.getElementById('audio-click');
+
+        function reproducirClick() {
+            if(audioClick) audioClick.play();
+        }
+
+        function volverAlMapa() {
+            reproducirClick();
+            window.location.href = "menuprincipal.html";
+        }
+
+        function alertaProximamente() {
+            reproducirClick();
+            alert("🚀 ¡Tu hermano mayor está creando este código! Estará listo muy pronto.");
+        }
+
+        /* --- LÓGICA INTERNA DEL JUEGO DEL MONSTRUO --- */
+        let puntos = 0;
+        let solucionCorrecta = 0;
+        let medallasDesbloqueadas = { bronce: false, plata: false, oro: false };
+
+        function comenzarMonstruo() {
+            reproducirClick();
+            document.getElementById('pantalla-menu-mates').classList.add('oculto');
+            document.getElementById('pantalla-juego-monstruo').classList.remove('oculto');
+            generarMultiplicacion();
+        }
+
+        function volverAlMenuMates() {
+            reproducirClick();
+            document.getElementById('pantalla-juego-monstruo').classList.add('oculto');
+            document.getElementById('pantalla-menu-mates').classList.remove('oculto');
+        }
+
+        function generarMultiplicacion() {
+            // Tablas del 2 al 9 para 3º de primaria
+            const tabla = Math.floor(Math.random() * 8) + 2; 
+            const numero = Math.floor(Math.random() * 10) + 1; 
+            
+            solucionCorrecta = tabla * numero;
+            document.getElementById('pregunta-texto').innerText = `${tabla} x ${numero}`;
+
+            // Crear respuestas incorrectas creíbles
+            let falsa1 = solucionCorrecta + (Math.random() > 0.5 ? 2 : -2);
+            let falsa2 = solucionCorrecta + (Math.random() > 0.5 ? 4 : -4);
+
+            if (falsa1 === solucionCorrecta) falsa1 += 3;
+            if (falsa2 === solucionCorrecta || falsa2 === falsa1) falsa2 += 5;
+
+            let opciones = [solucionCorrecta, Math.abs(falsa1), Math.abs(falsa2)];
+            opciones.sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < 3; i++) {
+                const boton = document.getElementById(`btn-opc${i}`);
+                boton.innerText = opciones[i];
+                boton.disabled = false;
+            }
+        }
+
+        function verificarRespuesta(indice) {
+            reproducirClick();
+            const boton = document.getElementById(`btn-opc${indice}`);
+            const respuestaEscogida = parseInt(boton.innerText);
+            const feedback = document.getElementById('feedback-texto');
+            const monstruo = document.getElementById('monstruo-emoji');
+
+            if (respuestaEscogida === solucionCorrecta) {
+                puntos += 10;
+                document.getElementById('puntos-texto').innerText = puntos;
+                feedback.innerText = "🎉 ¡Delicioso! ¡Acertaste! 🎉";
+                feedback.style.color = "#2ed573";
+                monstruo.innerText = "🥳";
+                monstruo.style.transform = "scale(1.2)";
+                
+                bloquearBotones(true);
+                revisarMedallas();
+
+                setTimeout(() => {
+                    monstruo.innerText = "😋";
+                    monstruo.style.transform = "scale(1)";
+                    feedback.innerText = "";
+                    generarMultiplicacion();
+                }, 1500);
+
+            } else {
+                feedback.innerText = "❌ ¡Casi! El monstruo sigue con hambre. ¡Prueba otra vez! 💪";
+                feedback.style.color = "#ff4757";
+                monstruo.innerText = "🥺";
+                
+                setTimeout(() => { monstruo.innerText = "😋"; }, 1500);
+            }
+        }
+
+        function bloquearBotones(estado) {
+            for (let i = 0; i < 3; i++) {
+                document.getElementById(`btn-opc${i}`).disabled = estado;
+            }
+        }
+
+        function revisarMedallas() {
+            const contenedor = document.getElementById('contenedor-medallas');
+            
+            if (puntos >= 30 && !medallasDesbloqueadas.bronce) {
+                medallasDesbloqueadas.bronce = true;
+                contenedor.innerHTML += '<span title="¡Medalla de Bronce!">🥉</span>';
+                alert("🏅 ¡Genial! Has ganado tu Medalla de Bronce por llegar a 30 puntos.");
+            }
+            if (puntos >= 60 && !medallasDesbloqueadas.plata) {
+                medallasDesbloqueadas.plata = true;
+                contenedor.innerHTML += '<span title="¡Medalla de Plata!">🥈</span>';
+                alert("🥈 ¡Espectacular! Medalla de Plata desbloqueada.");
+            }
+            if (puntos >= 100 && !medallasDesbloqueadas.oro) {
+                medallasDesbloqueadas.oro = true;
+                contenedor.innerHTML += '<span title="¡Medalla de Oro Máxima!">🥇</span>';
+                alert("👑 ¡Eres la reina de las matemáticas! ¡Medalla de Oro conseguida!");
+            }
+        }
+    </script>
+</body>
+</html>
