@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dojo Math | Danna</title>
+    <title>Dojo Espacial | Danna</title>
+    <!-- Librerías profesionales -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <main class="app-container">
-        <header>
-            <h1>Dojo Matemático</h1>
-            <div class="hud">
-                <span>Nivel: <b id="level">1</b></span>
-                <span>Vidas: <b id="lives">3</b></span>
-            </div>
-        </header>
-
-        <section id="game-card">
-            <h2 id="question">Cargando...</h2>
-            <input type="number" id="answer" placeholder="Respuesta" inputmode="numeric">
-            <button onclick="checkAnswer()">Confirmar</button>
-        </section>
-    </main>
+    <div id="game-card">
+        <div class="hud">
+            <div>Nivel: <span id="level">1</span></div>
+            <div>Vidas: <span id="lives">❤️❤️❤️</span></div>
+        </div>
+        
+        <h1 id="question">Cargando...</h1>
+        <input type="number" id="answer" placeholder="?" inputmode="numeric" autofocus>
+        <button id="btn-submit" onclick="checkAnswer()">¡Responder!</button>
+        
+        <p id="feedback"></p>
+        <div id="score-board">Puntos: <span id="score">0</span></div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
