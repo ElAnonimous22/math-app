@@ -62,7 +62,20 @@
         }
         .btn-volver:hover { background-color: #2f3542; }
 
-        /* --- MENÚ DE SELECCIÓN --- */
+        .btn-borrar {
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 15px;
+            opacity: 0.7;
+        }
+        .btn-borrar:hover { opacity: 1; }
+
+        /* --- MENÚ DE SELECCIÓN DE JUEGOS --- */
         .lista-juegos { display: flex; flex-direction: column; gap: 15px; }
         .tarjeta-juego {
             background-color: #f1f2f6;
@@ -108,6 +121,10 @@
         .opciones-verticales { display: flex; flex-direction: column; gap: 12px; }
         .mensaje-feedback { font-size: 18px; font-weight: bold; margin-top: 15px; min-height: 25px; }
         .racha-fuego { color: #ff4757; font-size: 18px; margin-top: 5px; font-weight: bold; }
+        
+        /* Vitrina de Medallas */
+        .zona-progreso { margin-top: 20px; background: #f1f2f6; padding: 10px; border-radius: 15px; }
+        .medallas-contenedor { display: flex; justify-content: center; gap: 10px; font-size: 30px; min-height: 35px; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -119,6 +136,13 @@
             <h1>🔢 Laboratorio de Mates 🧮</h1>
             <p class="subtitulo">¡Elige tu misión matemática!</p>
 
+            <div class="zona-progreso">
+                <strong>Tu Progreso Guardado:</strong>
+                <div>Puntos Totales: <span id="menu-puntos-totales">0</span> ⭐</div>
+                <div class="medallas-contenedor" id="menu-medallas"></div>
+            </div>
+            <br>
+
             <div class="lista-juegos">
                 <div class="tarjeta-juego" onclick="comenzarMonstruo()">
                     <div class="icono-juego">👾</div>
@@ -128,7 +152,7 @@
                     </div>
                 </div>
 
-                <div class="tarjeta-juego bloqueado" onclick="alert('¡Pronto!')">
+                <div class="tarjeta-juego bloqueado" onclick="alert('¡Pronto programaremos este juego aquí dentro!')">
                     <div class="icono-juego">⏰</div>
                     <div class="info-juego">
                         <h3>El Reloj Mágico</h3>
@@ -136,6 +160,8 @@
                     </div>
                 </div>
             </div>
+
+            <button class="btn-borrar" onclick="reiniciarProgreso()">🗑️ Reiniciar todo el progreso</button>
         </div>
 
         <div id="pantalla-juego-monstruo" class="oculto">
@@ -165,27 +191,68 @@
 
     <script>
         function volverAlMapa() { window.location.href = "menuprincipal.html"; }
-        function volverAlMenuMates() {
-            document.getElementById('pantalla-juego-monstruo').classList.add('oculto');
-            document.getElementById('pantalla-menu-mates').classList.remove('oculto');
-        }
+        
+        /* --- VARIABLES GLOBALES DEL PROGRESO --- */
+        let puntosTotales = 0;
+        let medallasGanas = [];
 
-        /* --- LÓGICA DE DIFICULTAD Y EVOLUCIÓN --- */
-        let puntos = 0;
+        // Variables de la partida actual del monstruo
         let rachaAciertos = 0;
         let nivelActual = 1;
         let solucionCorrecta = 0;
 
-        // Configuración de los estados del monstruo por nivel
         const datosNiveles = {
-            1: { emoji: "👶", nombre: "Monstruito Bebé (Tablas fáciles: 2, 3, 4)" },
-            2: { emoji: "🦖", nombre: "Monstruo Guerrero (Tablas medias: 5, 6, 7)" },
-            3: { emoji: "👑", nombre: "Rey Monstruo Sabio (Tablas jefas: 8, 9)" }
+            1: { emoji: "👶", nombre: "Monstruito Bebé (Tablas: 2, 3, 4)" },
+            2: { emoji: "🦖", nombre: "Monstruo Guerrero (Tablas: 5, 6, 7)" },
+            3: { emoji: "👑", nombre: "Rey Monstruo Sabio (Tablas: 8, 9)" }
         };
 
+        // --- SISTEMA LOCALSTORAGE: CARGAR Y GUARDAR ---
+        function cargarProgreso() {
+            const puntosGuardados = localStorage.getItem('mates_puntos');
+            const medallasGuardadas = localStorage.getItem('mates_medallas');
+
+            if (puntosGuardados !== null) {
+                puntosTotales = parseInt(puntosGuardados);
+            }
+            if (medallasGuardadas !== null) {
+                medallasGanas = JSON.parse(medallasGuardadas);
+            }
+
+            // Actualizar textos del menú inicial
+            document.getElementById('menu-puntos-totales').innerText = puntosTotales;
+            actualizarVitrinaVisual();
+        }
+
+        function guardarProgreso() {
+            localStorage.setItem('mates_puntos', puntosTotales);
+            localStorage.setItem('mates_medallas', JSON.stringify(medallasGanas));
+            document.getElementById('menu-puntos-totales').innerText = puntosTotales;
+            actualizarVitrinaVisual();
+        }
+
+        function actualizarVitrinaVisual() {
+            const contenedorMenu = document.getElementById('menu-medallas');
+            contenedorMenu.innerHTML = "";
+            medallasGanas.forEach(medalla => {
+                contenedorMenu.innerHTML += `<span>${medalla}</span>`;
+            });
+        }
+
+        function reiniciarProgreso() {
+            if(confirm("¿Seguro que quieres borrar los puntos de tu hermana y empezar de cero?")) {
+                localStorage.clear();
+                puntosTotales = 0;
+                medallasGanas = [];
+                cargarProgreso();
+            }
+        }
+
+        /* --- LÓGICA DEL JUEGO DEL MONSTRUO --- */
         function comenzarMonstruo() {
-            puntos = 0; rachaAciertos = 0; nivelActual = 1;
-            document.getElementById('txt-puntos').innerText = puntos;
+            rachaAciertos = 0; 
+            nivelActual = 1;
+            document.getElementById('txt-puntos').innerText = puntosTotales;
             document.getElementById('txt-nivel').innerText = nivelActual;
             actualizarVisualMonstruo("😋");
             
@@ -194,37 +261,32 @@
             generarPreguntaPorNivel();
         }
 
+        function volverAlMenuMates() {
+            document.getElementById('pantalla-juego-monstruo').classList.add('oculto');
+            document.getElementById('pantalla-menu-mates').classList.remove('oculto');
+        }
+
         function actualizarVisualMonstruo(emojiAccion) {
             const mEmoji = document.getElementById('monstruo-emoji');
             const mNombre = document.getElementById('monstruo-nombre');
-            
-            // Si le pasamos un emoji de acción (celebrar/fallar), lo muestra temporalmente, si no, el del nivel
             mEmoji.innerText = emojiAccion || datosNiveles[nivelActual].emoji;
             mNombre.innerText = datosNiveles[nivelActual].nombre;
         }
 
         function generarPreguntaPorNivel() {
-            let tablasDisponibles = [];
-            
-            // Definir qué tablas salen según el nivel actual
-            if (nivelActual === 1) tablasDisponibles = [2, 3, 4];
-            else if (nivelActual === 2) tablasDisponibles = [5, 6, 7];
-            else tablasDisponibles = [8, 9];
-
+            let tablasDisponibles = (nivelActual === 1) ? [2, 3, 4] : (nivelActual === 2) ? [5, 6, 7] : [8, 9];
             const tabla = tablasDisponibles[Math.floor(Math.random() * tablasDisponibles.length)];
             const numero = Math.floor(Math.random() * 10) + 1; 
             
             solucionCorrecta = tabla * numero;
             document.getElementById('pregunta-texto').innerText = `${tabla} x ${numero}`;
 
-            // Opciones falsas inteligentes
             let f1 = solucionCorrecta + (Math.random() > 0.5 ? 2 : -2);
             let f2 = solucionCorrecta + (Math.random() > 0.5 ? 5 : -5);
             if (f1 === solucionCorrecta) f1 += 3;
             if (f2 === solucionCorrecta || f2 === f1) f2 += 4;
 
-            let opciones = [solucionCorrecta, Math.abs(f1), Math.abs(f2)];
-            opciones.sort(() => Math.random() - 0.5);
+            let opciones = [solucionCorrecta, Math.abs(f1), Math.abs(f2)].sort(() => Math.random() - 0.5);
 
             for (let i = 0; i < 3; i++) {
                 const b = document.getElementById(`btn-opc${i}`);
@@ -239,61 +301,74 @@
             const rachaTxt = document.getElementById('racha-texto');
 
             if (elegido === solucionCorrecta) {
-                puntos += 10;
+                puntosTotales += 10; // Suma al progreso global
                 rachaAciertos++;
-                document.getElementById('txt-puntos').innerText = puntos;
+                document.getElementById('txt-puntos').innerText = puntosTotales;
                 
                 feedback.innerText = "🎉 ¡Ñam! ¡Comida correcta! 🎉";
                 feedback.style.color = "#2ed573";
                 actualizarVisualMonstruo("🥳");
                 
-                // Mostrar racha de fuego si lleva más de 2 seguidas
-                if(rachaAciertos >= 3) {
-                    rachaTxt.innerText = `🔥 ¡Racha de ${rachaAciertos} aciertos seguidos! 🔥`;
-                }
+                if(rachaAciertos >= 3) rachaTxt.innerText = `🔥 ¡Racha de ${rachaAciertos} aciertos! 🔥`;
 
                 bloquearBotones(true);
                 comprobarSubidaNivel();
+                comprobarMedallas();
+                guardarProgreso(); // Guarda automáticamente en LocalStorage
 
                 setTimeout(() => {
                     feedback.innerText = "";
-                    actualizarVisualMonstruo(null); // Vuelve al emoji original de su nivel
+                    actualizarVisualMonstruo(null);
                     generarPreguntaPorNivel();
                 }, 1500);
 
             } else {
-                // Si falla, se rompe la racha
                 rachaAciertos = 0;
                 rachaTxt.innerText = "";
-                feedback.innerText = "❌ ¡Oh no! Ese número le dio dolor de tripa. ¡Inténtalo de nuevo! 💪";
+                feedback.innerText = "❌ ¡Oh no! Le dolió la tripa. ¡Inténtalo de nuevo! 💪";
                 feedback.style.color = "#ff4757";
                 actualizarVisualMonstruo("🥺");
                 
-                // Si estaba en niveles altos y falla, baja un nivel para ayudarla
                 if(nivelActual > 1) {
                     nivelActual--;
                     document.getElementById('txt-nivel').innerText = nivelActual;
                 }
-
                 setTimeout(() => { actualizarVisualMonstruo(null); }, 1500);
             }
         }
 
         function comprobarSubidaNivel() {
-            // Sube de nivel cada 4 aciertos seguidos
             if (rachaAciertos === 4 && nivelActual === 1) {
                 nivelActual = 2;
-                setTimeout(() => { alert("🚀 ¡SÚPER EVOLUCIÓN! Tu monstruito ha crecido. ¡Cuidado, las tablas cambian!"); }, 200);
+                setTimeout(() => { alert("🚀 ¡SÚPER EVOLUCIÓN! El monstruito creció."); }, 200);
             } else if (rachaAciertos === 8 && nivelActual === 2) {
                 nivelActual = 3;
-                setTimeout(() => { alert("👑 ¡EVOLUCIÓN MÁXIMA! Has desbloqueado al Rey Monstruo. ¡El reto final!"); }, 200);
+                setTimeout(() => { alert("👑 ¡EVOLUCIÓN MÁXIMA! Has desbloqueado al Rey Monstruo."); }, 200);
             }
             document.getElementById('txt-nivel').innerText = nivelActual;
+        }
+
+        function comprobarMedallas() {
+            if (puntosTotales >= 50 && !medallasGanas.includes("🥉")) {
+                medallasGanas.push("🥉");
+                alert("🥉 ¡Felicidades! Has guardado tu primera Medalla de Bronce (50 pts).");
+            }
+            if (puntosTotales >= 150 && !medallasGanas.includes("🥈")) {
+                medallasGanas.push("🥈");
+                alert("🥈 ¡Increíble! Medalla de Plata guardada (150 pts).");
+            }
+            if (puntosTotales >= 300 && !medallasGanas.includes("🥇")) {
+                medallasGanas.push("🥇");
+                alert("👑 ¡Eres una experta! Medalla de Oro Máxima guardada (300 pts).");
+            }
         }
 
         function bloquearBotones(estado) {
             for (let i = 0; i < 3; i++) document.getElementById(`btn-opc${i}`).disabled = estado;
         }
+
+        // Ejecutar al cargar la página por primera vez
+        cargarProgreso();
     </script>
 </body>
 </html>
