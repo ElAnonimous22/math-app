@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time-Machine Arcade ⏳</title>
+    <style>
+        :root {
+            --color-principal: #ff9f43;
+            --bg-juego: #1e272e;
+        }
+
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff;
+            overflow-x: hidden;
+        }
+
+        .contenedor-principal {
+            background: rgba(30, 39, 46, 0.95); padding: 25px; border-radius: 30px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 3px solid var(--color-principal);
+            max-width: 480px; width: 92%; text-align: center; box-sizing: border-box;
+            position: relative;
+        }
+
+        h1 { color: #fff; margin: 10px 0; font-weight: 900; text-shadow: 0 0 10px var(--color-principal); }
+        p { color: #dcdde1; }
+
+        .btn-volver { 
+            background-color: #576574; color: white; border: none; padding: 8px 18px; border-radius: 50px; 
+            cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 3px 0 #000;
+        }
+
+        /* --- MARCADOR DE CRISTALES --- */
+        .marcador {
+            background: rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; margin-bottom: 20px; 
+            border: 2px dashed #00d2d3; font-weight: bold; font-size: 18px; color: #00d2d3;
+        }
+
+        /* --- PANTALLA DE AVENTURA --- */
+        .pantalla-viaje {
+            background: #2f3542; border-radius: 20px; padding: 20px; margin: 15px 0;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .gran-emoji { font-size: 70px; margin: 15px 0; animation: flotar 3s ease-in-out infinite; }
+
+        /* --- OPCIONES DE RESPUESTA --- */
+        .btn-opcion {
+            background: #341f97; color: white; border: none; padding: 14px; font-size: 16px; 
+            font-weight: bold; border-radius: 15px; cursor: pointer; width: 100%; margin-bottom: 12px;
+            border-bottom: 4px solid #1e0b70; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 10px;
+        }
+        .btn-opcion:hover { background: #5f27cd; transform: translateX(5px); }
+        .btn-opcion:active { transform: translateY(2px); border-bottom-width: 1px; }
+
+        .mensaje-historia { font-size: 17px; line-height: 1.5; margin-bottom: 20px; text-align: left; }
+
+        .oculto { display: none !important; }
+
+        @keyframes flotar {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-principal">
+        <button class="btn-volver" onclick="window.location.href='menuprincipal.html'">🔙 Salir al Mapa</button>
+        <h1 id="titulo-maquina">⏳ Máquina del Tiempo 🚀</h1>
+
+        <div class="marcador">
+            <span>💎 Cristales Temporales: <span id="cristales-contador">0</span></span>
+        </div>
+
+        <div id="menu-epocas">
+            <p>¡Elige una época en los mandos de la nave y repara la historia!</p>
+            <button class="btn-opcion" style="background:#🍎; background-color:#ee5253; border-color:#c8d6e5;" onclick="viajarA('dinos')">🦕 Era de los Dinosaurios</button>
+            <button class="btn-opcion" style="background-color:#feca57; border-color:#ff9f43;" onclick="viajarA('egipto')">📿 Antiguo Egipto</button>
+            <button class="btn-opcion" style="background-color:#10ac84; border-color:#1dd1a1;" onclick="viajarA('media')">🏰 Edad Media y Castillos</button>
+            <button class="btn-opcion" style="background-color:#54a0ff; border-color:#2e86de;" onclick="viajarA('futuro')">🚀 Año 3000: Estación Espacial</button>
+        </div>
+
+        <div id="pantalla-aventura" class="oculto">
+            <div class="pantalla-viaje">
+                <div id="aventura-emoji" class="gran-emoji">⏳</div>
+                <div id="aventura-texto" class="mensaje-historia">Cargando datos temporales...</div>
+            </div>
+            <div id="aventura-opciones"></div>
+            <h3 id="resultado-feedback" style="min-height:30px; margin-top:15px;"></h3>
+        </div>
+
+    </div>
+
+    <script>
+        // --- EFECTOS DE AUDIO SINTETIZADOS ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function sonido(tipo) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            if (tipo === 'teleport') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            } else if (tipo === 'cristal') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (tipo === 'error') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+            }
+        }
+
+        // --- BASE DE DATOS DE LA HISTORIA ---
+        const historiaAventuras = {
+            dinos: {
+                emoji: "🦖",
+                titulo: "🌋 ¡Era Jurásica!",
+                texto: "¡Cuidado! Un enorme Triceratops te mira fijamente. El ordenador de la nave te dice que para encender los propulsores debes responder: ¿Qué causó la extinción total de estos increíbles gigantes hace millones de años?",
+                opciones: [
+                    { t: "☄️ El impacto de un gigantesco meteorito", c: true },
+                    { t: "❄️ Una lluvia que duró diez mil años seguidos", c: false },
+                    { t: "🍦 Se congelaron por comer demasiados helados", c: false }
+                ]
+            },
+            egipto: {
+                emoji: "🔺",
+                titulo: "🇪🇬 Egipto de los Faraones",
+                texto: "Has aterrizado junto al río Nilo. Un escriba te confunde con un dios y te pide ayuda para terminar su plano: ¿Cuál era la función principal de las gigantescas Pirámides de Egipto?",
+                opciones: [
+                    { t: "👑 Eran las tumbas sagradas de los faraones", c: true },
+                    { t: "🛒 Eran centros comerciales para comprar trigo", c: false },
+                    { t: "🎢 Eran parques de atracciones con toboganes", c: false }
+                ]
+            },
+            media: {
+                emoji: "🏰",
+                titulo: "⚔️ Edad Media",
+                texto: "Un caballero con armadura brillante te frena en el puente levadizo del castillo. Te dejará pasar a ver al rey si demuestras sabiduría: ¿Cómo se llamaba el sistema donde los reyes mandaban y los caballeros defendían las tierras?",
+                opciones: [
+                    { t: "🛡️ Feudalismo", c: true },
+                    { t: "📱 Capitalismo Digital", c: false },
+                    { t: "🏴‍☠️ Piratería Marina", c: false }
+                ]
+            },
+            futuro: {
+                emoji: "🚀",
+                titulo: "🌌 Estación Alfa 3000",
+                texto: "¡Viaje al futuro! Flotas en una estación espacial cerca de Marte. La gravedad es cero y las luces parpadean. El capitán robot te pregunta: ¿Cuál es la estrella más brillante de nuestro sistema planetario, que nos da calor cada día?",
+                opciones: [
+                    { t: "☀️ El Sol", c: true },
+                    { t: "🌙 La Luna", c: false },
+                    { t: "🪐 Saturno", c: false }
+                ]
+            }
+        };
+
+        let cristales = parseInt(localStorage.getItem('cristales_tiempo_v1')) || 0;
+        document.getElementById('cristales-contador').innerText = cristales;
+
+        function viajarA(epoca) {
+            sonido('teleport');
+            document.getElementById('menu-epocas').classList.add('oculto');
+            document.getElementById('pantalla-aventura').classList.remove('oculto');
+            
+            const data = historiaAventuras[epoca];
+            document.getElementById('titulo-maquina').innerText = data.titulo;
+            document.getElementById('aventura-emoji').innerText = data.emoji;
+            document.getElementById('aventura-texto').innerHTML = data.texto;
+            document.getElementById('resultado-feedback').innerText = "";
+
+            let contOpciones = document.getElementById('aventura-opciones');
+            contOpciones.innerHTML = "";
+
+            // Mezclar opciones para que no sea predecible
+            let opcionesMezcladas = [...data.opciones].sort(() => 0.5 - Math.random());
+
+            opcionesMezcladas.forEach(op => {
+                let btn = document.createElement('button');
+                btn.className = "btn-opcion";
+                btn.innerText = op.t;
+                btn.onclick = () => verificarRespuesta(op.c);
+                contOpciones.appendChild(btn);
+            });
+        }
+
+        function verificarRespuesta(esCorrecto) {
+            let feed = document.getElementById('resultado-feedback');
+            // Bloquear botones provisionalmente
+            document.querySelectorAll('#aventura-opciones button').forEach(b => b.disabled = true);
+
+            if (esCorrecto) {
+                sonido('cristal');
+                cristales += 1;
+                localStorage.setItem('cristales_tiempo_v1', cristales);
+                document.getElementById('cristales-contador').innerText = cristales;
+                feed.innerText = "💎 ¡Línea temporal reparada! ¡Has ganado un cristal! 🌀";
+                feed.style.color = "#1dd1a1";
+                setTimeout(volverAlMenuEpocas, 2500);
+            } else {
+                sonido('error');
+                feed.innerText = "❌ ¡Paradoja Temporal! Esa respuesta altera la historia. ¡Inténtalo de nuevo! ⚡";
+                feed.style.color = "#ee5253";
+                setTimeout(() => {
+                    document.querySelectorAll('#aventura-opciones button').forEach(b => b.disabled = false);
+                    feed.innerText = "";
+                }, 2000);
+            }
+        }
+
+        function volverAlMenuEpocas() {
+            document.getElementById('pantalla-aventura').classList.add('oculto');
+            document.getElementById('menu-epocas').classList.remove('oculto');
+            document.getElementById('titulo-maquina').innerText = "⏳ Máquina del Tiempo 🚀";
+        }
+    </script>
+</body>
+</html>
