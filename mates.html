@@ -23,7 +23,7 @@
             padding: 30px;
             border-radius: 30px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            max-width: 500px;
+            max-width: 450px;
             width: 90%;
             text-align: center;
         }
@@ -62,7 +62,7 @@
         }
         .btn-volver:hover { background-color: #2f3542; }
 
-        /* --- ESTILOS DEL MENÚ DE SELECCIÓN --- */
+        /* --- MENÚ DE SELECCIÓN --- */
         .lista-juegos { display: flex; flex-direction: column; gap: 15px; }
         .tarjeta-juego {
             background-color: #f1f2f6;
@@ -86,17 +86,28 @@
         .info-juego h3 { margin: 0 0 5px 0; color: #1e90ff; }
         .info-juego p { margin: 0; color: #747d8c; font-size: 14px; }
         .bloqueado { opacity: 0.5; cursor: not-allowed; }
-        .bloqueado:hover { transform: none; background-color: #f1f2f6; border-color: transparent; box-shadow: none; }
 
-        /* --- ESTILOS DEL JUEGO DEL MONSTRUO --- */
-        .marcador { font-size: 22px; font-weight: bold; color: #2ed573; margin-bottom: 15px; }
-        .monstruo { font-size: 80px; margin: 15px 0; transition: transform 0.2s; }
-        .caja-pregunta { font-size: 46px; font-weight: bold; background-color: #f1f2f6; padding: 15px; border-radius: 20px; margin-bottom: 20px; }
-        .opciones-verticales { display: flex; flex-direction: column; gap: 12px; }
-        .mensaje-feedback { font-size: 20px; font-weight: bold; margin-top: 20px; min-height: 30px; }
+        /* --- PANTALLA JUEGO --- */
+        .cabecera-juego {
+            display: flex;
+            justify-content: space-between;
+            background: #f1f2f6;
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .marcador-nivel { color: #ff9f43; }
+        .marcador-puntos { color: #2ed573; }
         
-        /* Sistema de Logros/Medallas */
-        .medallas-contenedor { margin-top: 20px; display: flex; justify-content: center; gap: 10px; font-size: 30px; min-height: 40px; }
+        .monstruo { font-size: 85px; margin: 10px 0; transition: transform 0.2s; }
+        .nombre-monstruo { font-size: 16px; color: #a4b0be; font-style: italic; margin-bottom: 15px; }
+        
+        .caja-pregunta { font-size: 46px; font-weight: bold; background-color: #2f3542; color: white; padding: 15px; border-radius: 20px; margin-bottom: 20px; }
+        .opciones-verticales { display: flex; flex-direction: column; gap: 12px; }
+        .mensaje-feedback { font-size: 18px; font-weight: bold; margin-top: 15px; min-height: 25px; }
+        .racha-fuego { color: #ff4757; font-size: 18px; margin-top: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -112,24 +123,16 @@
                 <div class="tarjeta-juego" onclick="comenzarMonstruo()">
                     <div class="icono-juego">👾</div>
                     <div class="info-juego">
-                        <h3>El Monstruo Numérico</h3>
-                        <p>¡Repasa las tablas de multiplicar y dale de comer!</p>
+                        <h3>El Monstruo Evolutivo</h3>
+                        <p>¡Sube de nivel al monstruo acertando las tablas!</p>
                     </div>
                 </div>
 
-                <div class="tarjeta-juego bloqueado" onclick="alertaProximamente()">
+                <div class="tarjeta-juego bloqueado" onclick="alert('¡Pronto!')">
                     <div class="icono-juego">⏰</div>
                     <div class="info-juego">
                         <h3>El Reloj Mágico</h3>
                         <p>¡Controla las horas del día! (Próximamente)</p>
-                    </div>
-                </div>
-
-                <div class="tarjeta-juego bloqueado" onclick="alertaProximamente()">
-                    <div class="icono-juego">🛒</div>
-                    <div class="info-juego">
-                        <h3>Desafío en el Súper</h3>
-                        <p>Maneja monedas y calcula el cambio. (Próximamente)</p>
                     </div>
                 </div>
             </div>
@@ -137,10 +140,15 @@
 
         <div id="pantalla-juego-monstruo" class="oculto">
             <button class="btn-volver" onclick="volverAlMenuMates()">🔙 Cambiar de Juego</button>
-            <h2>👾 ¡Alimenta al Monstruo! 👾</h2>
             
-            <div class="marcador">Puntos: <span id="puntos-texto">0</span> ⭐</div>
-            <div class="monstruo" id="monstruo-emoji">😋</div>
+            <div class="cabecera-juego">
+                <span class="marcador-nivel">Nivel: <span id="txt-nivel">1</span> / 3</span>
+                <span class="marcador-puntos">Puntos: <span id="txt-puntos">0</span> ⭐</span>
+            </div>
+
+            <div class="monstruo" id="monstruo-emoji">👶</div>
+            <div class="nombre-monstruo" id="monstruo-nombre">Monstruito Bebé</div>
+            
             <div class="caja-pregunta" id="pregunta-texto">0 x 0</div>
             
             <div class="opciones-verticales">
@@ -150,132 +158,141 @@
             </div>
             
             <div class="mensaje-feedback" id="feedback-texto"></div>
-            
-            <div class="medallas-contenedor" id="contenedor-medallas"></div>
+            <div class="racha-fuego" id="racha-texto"></div>
         </div>
 
     </div>
 
-    <audio id="audio-click" src="click.mp3"></audio>
-
     <script>
-        const audioClick = document.getElementById('audio-click');
-
-        function reproducirClick() {
-            if(audioClick) audioClick.play();
-        }
-
-        function volverAlMapa() {
-            reproducirClick();
-            window.location.href = "menuprincipal.html";
-        }
-
-        function alertaProximamente() {
-            reproducirClick();
-            alert("🚀 ¡Tu hermano mayor está creando este código! Estará listo muy pronto.");
-        }
-
-        /* --- LÓGICA INTERNA DEL JUEGO DEL MONSTRUO --- */
-        let puntos = 0;
-        let solucionCorrecta = 0;
-        let medallasDesbloqueadas = { bronce: false, plata: false, oro: false };
-
-        function comenzarMonstruo() {
-            reproducirClick();
-            document.getElementById('pantalla-menu-mates').classList.add('oculto');
-            document.getElementById('pantalla-juego-monstruo').classList.remove('oculto');
-            generarMultiplicacion();
-        }
-
+        function volverAlMapa() { window.location.href = "menuprincipal.html"; }
         function volverAlMenuMates() {
-            reproducirClick();
             document.getElementById('pantalla-juego-monstruo').classList.add('oculto');
             document.getElementById('pantalla-menu-mates').classList.remove('oculto');
         }
 
-        function generarMultiplicacion() {
-            // Tablas del 2 al 9 para 3º de primaria
-            const tabla = Math.floor(Math.random() * 8) + 2; 
+        /* --- LÓGICA DE DIFICULTAD Y EVOLUCIÓN --- */
+        let puntos = 0;
+        let rachaAciertos = 0;
+        let nivelActual = 1;
+        let solucionCorrecta = 0;
+
+        // Configuración de los estados del monstruo por nivel
+        const datosNiveles = {
+            1: { emoji: "👶", nombre: "Monstruito Bebé (Tablas fáciles: 2, 3, 4)" },
+            2: { emoji: "🦖", nombre: "Monstruo Guerrero (Tablas medias: 5, 6, 7)" },
+            3: { emoji: "👑", nombre: "Rey Monstruo Sabio (Tablas jefas: 8, 9)" }
+        };
+
+        function comenzarMonstruo() {
+            puntos = 0; rachaAciertos = 0; nivelActual = 1;
+            document.getElementById('txt-puntos').innerText = puntos;
+            document.getElementById('txt-nivel').innerText = nivelActual;
+            actualizarVisualMonstruo("😋");
+            
+            document.getElementById('pantalla-menu-mates').classList.add('oculto');
+            document.getElementById('pantalla-juego-monstruo').classList.remove('oculto');
+            generarPreguntaPorNivel();
+        }
+
+        function actualizarVisualMonstruo(emojiAccion) {
+            const mEmoji = document.getElementById('monstruo-emoji');
+            const mNombre = document.getElementById('monstruo-nombre');
+            
+            // Si le pasamos un emoji de acción (celebrar/fallar), lo muestra temporalmente, si no, el del nivel
+            mEmoji.innerText = emojiAccion || datosNiveles[nivelActual].emoji;
+            mNombre.innerText = datosNiveles[nivelActual].nombre;
+        }
+
+        function generarPreguntaPorNivel() {
+            let tablasDisponibles = [];
+            
+            // Definir qué tablas salen según el nivel actual
+            if (nivelActual === 1) tablasDisponibles = [2, 3, 4];
+            else if (nivelActual === 2) tablasDisponibles = [5, 6, 7];
+            else tablasDisponibles = [8, 9];
+
+            const tabla = tablasDisponibles[Math.floor(Math.random() * tablasDisponibles.length)];
             const numero = Math.floor(Math.random() * 10) + 1; 
             
             solucionCorrecta = tabla * numero;
             document.getElementById('pregunta-texto').innerText = `${tabla} x ${numero}`;
 
-            // Crear respuestas incorrectas creíbles
-            let falsa1 = solucionCorrecta + (Math.random() > 0.5 ? 2 : -2);
-            let falsa2 = solucionCorrecta + (Math.random() > 0.5 ? 4 : -4);
+            // Opciones falsas inteligentes
+            let f1 = solucionCorrecta + (Math.random() > 0.5 ? 2 : -2);
+            let f2 = solucionCorrecta + (Math.random() > 0.5 ? 5 : -5);
+            if (f1 === solucionCorrecta) f1 += 3;
+            if (f2 === solucionCorrecta || f2 === f1) f2 += 4;
 
-            if (falsa1 === solucionCorrecta) falsa1 += 3;
-            if (falsa2 === solucionCorrecta || falsa2 === falsa1) falsa2 += 5;
-
-            let opciones = [solucionCorrecta, Math.abs(falsa1), Math.abs(falsa2)];
+            let opciones = [solucionCorrecta, Math.abs(f1), Math.abs(f2)];
             opciones.sort(() => Math.random() - 0.5);
 
             for (let i = 0; i < 3; i++) {
-                const boton = document.getElementById(`btn-opc${i}`);
-                boton.innerText = opciones[i];
-                boton.disabled = false;
+                const b = document.getElementById(`btn-opc${i}`);
+                b.innerText = opciones[i];
+                b.disabled = false;
             }
         }
 
         function verificarRespuesta(indice) {
-            reproducirClick();
-            const boton = document.getElementById(`btn-opc${indice}`);
-            const respuestaEscogida = parseInt(boton.innerText);
+            const elegido = parseInt(document.getElementById(`btn-opc${indice}`).innerText);
             const feedback = document.getElementById('feedback-texto');
-            const monstruo = document.getElementById('monstruo-emoji');
+            const rachaTxt = document.getElementById('racha-texto');
 
-            if (respuestaEscogida === solucionCorrecta) {
+            if (elegido === solucionCorrecta) {
                 puntos += 10;
-                document.getElementById('puntos-texto').innerText = puntos;
-                feedback.innerText = "🎉 ¡Delicioso! ¡Acertaste! 🎉";
-                feedback.style.color = "#2ed573";
-                monstruo.innerText = "🥳";
-                monstruo.style.transform = "scale(1.2)";
+                rachaAciertos++;
+                document.getElementById('txt-puntos').innerText = puntos;
                 
+                feedback.innerText = "🎉 ¡Ñam! ¡Comida correcta! 🎉";
+                feedback.style.color = "#2ed573";
+                actualizarVisualMonstruo("🥳");
+                
+                // Mostrar racha de fuego si lleva más de 2 seguidas
+                if(rachaAciertos >= 3) {
+                    rachaTxt.innerText = `🔥 ¡Racha de ${rachaAciertos} aciertos seguidos! 🔥`;
+                }
+
                 bloquearBotones(true);
-                revisarMedallas();
+                comprobarSubidaNivel();
 
                 setTimeout(() => {
-                    monstruo.innerText = "😋";
-                    monstruo.style.transform = "scale(1)";
                     feedback.innerText = "";
-                    generarMultiplicacion();
+                    actualizarVisualMonstruo(null); // Vuelve al emoji original de su nivel
+                    generarPreguntaPorNivel();
                 }, 1500);
 
             } else {
-                feedback.innerText = "❌ ¡Casi! El monstruo sigue con hambre. ¡Prueba otra vez! 💪";
+                // Si falla, se rompe la racha
+                rachaAciertos = 0;
+                rachaTxt.innerText = "";
+                feedback.innerText = "❌ ¡Oh no! Ese número le dio dolor de tripa. ¡Inténtalo de nuevo! 💪";
                 feedback.style.color = "#ff4757";
-                monstruo.innerText = "🥺";
+                actualizarVisualMonstruo("🥺");
                 
-                setTimeout(() => { monstruo.innerText = "😋"; }, 1500);
+                // Si estaba en niveles altos y falla, baja un nivel para ayudarla
+                if(nivelActual > 1) {
+                    nivelActual--;
+                    document.getElementById('txt-nivel').innerText = nivelActual;
+                }
+
+                setTimeout(() => { actualizarVisualMonstruo(null); }, 1500);
             }
+        }
+
+        function comprobarSubidaNivel() {
+            // Sube de nivel cada 4 aciertos seguidos
+            if (rachaAciertos === 4 && nivelActual === 1) {
+                nivelActual = 2;
+                setTimeout(() => { alert("🚀 ¡SÚPER EVOLUCIÓN! Tu monstruito ha crecido. ¡Cuidado, las tablas cambian!"); }, 200);
+            } else if (rachaAciertos === 8 && nivelActual === 2) {
+                nivelActual = 3;
+                setTimeout(() => { alert("👑 ¡EVOLUCIÓN MÁXIMA! Has desbloqueado al Rey Monstruo. ¡El reto final!"); }, 200);
+            }
+            document.getElementById('txt-nivel').innerText = nivelActual;
         }
 
         function bloquearBotones(estado) {
-            for (let i = 0; i < 3; i++) {
-                document.getElementById(`btn-opc${i}`).disabled = estado;
-            }
-        }
-
-        function revisarMedallas() {
-            const contenedor = document.getElementById('contenedor-medallas');
-            
-            if (puntos >= 30 && !medallasDesbloqueadas.bronce) {
-                medallasDesbloqueadas.bronce = true;
-                contenedor.innerHTML += '<span title="¡Medalla de Bronce!">🥉</span>';
-                alert("🏅 ¡Genial! Has ganado tu Medalla de Bronce por llegar a 30 puntos.");
-            }
-            if (puntos >= 60 && !medallasDesbloqueadas.plata) {
-                medallasDesbloqueadas.plata = true;
-                contenedor.innerHTML += '<span title="¡Medalla de Plata!">🥈</span>';
-                alert("🥈 ¡Espectacular! Medalla de Plata desbloqueada.");
-            }
-            if (puntos >= 100 && !medallasDesbloqueadas.oro) {
-                medallasDesbloqueadas.oro = true;
-                contenedor.innerHTML += '<span title="¡Medalla de Oro Máxima!">🥇</span>';
-                alert("👑 ¡Eres la reina de las matemáticas! ¡Medalla de Oro conseguida!");
-            }
+            for (let i = 0; i < 3; i++) document.getElementById(`btn-opc${i}`).disabled = estado;
         }
     </script>
 </body>
