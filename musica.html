@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music-Lab Arcade 🎵</title>
+    <style>
+        :root {
+            --color-principal: #00d2d3;
+            --bg-juego: #2f3542;
+        }
+
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #333;
+            overflow-x: hidden;
+        }
+
+        .contenedor-principal {
+            background: rgba(255, 255, 255, 0.96); padding: 25px; border-radius: 30px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            max-width: 500px; width: 92%; text-align: center; box-sizing: border-box;
+            position: relative;
+        }
+
+        h1 { color: #2f3542; margin: 10px 0; font-weight: 900; }
+
+        .btn-volver { 
+            background-color: #576574; color: white; border: none; padding: 8px 18px; border-radius: 50px; 
+            cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 3px 0 #2f3542;
+        }
+        .btn-volver:active { transform: translateY(2px); box-shadow: none; }
+
+        /* --- MARCADOR --- */
+        .marcador {
+            background: #f1f2f6; padding: 12px; border-radius: 20px; margin-bottom: 15px; 
+            border: 3px dashed var(--color-principal); font-weight: bold; font-size: 18px;
+        }
+
+        /* --- PANTALLA EXPLICATIVA --- */
+        .pantalla-instrucciones {
+            font-size: 16px; margin: 15px 0; padding: 10px; background: #fffdf0; 
+            border-left: 5px solid #feca57; border-radius: 8px; text-align: left;
+        }
+
+        /* --- EL PIANO --- */
+        .teclado {
+            display: flex; justify-content: center; background: #1e272e; 
+            padding: 20px 10px; border-radius: 20px; gap: 8px; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .tecla {
+            flex: 1; height: 160px; border-radius: 0 0 10px 10px; cursor: pointer;
+            display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 15px;
+            font-weight: bold; color: white; font-size: 16px; user-select: none;
+            transition: all 0.1s ease; border: none; box-shadow: 0 6px 0 rgba(0,0,0,0.3);
+        }
+        
+        /* Colores vivos para cada nota */
+        .tecla[data-nota="do"]  { background-color: #ff4757; }
+        .tecla[data-nota="re"]  { background-color: #ffa502; }
+        .tecla[data-nota="mi"]  { background-color: #2ed573; }
+        .tecla[data-nota="fa"]  { background-color: #1e90ff; }
+        .tecla[data-nota="sol"] { background-color: #9b59b6; }
+
+        .tecla:active, .tecla.activa {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+            filter: brightness(1.3);
+        }
+
+        /* --- BOTÓN ARCADE DE JUEGO --- */
+        .btn-jugar {
+            background: linear-gradient(45deg, #ff9f43, #ff5252); color: white; border: none; 
+            padding: 15px; font-size: 18px; font-weight: bold; border-radius: 20px; cursor: pointer;
+            width: 100%; margin-top: 20px; border-bottom: 5px solid rgba(0,0,0,0.2);
+        }
+        .btn-jugar:hover { filter: brightness(1.1); }
+        .btn-jugar:active { transform: translateY(2px); border-bottom-width: 3px; }
+
+        .oculto { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-principal">
+        <button class="btn-volver" onclick="window.location.href='menuprincipal.html'">🔙 Ir al Mapa</button>
+        <h1>🎵 Music-Lab Arcade 🎹</h1>
+
+        <div class="marcador">
+            <span>🏆 Record de Notas: <span id="puntos-musica" style="color:#00d2d3;">0</span> ✨</span>
+        </div>
+
+        <div class="pantalla-instrucciones" id="instrucciones">
+            <b>🎹 Modo Libre:</b> ¡Toca las teclas de colores para crear tus canciones!<br>
+            <b>🎮 Modo Desafío:</b> Dale al botón de abajo para que el duendecillo musical te ponga a prueba de oído.
+        </div>
+
+        <div class="teclado">
+            <button class="tecla" data-nota="do" onclick="tocarYVerificar('do')">DO</button>
+            <button class="tecla" data-nota="re" onclick="tocarYVerificar('re')">RE</button>
+            <button class="tecla" data-nota="mi" onclick="tocarYVerificar('mi')">MI</button>
+            <button class="tecla" data-nota="fa" onclick="tocarYVerificar('fa')">FA</button>
+            <button class="tecla" data-nota="sol" onclick="tocarYVerificar('sol')">SOL</button>
+        </div>
+
+        <button class="btn-jugar" id="btn-comenzar" onclick="iniciarDesafio()">🎮 Iniciar Desafío de Oído</button>
+        <h2 id="mensaje-juego" style="margin-top:15px; min-height: 35px; font-size: 20px;"></h2>
+    </div>
+
+    <script>
+        // --- SINTETIZADOR DE INSTRUMENTO REAL (Frecuencias exactas) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        const frecuencias = {
+            'do': 261.63, // C4
+            're': 293.66, // D4
+            'mi': 329.63, // E4
+            'fa': 349.23, // F4
+            'sol': 392.00 // G4
+        };
+
+        function reproducirNota(nota) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            // Sonido tipo "onda triangular" que emula un teclado suave y dulce
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(frecuencias[nota], audioCtx.currentTime);
+            
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            // El sonido desaparece de forma natural y no de golpe
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.6);
+        }
+
+        // --- SISTEMA DEL JUEGO "SIMON SAYS" AUDITIVO ---
+        let secuenciaJuego = [];
+        let secuenciaUsuario = [];
+        let modoDesafio = false;
+        let ronda = 0;
+        let puntos = parseInt(localStorage.getItem('pts_musica_v1')) || 0;
+
+        document.getElementById('puntos-musica').innerText = puntos;
+
+        function iniciarDesafio() {
+            secuenciaJuego = [];
+            ronda = 0;
+            modoDesafio = true;
+            document.getElementById('btn-comenzar').innerText = "🔄 Reiniciar Desafío";
+            document.getElementById('instrucciones').innerHTML = "<b>👂 ¡Escucha con atención!</b> Repite el orden exacto de las notas que tocan solas.";
+            siguienteRonda();
+        }
+
+        function siguienteRonda() {
+            secuenciaUsuario = [];
+            ronda++;
+            document.getElementById('mensaje-juego').innerText = `Ronda ${ronda} 🎵`;
+            document.getElementById('mensaje-juego').style.color = "#2f3542";
+            
+            // Añadir una nueva nota aleatoria a la secuencia
+            const notasValidas = ['do', 're', 'mi', 'fa', 'sol'];
+            const notaAleatoria = notasValidas[Math.floor(Math.random() * notasValidas.length)];
+            secuenciaJuego.push(notaAleatoria);
+
+            // Desactivar clics mientras la máquina muestra la secuencia
+            bloquearTeclado(true);
+            reproducirSecuenciaMaquina(0);
+        }
+
+        function reproducirSecuenciaMaquina(index) {
+            if (index < secuenciaJuego.length) {
+                const nota = secuenciaJuego[index];
+                setTimeout(() => {
+                    iluminarTecla(nota);
+                    reproducirNota(nota);
+                    reproducirSecuenciaMaquina(index + 1);
+                }, 600); // Espacio entre notas de la máquina
+            } else {
+                bloquearTeclado(false);
+                document.getElementById('mensaje-juego').innerText = "¡Tu turno! 👉";
+            }
+        }
+
+        function iluminarTecla(nota) {
+            const boton = document.querySelector(`.tecla[data-nota="${nota}"]`);
+            boton.classList.add('activa');
+            setTimeout(() => boton.classList.remove('activa'), 300);
+        }
+
+        function bloquearTeclado(bloquear) {
+            document.querySelectorAll('.tecla').forEach(b => {
+                b.style.pointerEvents = bloquear ? 'none' : 'auto';
+            });
+        }
+
+        function tocarYVerificar(nota) {
+            // Siempre suena la nota al pulsar
+            reproducirNota(nota);
+
+            // Si está en modo juego, comprobamos la respuesta
+            if (!modoDesafio) return;
+
+            secuenciaUsuario.push(nota);
+            const pasoActual = secuenciaUsuario.length - 1;
+
+            // Si se equivoca de nota
+            if (secuenciaUsuario[pasoActual] !== secuenciaJuego[pasoActual]) {
+                document.getElementById('mensaje-juego').innerText = "❌ ¡Oh! Nota incorrecta. ¡Inténtalo de nuevo!";
+                document.getElementById('mensaje-juego').style.color = "#ff4757";
+                modoDesafio = false;
+                bloquearTeclado(false);
+                document.getElementById('btn-comenzar').innerText = "🎮 Volver a intentar";
+                return;
+            }
+
+            // Si ha terminado de repetir toda la secuencia actual con éxito
+            if (secuenciaUsuario.length === secuenciaJuego.length) {
+                puntos += 10;
+                if(puntos > parseInt(localStorage.getItem('pts_musica_v1') || 0)) {
+                    localStorage.setItem('pts_musica_v1', puntos);
+                    document.getElementById('puntos-musica').innerText = puntos;
+                }
+                document.getElementById('mensaje-juego').innerText = "🌟 ¡Perfecto! ¡Siguiente nivel! 🚀";
+                document.getElementById('mensaje-juego').style.color = "#2ed573";
+                setTimeout(siguienteRonda, 1200);
+            }
+        }
+    </script>
+</body>
+</html>
