@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain-Training Arcade 🧠</title>
+    <style>
+        :root {
+            --color-principal: #a855f7;
+            --color-carta-oculta: #2f3542;
+        }
+
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #333;
+            overflow-x: hidden;
+        }
+
+        .contenedor-principal {
+            background: rgba(255, 255, 255, 0.96); padding: 25px; border-radius: 30px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            max-width: 480px; width: 92%; text-align: center; box-sizing: border-box;
+            position: relative;
+        }
+
+        h1 { color: #2f3542; margin: 10px 0; font-weight: 900; }
+
+        .btn-volver { 
+            background-color: #576574; color: white; border: none; padding: 8px 18px; border-radius: 50px; 
+            cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 3px 0 #2f3542;
+        }
+        .btn-volver:active { transform: translateY(2px); box-shadow: none; }
+
+        /* --- MARCADORES --- */
+        .info-tablero {
+            display: flex; justify-content: space-between; background: #f1f2f6; 
+            padding: 12px 20px; border-radius: 20px; margin-bottom: 20px;
+            border: 3px dashed var(--color-principal); font-weight: bold; font-size: 16px;
+        }
+
+        /* --- REJILLA DEL JUEGO MEMORY (4x4 = 16 cartas) --- */
+        .cuadricula-memoria {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            margin-bottom: 20px; justify-content: center;
+        }
+
+        .carta {
+            height: 85px; background-color: var(--color-carta-oculta); border-radius: 15px;
+            font-size: 40px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; user-select: none; transition: transform 0.3s, background-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); border-bottom: 5px solid rgba(0,0,0,0.3);
+        }
+
+        .carta:active { transform: scale(0.95); }
+
+        /* Estados de la carta */
+        .carta.volteada {
+            background-color: #fff; border: 3px solid var(--color-principal);
+            transform: rotateY(180deg); border-bottom-width: 3px;
+        }
+        
+        .carta.emparejada {
+            background-color: #7bed9f; border: 3px solid #2ed573;
+            transform: scale(0.95); cursor: default; border-bottom-width: 3px;
+        }
+
+        .pantalla-victoria {
+            background: #2f3542; color: white; border-radius: 25px; padding: 20px;
+            margin-top: 15px; animation: aparecer 0.5s ease-out;
+        }
+
+        @keyframes aparecer { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-principal">
+        <button class="btn-volver" onclick="window.location.href='menuprincipal.html'">🔙 Ir al Mapa</button>
+        <h1>🧠 Brain-Training Arcade 🎮</h1>
+        
+        <div class="info-tablero">
+            <span>⏱️ Tiempo: <span id="cronometro">0</span>s</span>
+            <span>✨ Parejas: <span id="parejas-contador">0</span>/8</span>
+        </div>
+
+        <div class="cuadricula-memoria" id="tablero"></div>
+
+        <div id="mensaje-ganar" class="pantalla-victoria oculto">
+            <h2>🎉 ¡Brillante! 🎉</h2>
+            <p>Has encontrado todas las parejas y entrenado tu memoria a nivel Súper Saiyan.</p>
+            <p>⏱️ Tu tiempo: <span id="tiempo-final">0</span> segundos</p>
+            <button onclick="reiniciarJuego()" style="background:#2ed573; color:white; border:none; padding:12px 25px; font-size:16px; font-weight:bold; border-radius:15px; cursor:pointer;">🔄 Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <script>
+        // --- MOTOR AUDIO INTERNO ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function sonido(tipo) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            
+            if (tipo === 'click') {
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+            } else if (tipo === 'pareja') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // Do
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // Mi
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // Sol
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.35);
+            } else if (tipo === 'error') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+            }
+        }
+
+        // --- LÓGICA DEL JUEGO ---
+        // Lista de 8 emojis divertidos repetidos dos veces (total 16 cartas)
+        const listaEmojis = ['🦁', '🦊', '🐼', '🐨', '🐸', '🦄', '🦖', '🐝', '🦁', '🦊', '🐼', '🐨', '🐸', '🦄', '🦖', '🐝'];
+        
+        let cartasSeleccionadas = [];
+        let parejasEncontradas = 0;
+        let tiempo = 0;
+        let intervaloTiempo = null;
+        let juegoActivo = false;
+
+        function iniciarCronometro() {
+            if (!juegoActivo) {
+                juegoActivo = true;
+                intervaloTiempo = setInterval(() => {
+                    tiempo++;
+                    document.getElementById('cronometro').innerText = tiempo;
+                }, 1000);
+            }
+        }
+
+        function crearTablero() {
+            const tablero = document.getElementById('tablero');
+            tablero.innerHTML = "";
+            document.getElementById('mensaje-ganar').classList.add('oculto');
+            
+            // Mezclar los emojis de forma aleatoria cada vez
+            const emojisMezclados = listaEmojis.sort(() => 0.5 - Math.random());
+
+            // Crear los 16 elementos HTML en la rejilla
+            emojisMezclados.forEach((emoji, index) => {
+                const elementoCarta = document.createElement('div');
+                elementoCarta.className = 'carta';
+                elementoCarta.dataset.emoji = emoji;
+                elementoCarta.dataset.id = index;
+                elementoCarta.innerHTML = "❓"; // Oculta al inicio
+                elementoCarta.onclick = descubrirCarta;
+                tablero.appendChild(elementoCarta);
+            });
+        }
+
+        function descubrirCarta() {
+            iniciarCronometro();
+            const cartaSeleccionada = this;
+
+            // Evitar que haga click en una ya emparejada, ya volteada o si ya hay 2 descubiertas
+            if (cartaSeleccionada.classList.contains('volteada') || 
+                cartaSeleccionada.classList.contains('emparejada') || 
+                cartasSeleccionadas.length === 2) {
+                return;
+            }
+
+            sonido('click');
+            cartaSeleccionada.classList.add('volteada');
+            cartaSeleccionada.innerHTML = cartaSeleccionada.dataset.emoji;
+            cartasSeleccionadas.push(cartaSeleccionada);
+
+            // Si ya ha volteado dos cartas, comprobamos si son iguales
+            if (cartasSeleccionadas.length === 2) {
+                comprobarPareja();
+            }
+        }
+
+        function comprobarPareja() {
+            const [carta1, carta2] = cartasSeleccionadas;
+
+            if (carta1.dataset.emoji === carta2.dataset.emoji) {
+                // ¡Acierto! Es una pareja real
+                setTimeout(() => {
+                    sonido('pareja');
+                    carta1.classList.add('emparejada');
+                    carta2.classList.add('emparejada');
+                    cartasSeleccionadas = [];
+                    parejasEncontradas++;
+                    document.getElementById('parejas-contador').innerText = parejasEncontradas;
+
+                    // Comprobar si ha ganado todo el juego
+                    if (parejasEncontradas === 8) {
+                        finalizarJuego();
+                    }
+                }, 300);
+            } else {
+                // ¡Fallo! No coinciden, se vuelven a tapar
+                setTimeout(() => {
+                    sonido('error');
+                    carta1.classList.remove('volteada');
+                    carta2.classList.remove('volteada');
+                    carta1.innerHTML = "❓";
+                    carta2.innerHTML = "❓";
+                    cartasSeleccionadas = [];
+                }, 1000); // Se dejan ver 1 segundo para que recuerde dónde estaban
+            }
+        }
+
+        function finalizarJuego() {
+            clearInterval(intervaloTiempo);
+            document.getElementById('tiempo-final').innerText = tiempo;
+            document.getElementById('mensaje-ganar').classList.remove('oculto');
+        }
+
+        function reiniciarJuego() {
+            clearInterval(intervaloTiempo);
+            tiempo = 0;
+            parejasEncontradas = 0;
+            juegoActivo = false;
+            cartasSeleccionadas = [];
+            document.getElementById('cronometro').innerText = "0";
+            document.getElementById('parejas-contador').innerText = "0";
+            crearTablero();
+        }
+
+        // Arrancar el juego nada más cargar la página
+        crearTablero();
+    </script>
+</body>
+</html>
