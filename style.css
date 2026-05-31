@@ -1,0 +1,4 @@
+body { font-family: 'Arial', sans-serif; text-align: center; background: #f0f8ff; }
+#game { margin-top: 50px; padding: 20px; background: white; border-radius: 15px; display: inline-block; }
+input { padding: 10px; font-size: 1.2em; width: 100px; }
+button { padding: 10px 20px; font-size: 1.2em; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
