@@ -3,218 +3,462 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Súper Mates 3000</title>
+    <title>Súper Mates de 3º de Primaria - Edición Arcade</title>
     <style>
-        /* --- ESTILOS BASE --- */
+        /* --- VARIABLES DE COLOR DINÁMICAS --- */
+        :root {
+            --bg-juego: #2f3542;
+            --color-principal: #1e90ff;
+        }
+
+        /* --- ESTILOS GENERALES Y DISEÑO --- */
         body {
             font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
-            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
             margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #333;
+            overflow-x: hidden;
         }
         .contenedor-principal {
-            background: rgba(255, 255, 255, 0.95); padding: 25px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            max-width: 480px; width: 90%; text-align: center; position: relative;
+            background: rgba(255, 255, 255, 0.96); padding: 25px; border-radius: 30px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            max-width: 480px; width: 92%; text-align: center; box-sizing: border-box;
+            transition: all 0.5s ease;
         }
         .oculto { display: none !important; }
-        h1, h2 { color: #2f3542; margin: 10px 0; }
+        h1, h2 { color: #2f3542; margin: 10px 0; font-weight: 900; }
+        
+        /* --- ANIMACIONES DE ENTRADA Y FEEDBACK --- */
+        .animar-rebote { animation: rebote 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .animar-error { animation: vibrar 0.4s ease-in-out; }
+        .animar-victoria { animation: celebrar 0.6s ease-in-out; }
 
-        /* --- BOTONES --- */
-        .btn {
-            background-color: #1e90ff; color: white; border: none; padding: 15px; font-size: 20px; font-weight: bold;
-            border-radius: 15px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; margin-bottom: 5px;
+        @keyframes rebote {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
         }
-        .btn:hover { transform: scale(1.03); background-color: #3742fa; }
-        .btn-volver { background-color: #576574; color: white; border: none; padding: 8px 15px; border-radius: 50px; cursor: pointer; margin-bottom: 15px; }
+        @keyframes vibrar {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        @keyframes celebrar {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+        @keyframes flotar {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .icono-flotante { animation: flotar 3s ease-in-out infinite; display: inline-block; }
+
+        /* --- BOTONES ESTILO VIDEOJUEGO --- */
+        .btn {
+            background-color: var(--color-principal); color: white; border: none; padding: 15px; font-size: 18px; font-weight: bold;
+            border-radius: 20px; cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            box-shadow: 0 6px 0 idc; border-bottom: 5px solid rgba(0,0,0,0.2); width: 100%; margin-bottom: 12px;
+            position: relative; top: 0;
+        }
+        .btn:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 8px 0 rgba(0,0,0,0.15); }
+        .btn:active { top: 4px; border-bottom-width: 1px; box-shadow: 0 2px 0 rgba(0,0,0,0.15); }
+        
+        .btn-volver { 
+            background-color: #576574; color: white; border: none; padding: 8px 18px; border-radius: 50px; 
+            cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 3px 0 #2f3542;
+        }
+        .btn-volver:active { transform: translateY(2px); box-shadow: none; }
 
         /* --- MENÚ DE JUEGOS --- */
-        .zona-progreso { background: #f1f2f6; padding: 10px; border-radius: 15px; margin-bottom: 20px; border: 2px dashed #1e90ff; }
+        .zona-progreso { background: #f1f2f6; padding: 12px; border-radius: 20px; margin-bottom: 15px; border: 3px dashed var(--color-principal); }
+        .lista-juegos-scroll { max-height: 380px; overflow-y: auto; padding-right: 5px; }
         .tarjeta-juego {
-            background-color: #f1f2f6; border-radius: 20px; padding: 15px; display: flex; align-items: center; gap: 15px;
-            cursor: pointer; transition: 0.3s; text-align: left; margin-bottom: 15px;
+            background-color: #f1f2f6; border-radius: 20px; padding: 14px; display: flex; align-items: center; gap: 15px;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-bottom: 12px; border: 3px solid transparent;
         }
-        .tarjeta-juego:hover { transform: translateY(-3px); background-color: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .icono { font-size: 40px; }
+        .tarjeta-juego:hover { transform: scale(1.02); background-color: #fff; border-color: var(--color-principal); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .icono { font-size: 38px; transition: transform 0.3s; }
+        .tarjeta-juego:hover .icono { transform: scale(1.2) rotate(10deg); }
+        .tarjeta-juego h3 { margin: 0; font-size: 16px; color: #2f3542; }
+        .tarjeta-juego p { margin: 3px 0 0 0; font-size: 12px; color: #747d8c; }
 
-        /* --- INTERFAZ DE JUEGO --- */
-        .cabecera { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; background: #eee; padding: 5px 10px; border-radius: 10px; }
-        .display-reto { font-size: 40px; font-weight: bold; background: #2f3542; color: white; padding: 20px; border-radius: 20px; margin: 15px 0; min-height: 60px; display: flex; align-items: center; justify-content: center; }
-        .mensaje { font-size: 18px; font-weight: bold; margin-top: 10px; min-height: 25px; }
+        /* --- INTERFAZ DE PANTALLA DE JUEGO --- */
+        .cabecera { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; background: #eee; padding: 10px 15px; border-radius: 12px; font-weight: bold; }
+        .display-reto { 
+            font-size: 30px; font-weight: bold; background: var(--bg-juego); color: white; padding: 25px; 
+            border-radius: 25px; margin: 15px 0; min-height: 70px; display: flex; align-items: center; justify-content: center; 
+            line-height: 1.4; box-shadow: inset 0 5px 15px rgba(0,0,0,0.3);
+            border: 4px solid rgba(255,255,255,0.2);
+        }
+        .mensaje { font-size: 20px; font-weight: bold; margin-top: 12px; min-height: 30px; }
         
-        /* Dinero e Items del Súper */
-        .item-super { font-size: 80px; margin: 0; }
-        .precio-tag { background: #ff4757; color: white; padding: 5px 15px; border-radius: 10px; font-size: 20px; }
+        /* Elementos del Súper y Fracciones */
+        .item-super { font-size: 75px; margin: 0; display: inline-block; }
+        .precio-tag { background: #ff4757; color: white; padding: 6px 18px; border-radius: 12px; font-size: 20px; display: inline-block; font-weight: bold; box-shadow: 0 4px 0 #c23616; }
+        .fraccion { display: inline-flex; flex-direction: column; vertical-align: middle; align-items: center; font-size: 26px; padding: 0 8px; font-weight: bold; }
+        .linea-fraccion { border-top: 3px solid white; width: 120%; margin: 2px 0; }
     </style>
 </head>
 <body>
 
-    <div class="contenedor-principal">
+    <div class="contenedor-principal animar-rebote" id="modulo-contenedor">
         
         <div id="menu-mates">
-            <button class="btn-volver" onclick="window.location.href='menuprincipal.html'">🔙 Ir al Mapa</button>
-            <h1>🔢 Mates-Lab 🧪</h1>
+            <button class="btn-volver" onclick="reproducirSonido('click'); window.location.href='menuprincipal.html'">🔙 Ir al Mapa</button>
+            <h1>🔢 Mates-Lab Arcade 🎮</h1>
             
             <div class="zona-progreso">
-                <b>Progreso de tu hermana:</b><br>
-                <span>Puntos: <span id="puntos-globales">0</span> ⭐</span>
-                <div id="vitrina-medallas" style="font-size: 25px; margin-top: 5px;"></div>
+                <b>🏆 Progreso Guardado:</b><br>
+                <span style="font-size: 18px;">Puntos Totales: <span id="puntos-globales" style="color:#2ed573; font-weight:bold;">0</span> ⭐</span>
+                <div id="vitrina-medallas" style="font-size: 28px; margin-top: 5px; letter-spacing: 5px;"></div>
             </div>
 
-            <div class="tarjeta-juego" onclick="abrirJuego('monstruo')">
-                <div class="icono">👾</div>
-                <div><h3>El Monstruo de las Tablas</h3><p>¡Evoluciona acertando!</p></div>
-            </div>
-
-            <div class="tarjeta-juego" onclick="abrirJuego('reloj')">
-                <div class="icono">⏰</div>
-                <div><h3>El Reloj Mágico</h3><p>¿Qué hora marca el reloj?</p></div>
-            </div>
-
-            <div class="tarjeta-juego" onclick="abrirJuego('super')">
-                <div class="icono">🛒</div>
-                <div><h3>El Súper del Barrio</h3><p>¡Calcula el cambio con euros!</p></div>
+            <div class="lista-juegos-scroll">
+                <div class="tarjeta-juego" onclick="abrirJuego('monstruo')"><div class="icono">👾</div><div><h3>1. El Monstruo de las Tablas</h3><p>¡Tablas evolutivas multiplicadoras!</p></div></div>
+                <div class="tarjeta-juego" onclick="abrirJuego('reloj')"><div class="icono">⏰</div><div><h3>2. El Reloj Mágico</h3><p>Aprende las horas analógicas y digitales.</p></div></div>
+                <div class="tarjeta-juego" onclick="abrirJuego('super')"><div class="icono">🛒</div><div><h3>3. El Súper del Barrio</h3><p>Calcula vueltas y maneja monedas.</p></div></div>
+                <div class="tarjeta-juego" onclick="abrirJuego('romanos')"><div class="icono">🏛️</div><div><h3>4. Imperio Romano</h3><p>Traduce números normales a romanos.</p></div></div>
+                <div class="tarjeta-juego" onclick="abrirJuego('mayorMenor')"><div class="icono">⚖️</div><div><h3>5. El Cocodrilo Tragón</h3><p>Compara números usando &lt;, &gt; o =.</p></div></div>
+                <div class="tarjeta-juego" onclick="abrirJuego('series')"><div class="icono">🚂</div><div><h3>6. El Tren de las Series</h3><p>Encuentra el número oculto que falta.</p></div></div>
+                <div class="tarjeta-juego" onclick="abrirJuego('fracciones')"><div class="icono">🍕</div><div><h3>7. Fiesta de Fracciones</h3><p>Aprende a leer el numerador y denominador.</p></div></div>
+                <div class="tarjeta-juego" onclick="abrirJuego('geometria')"><div class="icono">📐</div><div><h3>8. Detective de Formas</h3><p>¿Cuántos lados o qué cuerpo geométrico es?</p></div></div>
+                <div class="tarjeta-juego" onclick="abrirJuego('mitadDoble')"><div class="icono">🧪</div><div><h3>9. El Duplicador Clínico</h3><p>Calcula el doble y la mitad de números rápidos.</p></div></div>
+                <div class="tarjeta-juego" onclick="abrirJuego('problemas')"><div class="icono">💡</div><div><h3>10. Mini Problemas</h3><p>Problemas cotidianos de lógica matemática.</p></div></div>
+                <div class="tarjeta-juego" onclick="abrirJuego('unidades')"><div class="icono">📦</div><div><h3>11. Unidades y Decenas</h3><p>Descompón números en U, D y C.</p></div></div>
+                <div class="tarjeta-juego" onclick="abrirJuego('paresImpares')"><div class="icono">🔢</div><div><h3>12. Radar Par o Impar</h3><p>Clasifica números velozmente.</p></div></div>
+                <div class="tarjeta-juego" onclick="abrirJuego('aproximar')"><div class="icono">🎯</div><div><h3>13. Tiro a la Decena</h3><p>Aproxima números a la decena más cercana.</p></div></div>
             </div>
             
-            <button onclick="borrarTodo()" style="background:none; border:none; color:gray; cursor:pointer; font-size:10px; margin-top:10px;">Reiniciar progreso</button>
+            <button onclick="borrarTodo()" style="background:none; border:none; color:gray; cursor:pointer; font-size:10px; margin-top: 10px;">Reiniciar todo</button>
         </div>
 
-        <div id="juego-monstruo" class="oculto">
-            <button class="btn-volver" onclick="irAlMenu()">🔙 Salir</button>
-            <div class="cabecera"><span>Nivel: <span id="mon-nivel">1</span></span> <span>Puntos: <span id="mon-puntos">0</span></span></div>
-            <div id="mon-emoji" style="font-size:80px;">👶</div>
-            <div id="mon-reto" class="display-reto">? x ?</div>
-            <div id="mon-opciones"></div>
-            <div id="mon-msg" class="mensaje"></div>
-        </div>
-
-        <div id="juego-reloj" class="oculto">
-            <button class="btn-volver" onclick="irAlMenu()">🔙 Salir</button>
-            <div class="cabecera"><span>Aprende las horas</span> <span>Puntos: <span id="rel-puntos">0</span></span></div>
-            <div style="font-size:60px;">🕰️</div>
-            <div id="rel-reto" class="display-reto" style="font-size:28px;">Las tres y media</div>
-            <div id="rel-opciones"></div>
-            <div id="rel-msg" class="mensaje"></div>
-        </div>
-
-        <div id="juego-super" class="oculto">
-            <button class="btn-volver" onclick="irAlMenu()">🔙 Salir</button>
-            <div class="cabecera"><span>¿Cuánto me devuelves?</span> <span>Puntos: <span id="sup-puntos">0</span></span></div>
-            <div id="sup-item" class="item-super">🍎</div>
-            <div id="sup-precio" class="precio-tag">Precio: 5€</div>
-            <p id="sup-pago" style="font-weight:bold;">Pagas con: 10€</p>
-            <div id="sup-opciones"></div>
-            <div id="sup-msg" class="mensaje"></div>
+        <div id="pantalla-juego" class="oculto">
+            <button class="btn-volver" onclick="reproducirSonido('click'); irAlMenu()">🔙 Cambiar de Juego</button>
+            <div class="cabecera"><span id="juego-titulo">Juego</span> <span>Puntos: <span id="juego-puntos">0</span> ⭐</span></div>
+            
+            <div id="grafico-personalizado" class="icono-flotante" style="font-size: 65px; margin: 10px 0; min-height: 75px;"></div>
+            
+            <div id="juego-reto" class="display-reto">Pregunta</div>
+            
+            <div id="juego-opciones"></div>
+            
+            <div id="juego-msg" class="mensaje"></div>
         </div>
 
     </div>
 
     <script>
-        // --- MOTOR DE PROGRESO (LocalStorage) ---
-        let puntos = parseInt(localStorage.getItem('pts_mates')) || 0;
-        let medallas = JSON.parse(localStorage.getItem('med_mates')) || [];
+        // --- MOTOR CENTRAL DE AUDIO SINTETIZADO (Sinfonías Retro sin Archivos) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function reproducirSonido(tipo) {
+            // Asegurar que el contexto de audio esté activo tras interacción del usuario
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (tipo === 'click') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (tipo === 'correcto') {
+                // Tono doble ascendente feliz
+                osc.type = 'triangle'; 
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // Nota C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // Nota E5
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (tipo === 'error') {
+                // Tono grave descendente triste
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(70, audioCtx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // --- MOTOR CENTRAL DE ALMACENAMIENTO (LocalStorage) ---
+        let puntos = parseInt(localStorage.getItem('pts_arcade_v3')) || 0;
+        let medallas = JSON.parse(localStorage.getItem('med_arcade_v3')) || [];
+        let juegoActual = "";
+        let solucionCorrectaGlobal = null;
 
         function guardar() {
-            localStorage.setItem('pts_mates', puntos);
-            localStorage.setItem('med_mates', JSON.stringify(medallas));
+            localStorage.setItem('pts_arcade_v3', puntos);
+            localStorage.setItem('med_arcade_v3', JSON.stringify(medallas));
             actualizarUI();
         }
 
         function actualizarUI() {
             document.getElementById('puntos-globales').innerText = puntos;
-            document.getElementById('mon-puntos').innerText = puntos;
-            document.getElementById('rel-puntos').innerText = puntos;
-            document.getElementById('sup-puntos').innerText = puntos;
+            document.getElementById('juego-puntos').innerText = puntos;
             
             const vitrina = document.getElementById('vitrina-medallas');
             vitrina.innerHTML = "";
             medallas.forEach(m => vitrina.innerHTML += m + " ");
 
-            // Ganar medallas por puntos
-            if (puntos >= 100 && !medallas.includes("🥉")) { medallas.push("🥉"); alert("🥉 ¡Medalla de bronce!"); guardar(); }
-            if (puntos >= 300 && !medallas.includes("🥈")) { medallas.push("🥈"); alert("🥈 ¡Medalla de plata!"); guardar(); }
-            if (puntos >= 500 && !medallas.includes("🥇")) { medallas.push("🥇"); alert("👑 ¡Medalla de oro!"); guardar(); }
-        }
-
-        function abrirJuego(tipo) {
-            document.getElementById('menu-mates').classList.add('oculto');
-            if(tipo === 'monstruo') { document.getElementById('juego-monstruo').classList.remove('oculto'); nuevoMonstruo(); }
-            if(tipo === 'reloj') { document.getElementById('juego-reloj').classList.remove('oculto'); nuevoReloj(); }
-            if(tipo === 'super') { document.getElementById('juego-super').classList.remove('oculto'); nuevoSuper(); }
+            if (puntos >= 200 && !medallas.includes("🥉")) { medallas.push("🥉"); alert("🥉 ¡Desbloqueaste Medalla de Bronce!"); guardar(); }
+            if (puntos >= 600 && !medallas.includes("🥈")) { medallas.push("🥈"); alert("🥈 ¡Desbloqueaste Medalla de Plata!"); guardar(); }
+            if (puntos >= 1200 && !medallas.includes("🥇")) { medallas.push("🥇"); alert("👑 ¡Brillante! Medalla de Oro Máxima."); guardar(); }
         }
 
         function irAlMenu() {
-            document.querySelectorAll('.contenedor-principal > div').forEach(d => d.classList.add('oculto'));
+            document.getElementById('pantalla-juego').classList.add('oculto');
             document.getElementById('menu-mates').classList.remove('oculto');
+            // Resetear colores del contenedor al volver al menú
+            document.documentElement.style.setProperty('--color-principal', '#1e90ff');
             actualizarUI();
         }
 
-        // --- LÓGICA JUEGO 1: MONSTRUO ---
-        let monRes = 0;
-        function nuevoMonstruo() {
-            let n = puntos < 100 ? 1 : puntos < 300 ? 2 : 3;
-            document.getElementById('mon-nivel').innerText = n;
-            document.getElementById('mon-emoji').innerText = n==1?"👶":n==2?"🦖":"👑";
-            let t = n==1?[2,3,4]:n==2?[5,6,7]:[8,9];
-            let v1 = t[Math.floor(Math.random()*t.length)];
-            let v2 = Math.floor(Math.random()*10)+1;
-            monRes = v1 * v2;
-            document.getElementById('mon-reto').innerText = `${v1} x ${v2}`;
-            pintarOpciones('mon-opciones', monRes, [monRes+2, monRes-2, monRes+5], (v) => check(v, monRes, 'mon-msg', nuevoMonstruo));
-        }
-
-        // --- LÓGICA JUEGO 2: RELOJ ---
-        let relRes = "";
-        function nuevoReloj() {
-            const horas = ["1:00","2:30","5:15","8:45","12:00","6:30","4:15","10:45"];
-            const nombres = ["La una en punto","Las dos y media","Las cinco y cuarto","Las nueve menos cuarto","Las doce en punto","Las seis y media","Las cuatro y cuarto","Las once menos cuarto"];
-            let idx = Math.floor(Math.random()*horas.length);
-            relRes = horas[idx];
-            document.getElementById('rel-reto').innerText = nombres[idx];
+        function abrirJuego(tipo) {
+            reproducirSonido('click');
+            juegoActual = tipo;
+            document.getElementById('menu-mates').classList.add('oculto');
+            document.getElementById('pantalla-juego').classList.remove('oculto');
+            document.getElementById('juego-msg').innerText = "";
             
-            let falsas = horas.filter(h => h !== relRes).sort(() => 0.5 - Math.random()).slice(0, 2);
-            pintarOpciones('rel-opciones', relRes, falsas, (v) => check(v, relRes, 'rel-msg', nuevoReloj));
+            // Cambiar colores temáticos según el juego para dar dinamismo visual
+            const paletas = {
+                monstruo: '#ff4757', reloj: '#ffa502', super: '#2ed573', romanos: '#747d8c',
+                mayorMenor: '#1e90ff', series: '#9b59b6', fracciones: '#ff6b81', geometria: '#341f97'
+            };
+            document.documentElement.style.setProperty('--color-principal', paletas[tipo] || '#1e90ff');
+
+            cargarNuevoReto();
         }
 
-        // --- LÓGICA JUEGO 3: SÚPER ---
-        let supRes = 0;
-        function nuevoSuper() {
-            const items = [{e:"🍎", p:3}, {e:"🍕", p:8}, {e:"🍦", p:2}, {e:"🧸", p:15}, {e:"🍫", p:1}, {e:"🍩", p:2}];
-            let it = items[Math.floor(Math.random()*items.length)];
-            let pago = it.p <= 5 ? 10 : 20;
-            supRes = pago - it.p;
-            document.getElementById('sup-item').innerText = it.e;
-            document.getElementById('sup-precio').innerText = `Precio: ${it.p}€`;
-            document.getElementById('sup-pago').innerText = `Pagas con: ${pago}€`;
-            pintarOpciones('sup-opciones', supRes, [supRes+1, supRes-1, supRes+2], (v) => check(v, supRes, 'sup-msg', nuevoSuper));
-        }
-
-        // --- UTILIDADES ---
-        function pintarOpciones(id, correcta, falsas, callback) {
-            let cont = document.getElementById(id);
-            cont.innerHTML = "";
-            let todas = [correcta, ...falsas].sort(() => 0.5 - Math.random());
-            todas.forEach(op => {
-                let b = document.createElement('button');
-                b.className = "btn";
-                b.innerText = op + (id === 'sup-opciones' ? "€" : "");
-                b.onclick = () => callback(op);
-                cont.appendChild(b);
-            });
-        }
-
-        function check(valor, correcta, msgId, next) {
-            let m = document.getElementById(msgId);
-            if(valor == correcta) {
-                puntos += 10; m.innerText = "✅ ¡Genial!"; m.style.color = "green";
-                guardar();
-                setTimeout(() => { m.innerText = ""; next(); }, 1200);
-            } else {
-                m.innerText = "❌ ¡Inténtalo de nuevo!"; m.style.color = "red";
-                setTimeout(() => m.innerText = "", 1000);
+        function cargarNuevoReto() {
+            const cont = document.getElementById('modulo-contenedor');
+            cont.classList.remove('animar-victoria', 'animar-error', 'animar-rebote');
+            void cont.offsetWidth; // Truco de renderizado CSS para reiniciar animaciones
+            
+            document.getElementById('grafico-personalizado').innerHTML = "";
+            
+            switch(juegoActual) {
+                case 'monstruo': juegoMonstruo(); break;
+                case 'reloj': juegoReloj(); break;
+                case 'super': juegoSuper(); break;
+                case 'romanos': juegoRomanos(); break;
+                case 'mayorMenor': juegoMayorMenor(); break;
+                case 'series': juegoSeries(); break;
+                case 'fracciones': juegoFracciones(); break;
+                case 'geometria': juegoGeometria(); break;
+                case 'mitadDoble': juegoMitadDoble(); break;
+                case 'problemas': juegoProblemas(); break;
+                case 'unidades': juegoUnidades(); break;
+                case 'paresImpares': juegoParesImpares(); break;
+                case 'aproximar': juegoAproximar(); break;
             }
         }
 
-        function borrarTodo() { if(confirm("¿Reiniciar todo?")) { localStorage.clear(); location.reload(); } }
+        // --- ENLACES DE LÓGICA DE LOS 13 JUEGOS ---
+        function juegoMonstruo() {
+            document.getElementById('juego-titulo').innerText = "El Monstruo de las Tablas";
+            let n = puntos < 150 ? 1 : puntos < 500 ? 2 : 3;
+            document.getElementById('grafico-personalizado').innerText = n==1?"👶":n==2?"🦖":"👑";
+            let tab = n==1?[2,3,4]:n==2?[5,6,7]:[8,9];
+            let t = tab[Math.floor(Math.random()*tab.length)]; let m = Math.floor(Math.random()*10)+1;
+            solucionCorrectaGlobal = t * m;
+            document.getElementById('juego-reto').innerText = `${t} x ${m}`;
+            construirBotones(solucionCorrectaGlobal, [solucionCorrectaGlobal+2, solucionCorrectaGlobal-2, solucionCorrectaGlobal+4]);
+        }
 
+        function juegoReloj() {
+            document.getElementById('juego-titulo').innerText = "El Reloj Mágico";
+            document.getElementById('grafico-personalizado').innerText = "⏰";
+            const h = ["2:30", "4:15", "6:00", "8:45", "10:30", "1:15", "5:45", "12:00"];
+            const txt = ["Las dos y media", "Las cuatro y cuarto", "Las seis en punto", "Las nueve menos cuarto", "Las diez y media", "La una y cuarto", "Las seis menos cuarto", "Las doce en punto"];
+            let idx = Math.floor(Math.random()*h.length);
+            solucionCorrectaGlobal = h[idx];
+            document.getElementById('juego-reto').innerText = txt[idx];
+            let falsos = h.filter(x => x !== h[idx]).sort(() => 0.5 - Math.random()).slice(0,2);
+            construirBotones(solucionCorrectaGlobal, falsos);
+        }
+
+        function juegoSuper() {
+            document.getElementById('juego-titulo').innerText = "El Súper del Barrio";
+            const items = [{e:"🍎",p:4}, {e:"🍕",p:7}, {e:"🍦",p:3}, {e:"🧸",p:12}, {e:"🍩",p:2}];
+            let it = items[Math.floor(Math.random()*items.length)];
+            let billete = it.p <= 5 ? 10 : 20;
+            solucionCorrectaGlobal = billete - it.p;
+            document.getElementById('grafico-personalizado').innerHTML = `<span class="item-super">${it.e}</span> <span class="precio-tag">${it.p}€</span>`;
+            document.getElementById('juego-reto').innerText = `Pagas con ${billete}€ ¿Cuánto te devuelven?`;
+            construirBotones(solucionCorrectaGlobal + "€", [(solucionCorrectaGlobal+1)+"€", (solucionCorrectaGlobal-1)+"€", (solucionCorrectaGlobal+2)+"€"], true);
+        }
+
+        function juegoRomanos() {
+            document.getElementById('juego-titulo').innerText = "Imperio Romano";
+            document.getElementById('grafico-personalizado').innerText = "🏛️";
+            const arabes = [3, 5, 9, 10, 12, 15, 20, 24, 30];
+            const rom = ["III", "V", "IX", "X", "XII", "XV", "XX", "XXIV", "XXX"];
+            let idx = Math.floor(Math.random()*arabes.length);
+            solucionCorrectaGlobal = rom[idx];
+            document.getElementById('juego-reto').innerText = `¿Cómo se escribe el ${arabes[idx]} en números romanos?`;
+            let falsos = rom.filter(x => x !== rom[idx]).sort(() => 0.5 - Math.random()).slice(0,2);
+            construirBotones(solucionCorrectaGlobal, falsos);
+        }
+
+        function juegoMayorMenor() {
+            document.getElementById('juego-titulo').innerText = "El Cocodrilo Tragón";
+            document.getElementById('grafico-personalizado').innerText = "🐊";
+            let n1 = Math.floor(Math.random()*800)+100; let n2 = Math.floor(Math.random()*800)+100;
+            if(Math.random() > 0.7) n2 = n1;
+            solucionCorrectaGlobal = n1 > n2 ? ">" : n1 < n2 ? "<" : "=";
+            document.getElementById('juego-reto').innerText = `${n1}  [ ? ]  ${n2}`;
+            construirBotones(solucionCorrectaGlobal, [">", "<", "="], false, true);
+        }
+
+        function juegoSeries() {
+            document.getElementById('juego-titulo').innerText = "El Tren de las Series";
+            document.getElementById('grafico-personalizado').innerText = "🚂";
+            let salto = [2, 5, 10, 3][Math.floor(Math.random()*4)];
+            let inicio = Math.floor(Math.random()*30)+5;
+            let s = [inicio, inicio+salto, inicio+(salto*2), inicio+(salto*3), inicio+(salto*4)];
+            let ocultoIdx = Math.floor(Math.random()*3)+1;
+            solucionCorrectaGlobal = s[ocultoIdx]; s[ocultoIdx] = "?";
+            document.getElementById('juego-reto').innerText = s.join(" - ");
+            construirBotones(solucionCorrectaGlobal, [solucionCorrectaGlobal+salto, solucionCorrectaGlobal-salto, solucionCorrectaGlobal+1]);
+        }
+
+        function juegoFracciones() {
+            document.getElementById('juego-titulo').innerText = "Fiesta de Fracciones";
+            document.getElementById('grafico-personalizado').innerText = "🍕";
+            const nombres = ["Un tercio", "Dos cuartos", "Tres quintos", "Un medio", "Cuatro sextos"];
+            const codigos = [
+                `<div class="fraccion"><span>1</span><span class="linea-fraccion"></span><span>3</span></div>`,
+                `<div class="fraccion"><span>2</span><span class="linea-fraccion"></span><span>4</span></div>`,
+                `<div class="fraccion"><span>3</span><span class="linea-fraccion"></span><span>5</span></div>`,
+                `<div class="fraccion"><span>1</span><span class="linea-fraccion"></span><span>2</span></div>`,
+                `<div class="fraccion"><span>4</span><span class="linea-fraccion"></span><span>6</span></div>`
+            ];
+            let idx = Math.floor(Math.random()*nombres.length);
+            solucionCorrectaGlobal = codigos[idx];
+            document.getElementById('juego-reto').innerText = `Busca la fracción: ${nombres[idx]}`;
+            let falsos = codigos.filter(x => x !== codigos[idx]).sort(() => 0.5 - Math.random()).slice(0,2);
+            construirBotonesRaw(solucionCorrectaGlobal, falsos);
+        }
+
+        function juegoGeometria() {
+            document.getElementById('juego-titulo').innerText = "Detective de Formas";
+            const figuras = [
+                {e:"🔺", q:"¿Cuántos lados tiene un triángulo?", r:"3"},
+                {e:"🟪", q:"¿Cuántos vértices tiene un cuadrado?", r:"4"},
+                {e:"🟢", q:"¿Cómo se llama esta figura plana?", r:"Círculo"},
+                {e:"📦", q:"Un dado de parchís es un...", r:"Cubo"}
+            ];
+            let f = figuras[Math.floor(Math.random()*figuras.length)];
+            document.getElementById('grafico-personalizado').innerText = f.e;
+            document.getElementById('juego-reto').innerText = f.q;
+            solucionCorrectaGlobal = f.r;
+            let falsos = ["3","4","Círculo","Cubo","5","Esfera"].filter(x => x !== f.r).sort(() => 0.5 - Math.random()).slice(0,2);
+            construirBotones(solucionCorrectaGlobal, falsos);
+        }
+
+        function juegoMitadDoble() {
+            document.getElementById('juego-titulo').innerText = "El Duplicador Clínico";
+            document.getElementById('grafico-personalizado').innerText = "🧪";
+            let num = [10, 20, 30, 40, 6, 12, 16][Math.floor(Math.random()*7)];
+            let tipo = Math.random() > 0.5 ? "doble" : "mitad";
+            solucionCorrectaGlobal = tipo === "doble" ? num * 2 : num / 2;
+            document.getElementById('juego-reto').innerText = `¿Cuál es la ${tipo.toUpperCase()} de ${num}?`;
+            construirBotones(solucionCorrectaGlobal, [solucionCorrectaGlobal+4, solucionCorrectaGlobal-2, num+1]);
+        }
+
+        function juegoProblemas() {
+            document.getElementById('juego-titulo').innerText = "Mini Problemas";
+            document.getElementById('grafico-personalizado').innerText = "💡";
+            const lista = [
+                {q:"Tengo 3 cajas con 5 caramelos en cada una. ¿Cuántos tengo en total?", r:15, f:[8, 12]},
+                {q:"En un árbol había 24 pájaros y volaron 10. ¿Cuántos quedan?", r:14, f:[34, 12]},
+                {q:"Reparto 12 gominolas entre 2 amigas. ¿Cuántas doy a cada una?", r:6, f:[10, 4]}
+            ];
+            let p = lista[Math.floor(Math.random()*lista.length)];
+            solucionCorrectaGlobal = p.r; document.getElementById('juego-reto').innerText = p.q;
+            construirBotones(solucionCorrectaGlobal, p.f);
+        }
+
+        function juegoUnidades() {
+            document.getElementById('juego-titulo').innerText = "Fábrica de Unidades";
+            document.getElementById('grafico-personalizado').innerText = "📦";
+            let c = Math.floor(Math.random()*3)+1; let d = Math.floor(Math.random()*7)+1; let u = Math.floor(Math.random()*9)+1;
+            let numTotal = (c*100) + (d*10) + u;
+            solucionCorrectaGlobal = `${c}C + ${d}D + ${u}U`;
+            document.getElementById('juego-reto').innerText = `Descompón el número ${numTotal}:`;
+            construirBotones(solucionCorrectaGlobal, [`${c}C + ${u}D + ${d}U`, `${u}C + ${d}D + ${c}U`]);
+        }
+
+        function juegoParesImpares() {
+            document.getElementById('juego-titulo').innerText = "Radar Par o Impar";
+            document.getElementById('grafico-personalizado').innerText = "🔢";
+            let n = Math.floor(Math.random()*800)+12;
+            solucionCorrectaGlobal = n % 2 === 0 ? "PAR" : "IMPAR";
+            document.getElementById('juego-reto').innerText = `El número ${n} es...`;
+            construirBotones(solucionCorrectaGlobal, ["PAR", "IMPAR"], false, true);
+        }
+
+        function juegoAproximar() {
+            document.getElementById('juego-titulo').innerText = "Tiro a la Decena";
+            document.getElementById('grafico-personalizado').innerText = "🎯";
+            let base = Math.floor(Math.random()*80)+10; let uni = Math.floor(Math.random()*8)+1;
+            let n = (Math.floor(base/10)*10) + uni;
+            let deAbajo = Math.floor(n/10)*10; let deArriba = deAbajo + 10;
+            solucionCorrectaGlobal = (uni >= 5) ? deArriba : deAbajo;
+            document.getElementById('juego-reto').innerText = `Aproxima ${n} a la decena más cercana:`;
+            construirBotones(solucionCorrectaGlobal, [solucionCorrectaGlobal === deAbajo ? deArriba : deAbajo, deAbajo+5]);
+        }
+
+        // --- RENDERIZADORES DE BOTONES ---
+        function construirBotones(correcta, falsos, esString = false, forzarUnicos = false) {
+            let opciones = forzarUnicos ? [...falsos] : [...new Set([correcta, ...falsos])].sort(() => 0.5 - Math.random());
+            let cont = document.getElementById('juego-opciones'); cont.innerHTML = "";
+            opciones.forEach(op => {
+                let b = document.createElement('button'); b.className = "btn"; b.innerText = op;
+                b.onclick = () => verificar(op, correcta); cont.appendChild(b);
+            });
+        }
+
+        function construirBotonesRaw(correcta, falsos) {
+            let opciones = [correcta, ...falsos].sort(() => 0.5 - Math.random());
+            let cont = document.getElementById('juego-opciones'); cont.innerHTML = "";
+            opciones.forEach(op => {
+                let b = document.createElement('button'); b.className = "btn"; b.innerHTML = op;
+                b.onclick = () => verificar(op, correcta); cont.appendChild(b);
+            });
+        }
+
+        // --- VALIDADOR CON ANIMACIONES Y SONIDOS ---
+        function verificar(elegido, correcto) {
+            let m = document.getElementById('juego-msg');
+            let contenedor = document.getElementById('modulo-contenedor');
+            document.querySelectorAll('#juego-opciones button').forEach(b => b.disabled = true);
+
+            if(elegido === correcto) {
+                puntos += 10;
+                reproducirSonido('correcto');
+                contenedor.classList.add('animar-victoria');
+                m.innerText = "🎉 ¡Espectacular! ¡Acertaste! 🥳"; m.style.color = "#2ed573";
+                guardar();
+                setTimeout(() => { cargarNuevoReto(); m.innerText = ""; }, 1300);
+            } else {
+                reproducirSonido('error');
+                contenedor.classList.add('animar-error');
+                m.innerText = "❌ ¡Casi! Vuelve a intentarlo, tú puedes. 💪"; m.style.color = "#ff4757";
+                setTimeout(() => { 
+                    contenedor.classList.remove('animar-error');
+                    document.querySelectorAll('#juego-opciones button').forEach(b => b.disabled = false);
+                    m.innerText = "";
+                }, 1000);
+            }
+        }
+
+        function borrarTodo() { if(confirm("¿Borrar todo el progreso?")) { localStorage.clear(); location.reload(); } }
         actualizarUI();
     </script>
 </body>
