@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mates Divertidas para Mi Hermana</title>
+    <title>Súper App Escolar</title>
     <style>
-        /* --- ESTILOS VISUALES (CSS) --- */
+        /* --- ESTILOS GENERALES --- */
         body {
             font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
             background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
@@ -34,166 +34,202 @@
             font-size: 28px;
         }
 
-        .marcador {
-            font-size: 20px;
-            font-weight: bold;
-            color: #2ed573;
-            margin-bottom: 20px;
+        .oculto {
+            display: none !important;
         }
 
-        .monstruo {
-            font-size: 70px;
-            margin: 20px 0;
-            transition: transform 0.3s ease;
-        }
-
-        .operacion {
-            font-size: 42px;
-            font-weight: bold;
-            color: #2f3542;
-            margin: 20px 0;
-            background-color: #f1f2f6;
-            padding: 10px;
-            border-radius: 15px;
-        }
-
-        .opciones {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .boton-respuesta {
+        /* --- BOTONES --- */
+        .btn {
             background-color: #1e90ff;
             color: white;
             border: none;
             padding: 15px;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             border-radius: 15px;
             cursor: pointer;
             transition: transform 0.2s, background-color 0.2s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            margin-bottom: 15px;
         }
 
-        .boton-respuesta:hover {
-            transform: scale(1.03);
-            background-color: #3742fa;
-        }
+        .btn:hover { transform: scale(1.03); }
+        .btn:active { transform: scale(0.98); }
 
-        .boton-respuesta:active {
-            transform: scale(0.98);
-        }
+        .btn-mates { background-color: #ff6b6b; }
+        .btn-mates:hover { background-color: #ee5253; }
+        
+        .btn-lengua { background-color: #10ac84; }
+        .btn-lengua:hover { background-color: #1dd1a1; }
 
-        .mensaje {
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 20px;
-            min-height: 30px;
+        .btn-volver { background-color: #576574; font-size: 16px; padding: 10px; }
+
+        /* --- PANTALLAS DE JUEGO --- */
+        .marcador { font-size: 20px; font-weight: bold; color: #2ed573; margin-bottom: 20px; }
+        .grande { font-size: 70px; margin: 20px 0; transition: transform 0.3s; }
+        .pregunta-caja { font-size: 36px; font-weight: bold; color: #2f3542; margin: 20px 0; background-color: #f1f2f6; padding: 15px; border-radius: 15px; }
+        .mensaje { font-size: 18px; font-weight: bold; margin-top: 20px; min-height: 25px; }
+        
+        .opciones-flex {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
         }
     </style>
 </head>
 <body>
 
     <div class="contenedor">
-        <h1>👾 ¡Alimenta al Monstruo! 👾</h1>
-        <div class="marcador">Puntos: <span id="puntos">0</span> ⭐</div>
         
-        <div class="monstruo" id="monstruo">😋</div>
-        
-        <div class="operacion" id="pregunta">2 x 3</div>
-        
-        <div class="opciones">
-            <button class="boton-respuesta" onclick="comprobarRespuesta(0)" id="opc0">?</button>
-            <button class="boton-respuesta" onclick="comprobarRespuesta(1)" id="opc1">?</button>
-            <button class="boton-respuesta" onclick="comprobarRespuesta(2)" id="opc2">?</button>
+        <div id="pantalla-menu">
+            <h1>🎒 ¡Tu Súper App de Estudiar! 🎒</h1>
+            <p style="font-size: 18px; color: #576574;">¿Qué quieres entrenar hoy?</p>
+            <button class="btn btn-mates" onclick="irAJuego('mates')">🔢 Matemáticas</button>
+            <button class="btn btn-lengua" onclick="irAJuego('lengua')">✍️ Lengua Española</button>
         </div>
-        
-        <div class="mensaje" id="mensaje"></div>
+
+        <div id="pantalla-mates" class="oculto">
+            <button class="btn btn-volver" onclick="irAMenu()">🔙 Volver al Menú</button>
+            <h2>👾 Alimenta al Monstruo</h2>
+            <div class="marcador">Puntos Mates: <span id="puntos-mates">0</span> ⭐</div>
+            <div class="grande" id="monstruo">😋</div>
+            <div class="pregunta-caja" id="preg-mates">2 x 3</div>
+            <div id="opciones-mates" style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn" onclick="comprobarMates(0)" id="mat0">?</button>
+                <button class="btn" onclick="comprobarMates(1)" id="mat1">?</button>
+                <button class="btn" onclick="comprobarMates(2)" id="mat2">?</button>
+            </div>
+            <div class="mensaje" id="msg-mates"></div>
+        </div>
+
+        <div id="pantalla-lengua" class="oculto">
+            <button class="btn btn-volver" onclick="irAMenu()">🔙 Volver al Menú</button>
+            <h2>🔍 El Detective de Palabras</h2>
+            <div class="marcador">Puntos Lengua: <span id="puntos-lengua">0</span> ⭐</div>
+            <div class="grande" id="detective">🕵️‍♀️</div>
+            <div class="pregunta-caja" id="preg-lengua">ca_allo</div>
+            <p>¿Qué letra falta?</p>
+            <div class="opciones-flex">
+                <button class="btn" style="width: 100px; font-size: 30px;" onclick="comprobarLengua('B')">B</button>
+                <button class="btn" style="width: 100px; font-size: 30px;" onclick="comprobarLengua('V')">V</button>
+            </div>
+            <div class="mensaje" id="msg-lengua"></div>
+        </div>
+
     </div>
 
     <script>
-        /* --- LÓGICA DEL JUEGO (JAVASCRIPT) --- */
-        let puntos = 0;
-        let respuestaCorrecta = 0;
+        // --- NAVEGACIÓN ---
+        function irAJuego(juego) {
+            document.getElementById('pantalla-menu').classList.add('oculto');
+            if(juego === 'mates') {
+                document.getElementById('pantalla-mates').classList.remove('oculto');
+                nuevaPreguntaMates();
+            } else {
+                document.getElementById('pantalla-lengua').classList.remove('oculto');
+                nuevaPreguntaLengua();
+            }
+        }
 
-        const monstruo = document.getElementById('monstruo');
-        const preguntaElemento = document.getElementById('pregunta');
-        const mensaje = document.getElementById('mensaje');
-        const puntosElemento = document.getElementById('puntos');
+        function irAMenu() {
+            document.getElementById('pantalla-mates').classList.add('oculto');
+            document.getElementById('pantalla-lengua').classList.add('oculto');
+            document.getElementById('pantalla-menu').classList.remove('oculto');
+        }
 
-        // Función para generar una nueva pregunta aleatoria
-        function nuevaPregunta() {
-            // En 3º de primaria se repasan las tablas del 2 al 9
+        // --- JUEGO DE MATEMÁTICAS ---
+        let ptsMates = 0;
+        let resCorrectaMates = 0;
+
+        function nuevaPreguntaMates() {
             const tabla = Math.floor(Math.random() * 8) + 2; 
-            const numero = Math.floor(Math.random() * 10) + 1; 
-            
-            respuestaCorrecta = tabla * numero;
-            preguntaElemento.innerText = `${tabla} x ${numero}`;
+            const num = Math.floor(Math.random() * 10) + 1; 
+            resCorrectaMates = tabla * num;
+            document.getElementById('preg-mates').innerText = `${tabla} x ${num}`;
 
-            // Generar dos respuestas falsas que estén cerca de la correcta
-            let falso1 = respuestaCorrecta + (Math.random() > 0.5 ? 2 : -2);
-            let falso2 = respuestaCorrecta + (Math.random() > 0.5 ? 4 : -4);
+            let f1 = resCorrectaMates + (Math.random() > 0.5 ? 2 : -2);
+            let f2 = resCorrectaMates + (Math.random() > 0.5 ? 4 : -4);
+            if (f1 === resCorrectaMates) f1 += 3;
+            if (f2 === resCorrectaMates || f2 === f1) f2 += 5;
 
-            // Asegurarnos de que no se repitan los números
-            if (falso1 === respuestaCorrecta) falso1 += 3;
-            if (falso2 === respuestaCorrecta || falso2 === falso1) falso2 += 5;
-            if (falso1 < 0) falso1 = Math.abs(falso1) + 1;
-            if (falso2 < 0) falso2 = Math.abs(falso2) + 2;
-
-            // Guardar opciones en un array y desordenarlas
-            let opciones = [respuestaCorrecta, falso1, falso2];
+            let opciones = [resCorrectaMates, Math.abs(f1), Math.abs(f2)];
             opciones.sort(() => Math.random() - 0.5);
 
-            // Colocar los textos en los botones
             for (let i = 0; i < 3; i++) {
-                document.getElementById(`opc${i}`).innerText = opciones[i];
+                document.getElementById(`mat${i}`).innerText = opciones[i];
+                document.getElementById(`mat${i}`).disabled = false;
             }
         }
 
-        // Función que se ejecuta cuando tu hermana pulsa un botón
-        function comprobarRespuesta(indiceBotón) {
-            const botonSeleccionado = document.getElementById(`opc${indiceBotón}`);
-            const respuestaUsuario = parseInt(botonSeleccionado.innerText);
+        function comprobarMates(idx) {
+            const elegido = parseInt(document.getElementById(`mat${idx}`).innerText);
+            const msg = document.getElementById('msg-mates');
+            const monst = document.getElementById('monstruo');
 
-            if (respuestaUsuario === respuestaCorrecta) {
-                puntos += 10;
-                puntosElemento.innerText = puntos;
-                mensaje.innerText = "🎉 ¡Riquísimo! ¡Acertaste! 🎉";
-                mensaje.style.color = "#2ed573";
-                monstruo.innerText = "🥳"; // Monstruo feliz
-                monstruo.style.transform = "scale(1.2)";
-                
-                // Bloquear clics rápidos mientras cambia de pregunta
-                desactivarBotones(true);
-
-                setTimeout(() => {
-                    monstruo.innerText = "😋";
-                    monstruo.style.transform = "scale(1)";
-                    mensaje.innerText = "";
-                    desactivarBotones(false);
-                    nuevaPregunta();
-                }, 1500);
-
+            if(elegido === resCorrectaMates) {
+                ptsMates += 10;
+                document.getElementById('puntos-mates').innerText = ptsMates;
+                msg.innerText = "🎉 ¡Riquísimo! ¡Acertaste! 🎉";
+                msg.style.color = "#2ed573";
+                monst.innerText = "🥳";
+                bloquearBotonesMates(true);
+                setTimeout(() => { msg.innerText = ""; monst.innerText = "😋"; nuevaPreguntaMates(); }, 1500);
             } else {
-                mensaje.innerText = "❌ ¡Casi! El monstruo sigue con hambre. ¡Inténtalo otra vez! 💪";
-                mensaje.style.color = "#ff4757";
-                monstruo.innerText = "🥺"; // Monstruo triste
-                
-                setTimeout(() => {
-                    monstruo.innerText = "😋";
-                }, 1500);
+                msg.innerText = "❌ ¡Casi! Inténtalo otra vez. 💪";
+                msg.style.color = "#ff4757";
+                monst.innerText = "🥺";
+                setTimeout(() => { monst.innerText = "😋"; }, 1500);
             }
         }
 
-        function desactivarBotones(estado) {
-            for (let i = 0; i < 3; i++) {
-                document.getElementById(`opc${i}`).disabled = estado;
-            }
+        function bloquearBotonesMates(estado) {
+            for (let i = 0; i < 3; i++) document.getElementById(`mat${i}`).disabled = estado;
         }
 
-        // Iniciar el juego por primera vez al cargar la página
-        nuevaPregunta();
+
+        // --- JUEGO DE LENGUA (B y V) ---
+        let ptsLengua = 0;
+        let letraCorrecta = "";
+        
+        // Base de datos de palabras para 3º de primaria
+        const palabrasLengua = [
+            { palabra: "ca_allo", correcta: "V", mostrar: "ca_allo" },
+            { palabra: "a_uelo", correcta: "B", mostrar: "a_uelo" },
+            { palabra: "_arco", correcta: "B", mostrar: "_arco" },
+            { palabra: "_iaje", correcta: "V", mostrar: "_iaje" },
+            { palabra: "sa_io", correcta: "B", mostrar: "sa_io" },
+            { palabra: "vi_ir", correcta: "V", mostrar: "vi_ir" },
+            { palabra: "auto_ús", correcta: "B", mostrar: "auto_ús" },
+            { palabra: "llu_ia", correcta: "V", mostrar: "llu_ia" },
+            { palabra: "ca_eza", correcta: "B", mostrar: "ca_eza" },
+            { palabra: "hue_o", correcta: "V", mostrar: "hue_o" }
+        ];
+
+        function nuevaPreguntaLengua() {
+            const reto = palabrasLengua[Math.floor(Math.random() * palabrasLengua.length)];
+            document.getElementById('preg-lengua').innerText = reto.mostrar;
+            letraCorrecta = reto.correcta;
+        }
+
+        function comprobarLengua(letraSeleccionada) {
+            const msg = document.getElementById('msg-lengua');
+            const det = document.getElementById('detective');
+
+            if(letraSeleccionada === letraCorrecta) {
+                ptsLengua += 10;
+                document.getElementById('puntos-lengua').innerText = ptsLengua;
+                msg.innerText = "🌟 ¡Buen trabajo, detective! 🌟";
+                msg.style.color = "#2ed573";
+                det.innerText = "😎";
+                setTimeout(() => { msg.innerText = ""; det.innerText = "🕵️‍♀️"; nuevaPreguntaLengua(); }, 1500);
+            } else {
+                msg.innerText = "❌ Esa letra no encaja aquí. ¡Prueba otra vez! 🔍";
+                msg.style.color = "#ff4757";
+                det.innerText = "🧐";
+                setTimeout(() => { det.innerText = "🕵️‍♀️"; }, 1500);
+            }
+        }
     </script>
 </body>
 </html>
