@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informatica Arcade 🤖</title>
+    <style>
+        :root {
+            --color-principal: #38ef7d;
+            --bg-juego: #1e272e;
+        }
+
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff;
+            overflow-x: hidden;
+        }
+
+        .contenedor-principal {
+            background: rgba(30, 39, 46, 0.98); padding: 25px; border-radius: 30px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 3px solid var(--color-principal);
+            max-width: 480px; width: 92%; text-align: center; box-sizing: border-box;
+            position: relative;
+        }
+
+        h1 { color: #fff; margin: 10px 0; font-weight: 900; text-shadow: 0 0 10px var(--color-principal); }
+        p { color: #dcdde1; }
+
+        .btn-volver { 
+            background-color: #576574; color: white; border: none; padding: 8px 18px; border-radius: 50px; 
+            cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 3px 0 #000;
+        }
+
+        .marcador {
+            background: rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; margin-bottom: 20px; 
+            border: 2px dashed var(--color-principal); font-weight: bold; font-size: 18px; color: var(--color-principal);
+        }
+
+        /* --- PANTALLA DEL ROBOT --- */
+        .pantalla-robot {
+            background: #2f3542; border-radius: 20px; padding: 20px; margin: 15px 0;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .robot-visual { font-size: 65px; margin: 10px 0; animation: flotar 3s ease-in-out infinite; }
+        .mision-texto { font-size: 16px; color: #f1f2f6; line-height: 1.4; margin-bottom: 15px; text-align: left; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; }
+
+        /* --- BLOQUES DE CÓDIGO (OPCIONES) --- */
+        .bloque-codigo {
+            background: #22a6b3; color: white; border: none; padding: 14px; font-size: 15px; 
+            font-weight: bold; border-radius: 15px; cursor: pointer; width: 100%; margin-bottom: 12px;
+            border-bottom: 4px solid #178792; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 10px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .bloque-codigo:hover { background: #3c6382; transform: scale(1.02); }
+        .bloque-codigo:active { transform: translateY(2px); border-bottom-width: 1px; }
+
+        .feedback { font-size: 18px; font-weight: bold; min-height: 35px; margin-top: 15px; }
+
+        @keyframes flotar {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-principal">
+        <button class="btn-volver" onclick="window.location.href='index.html'">🔙 Volver al Mapa</button>
+        <h1>🤖 Misión: Código Robot 💻</h1>
+
+        <div class="marcador">
+            <span>⚙️ Bugs Arreglados: <span id="bugs-contador">0</span></span>
+        </div>
+
+        <div class="pantalla-robot">
+            <div id="robot-emoji" class="robot-visual">🤖</div>
+            <div id="mision-instrucciones" class="mision-texto">Cargando algoritmo...</div>
+        </div>
+
+        <div id="codigo-opciones"></div>
+        <div id="codigo-feedback" class="feedback"></div>
+    </div>
+
+    <script>
+        // --- EFECTOS DE SONIDO SYNTH NATIVOS (Estilo 8-bits) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function sonido(tipo) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            if (tipo === 'win') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(900, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.35);
+            } else if (tipo === 'run') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            } else if (tipo === 'bug') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+            }
+        }
+
+        // --- BANCO DE ACERTIJOS LOGICOS (SIN REPETICIONES) ---
+        const misionesOriginales = [
+            { m: "El robot está delante de un charco de agua 💧. Quiere llegar al otro lado sin mojarse los circuitos. ¿Qué instrucciones debe seguir?", e: "🤖💧🔋", r: "1. Avanzar ⬆️<br>2. Saltar 🦘<br>3. Avanzar ⬆️", f: ["1. Girar ↩️<br>2. Avanzar ⬆️<br>3. Girar ↪️", "1. Avanzar ⬆️<br>2. Avanzar ⬆️<br>3. Agacharse ⬇️"] },
+            { m: "El robot camina recto y se choca con un muro de ladrillos 🧱. La batería de energía 🔋 está a su derecha. ¿Cuál es el código correcto para ir a por ella?", e: "🧱🤖👉🔋", r: "1. Girar a la derecha ↪️<br>2. Avanzar ⬆️", f: ["1. Avanzar ⬆️<br>2. Saltar 🦘", "1. Girar a la izquierda ↩️<br>2. Retroceder ⬇️"] },
+            { m: "¡Alerta de virus! 👾 El robot tiene un virus justo delante. Tiene que retroceder dos pasos y encender su escudo de seguridad 🛡️. ¿Qué hacemos?", e: "🛡️⏪🤖👾", r: "1. Retroceder ⬇️<br>2. Retroceder ⬇️<br>3. Activar Escudo 🛡️", f: ["1. Avanzar ⬆️<br>2. Activar Escudo 🛡️", "1. Saltar 🦘<br>2. Girar ↩️<br>3. Agacharse ⬇️"] },
+            { m: "Queremos que el robot dibuje un cuadrado perfecto en el suelo. ¿Qué comandos se tienen que repetir cuatro veces seguidas?", e: "🟩🤖⚙️", r: "1. Avanzar un paso ⬆️<br>2. Girar 90° a la derecha ↪️", f: ["1. Avanzar un paso ⬆️<br>2. Retroceder un paso ⬇️", "1. Saltar alto 🦘<br>2. Agacharse ⬇️"] },
+            { m: "El robot necesita entrar a la base secreta, pero la puerta tiene un candado digital 🔒. ¿Qué herramienta informática debe usar para abrirla?", e: "🤖🔒💻", r: "1. Usar clave secreta (Password) 🔑", f: ["1. Lanzar agua a la pantalla 💧", "1. Golpear el candado con un martillo 🔨"] }
+        ];
+
+        let mazoMisiones = [];
+        let misionActual = null;
+        let bugsArreglados = parseInt(localStorage.getItem('bugs_info_v1')) || 0;
+        document.getElementById('bugs-contador').innerText = bugsArreglados;
+
+        function barajarMisiones() {
+            mazoMisiones = [...misionesOriginales];
+            for (let i = mazoMisiones.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [mazoMisiones[i], mazoMisiones[j]] = [mazoMisiones[j], mazoMisiones[i]];
+            }
+        }
+
+        function cargarNuevaMision() {
+            document.getElementById('codigo-feedback').innerText = "";
+            
+            if (mazoMisiones.length === 0) {
+                barajarMisiones();
+            }
+
+            misionActual = mazoMisiones.pop();
+
+            document.getElementById('mision-instrucciones').innerHTML = misionActual.m;
+            document.getElementById('robot-emoji').innerText = misionActual.e;
+
+            // Mezclar secuencias de comandos
+            let opciones = [misionActual.r, ...misionActual.f].sort(() => 0.5 - Math.random());
+            
+            let contOpciones = document.getElementById('codigo-opciones');
+            contOpciones.innerHTML = "";
+
+            opciones.forEach(op => {
+                let b = document.createElement('button');
+                b.className = "bloque-codigo";
+                b.innerHTML = `<code>${op}</code>`;
+                b.onclick = () => verificarCodigo(op);
+                contOpciones.appendChild(b);
+            });
+        }
+
+        function verificarCodigo(seleccion) {
+            let feed = document.getElementById('codigo-feedback');
+            document.querySelectorAll('.bloque-codigo').forEach(b => b.style.pointerEvents = 'none');
+
+            if (seleccion === misionActual.r) {
+                sonido('win');
+                bugsArreglados += 1;
+                localStorage.setItem('bugs_info_v1', bugsArreglados);
+                document.getElementById('bugs-contador').innerText = bugsArreglados;
+                
+                feed.innerText = "🚀 ¡Algoritmo correcto! El robot ejecuta la misión.";
+                feed.style.color = "#38ef7d";
+
+                setTimeout(() => {
+                    sonido('run');
+                    cargarNuevaMision();
+                }, 2000);
+            } else {
+                sonido('bug');
+                feed.innerText = "❌ ¡Error de sintaxis! El robot no entiende esa orden.";
+                feed.style.color = "#ff4757";
+
+                setTimeout(() => {
+                    document.querySelectorAll('.bloque-codigo').forEach(b => b.style.pointerEvents = 'auto');
+                    feed.innerText = "";
+                }, 1500);
+            }
+        }
+
+        // Inicializar juego
+        barajarMisiones();
+        cargarNuevaMision();
+    </script>
+</body>
+</html>
