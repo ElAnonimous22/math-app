@@ -12,7 +12,6 @@
 
         body {
             font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
-            background: linear-gradient(135deg, #00g2d3 0%, #a8ff78 100%);
             background: linear-gradient(135deg, #78e08f 0%, #60a3bc 100%);
             margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #333;
             overflow-x: hidden;
@@ -33,13 +32,11 @@
         }
         .btn-volver:active { transform: translateY(2px); box-shadow: none; }
 
-        /* --- MARCADOR DE PASAPORTE --- */
         .marcador {
             background: #f1f2f6; padding: 12px; border-radius: 20px; margin-bottom: 20px; 
             border: 3px dashed var(--color-principal); font-weight: bold; font-size: 18px; color: #10ac84;
         }
 
-        /* --- PANTALLA DE PREGUNTA --- */
         .pantalla-pregunta {
             background: var(--bg-juego); color: white; border-radius: 25px; padding: 20px; margin: 15px 0;
             box-shadow: inset 0 5px 15px rgba(0,0,0,0.3);
@@ -47,7 +44,6 @@
 
         .pista-visual { font-size: 70px; margin: 10px 0; animation: flotar 3s ease-in-out infinite; }
 
-        /* --- BOTONES OPCIONES --- */
         .btn-geo {
             background: linear-gradient(45deg, #48dbfb, #1dd1a1); color: white; border: none; 
             padding: 15px; font-size: 17px; font-weight: bold; border-radius: 20px; cursor: pointer;
@@ -113,8 +109,8 @@
             }
         }
 
-        // --- BANCO DE PREGUNTAS GEOGRÁFICAS ---
-        const retosGeo = [
+        // --- BANCO DE PREGUNTAS ---
+        const retosGeo Originales = [
             { q: "¿A qué país pertenece esta bandera?", e: "🇲🇽", r: "México", f: ["España", "Colombia"] },
             { q: "¿Cuál es la famosa capital de Francia, conocida por la Torre Eiffel?", e: "🗼", r: "París", f: ["Roma", "Londres"] },
             { q: "¿A qué país corresponden la pizza, el coliseo y esta bandera?", e: "🇮🇹", r: "Italia", f: ["Portugal", "Grecia"] },
@@ -124,27 +120,38 @@
             { q: "¿Qué país es famoso por su Gran Muralla gigante que se ve desde el espacio?", e: "🐉", r: "China", f: ["India", "Rusia"] }
         ];
 
+        // Copia de la lista que iremos vaciando poco a poco
+        let mazoPreguntas = [];
+        let retoActual = null;
+
         let sellos = parseInt(localStorage.getItem('sellos_geo_v1')) || 0;
         document.getElementById('sellos-contador').innerText = sellos;
 
-        let retoActual = null;
+        // Función clave para barajar el mazo (Algoritmo Fisher-Yates)
+        function barajarMazo() {
+            mazoPreguntas = [...retosGeoOriginales];
+            for (let i = mazoPreguntas.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [mazoPreguntas[i], mazoPreguntas[j]] = [mazoPreguntas[j], mazoPreguntas[i]];
+            }
+        }
 
         function cargarNuevaMision() {
             document.getElementById('geo-feedback').innerText = "";
             
-            // Elegir una pregunta aleatoria que no sea exactamente la misma si es posible
-            let nuevoReto;
-            do {
-                nuevoReto = retosGeo[Math.floor(Math.random() * retosGeo.length)];
-            } while (nuevoReto === retoActual && retosGeo.length > 1);
-            
-            retoActual = nuevoReto;
+            // Si el mazo se queda vacío, volvemos a barajar todas las preguntas
+            if (mazoPreguntas.length === 0) {
+                barajarMazo();
+            }
 
-            // Inyectar datos
+            // Sacamos la última pregunta del mazo (así nunca se repiten)
+            retoActual = mazoPreguntas.pop();
+
+            // Inyectar datos en la pantalla
             document.getElementById('geo-pregunta').innerText = retoActual.q;
             document.getElementById('geo-emoji').innerText = retoActual.e;
 
-            // Mezclar opciones
+            // Mezclar opciones de respuesta
             let opciones = [retoActual.r, ...retoActual.f].sort(() => 0.5 - Math.random());
             
             let contOpciones = document.getElementById('geo-opciones');
@@ -161,7 +168,6 @@
 
         function verificarRespuesta(seleccion) {
             let feed = document.getElementById('geo-feedback');
-            // Bloquear clics mientras muestra el resultado
             document.querySelectorAll('.btn-geo').forEach(b => b.style.pointerEvents = 'none');
 
             if (seleccion === retoActual.r) {
@@ -191,7 +197,8 @@
             }
         }
 
-        // Arrancar el juego inmediatamente
+        // Arrancar el juego barajando primero
+        barajarMazo();
         cargarNuevaMision();
     </script>
 </body>
