@@ -3,209 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa de Materias</title>
+    <title>Mapa de Materias Premium</title>
     <style>
-        /* --- ESTILOS VISUALES Y ANIMACIONES --- */
+        /* --- VARIABLES DE DISEÑO ARCADE --- */
+        :root {
+            --bg-card: rgba(255, 255, 255, 0.92);
+            --borde-glow: rgba(255, 71, 87, 0.3);
+            --texto-titulo: #ff4757;
+            --texto-oscuro: #2f3542;
+        }
+
+        /* --- GRADIENTE DINÁMICO FONDO --- */
         body {
             font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
-            background: linear-gradient(135deg, #fad0c4 0%, #ffd1ff 100%);
+            background: linear-gradient(-45deg, #fad0c4, #ffd1ff, #a1c4fd, #ffedd5);
+            background-size: 400% 400%;
+            animation: gradienteFondo 18s ease infinite;
             margin: 0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 30px 20px;
+            box-sizing: border-box;
             color: #333;
+            user-select: none;
+        }
+
+        @keyframes gradienteFondo {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         h1 {
-            color: #ff4757;
-            font-size: 36px;
+            color: var(--texto-titulo);
+            font-size: 2.5rem;
             text-align: center;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            animation: flotar 3s ease-in-out infinite;
+            margin-bottom: 5px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.05));
+            animation: flotarTitulo 3s ease-in-out infinite;
+            font-weight: 900;
         }
 
-        /* Contenedor de las tarjetas de materias */
+        .subtitulo {
+            font-size: 1.1rem;
+            color: #576574;
+            margin: 0 0 30px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* --- GRID MULTIDISPOSITIVO AVANZADO (PC / TABLET / MÓVIL) --- */
         .cuadricula-materias {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(4, 1fr); /* Por defecto en PC Pantalla Completa */
+            gap: 25px;
             width: 100%;
-            max-width: 900px;
-            margin-top: 20px;
+            max-width: 1200px;
+            margin-top: 10px;
+            perspective: 1000px;
         }
 
-        /* Tarjeta de cada materia */
+        /* --- TARJETAS DE MATERIAS ESTILO GLASSMORPHISM --- */
         .tarjeta {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 25px;
-            padding: 25px;
+            background: var(--bg-card);
+            border-radius: 32px;
+            padding: 30px 20px;
             text-align: center;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05),
+                        0 1px 2px rgba(255,255,255,0.8) inset;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
             text-decoration: none;
             color: inherit;
             display: flex;
             flex-direction: column;
             align-items: center;
-            animation: aparecer 0.5s ease-out;
+            justify-content: flex-start;
+            position: relative;
+            box-sizing: border-box;
+            animation: entradaTarjeta 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
         }
 
         .tarjeta:hover {
-            transform: translateY(-10px) scale(1.03);
-            box-shadow: 0 15px 25px rgba(0,0,0,0.15);
-            background: rgba(255, 255, 255, 1);
+            transform: translateY(-12px) scale(1.02) rotateX(2deg);
+            box-shadow: 0 20px 40px rgba(255, 71, 87, 0.15);
+            background: #ffffff;
+            border-color: rgba(255, 71, 87, 0.4);
         }
 
         .materia-emoji {
-            font-size: 60px;
-            margin-bottom: 10px;
-            transition: transform 0.3s;
+            font-size: 64px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .tarjeta:hover .materia-emoji {
-            transform: rotate(15deg) scale(1.1);
+            transform: scale(1.2) rotate(12deg);
         }
 
         .tarjeta h2 {
-            margin: 10px 0;
-            font-size: 24px;
-            color: #2f3542;
+            margin: 5px 0 12px 0;
+            font-size: 1.4rem;
+            color: var(--texto-oscuro);
+            font-weight: 800;
         }
 
         .tarjeta p {
             margin: 0;
             color: #747d8c;
-            font-size: 16px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            font-weight: 600;
         }
 
-        /* Botón de Añadir Materia */
+        /* --- BOTÓN DE CREACIÓN ARCADE --- */
         .btn-anadir {
-            background: linear-gradient(45deg, #2ed573, #7bed9f);
+            background: linear-gradient(45deg, #2ed573, #1dd1a1);
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 18px;
+            padding: 18px 40px;
+            font-size: 1.1rem;
             font-weight: bold;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 6px 12px rgba(46, 213, 115, 0.3);
-            transition: all 0.2s;
-            margin-top: 30px;
+            box-shadow: 0 8px 0 #1B9C4A, 0 15px 30px rgba(46, 213, 115, 0.3);
+            transition: all 0.1s ease;
+            margin-top: 40px;
         }
 
         .btn-anadir:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 16px rgba(46, 213, 115, 0.5);
+            filter: brightness(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 0 #1B9C4A, 0 20px 35px rgba(46, 213, 115, 0.4);
         }
 
-        /* --- VENTANA EMERGENTE (FORMULARIO FORMAL) --- */
+        .btn-anadir:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #1B9C4A, 0 5px 10px rgba(46, 213, 115, 0.3);
+        }
+
+        /* --- INTERFAZ VENTANA EMERGENTE (MODAL) --- */
         .modal {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(47, 53, 66, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             justify-content: center;
             align-items: center;
-            z-index: 100;
+            z-index: 500;
         }
 
         .modal-contenido {
             background: white;
-            padding: 30px;
-            border-radius: 25px;
-            width: 90%;
-            max-width: 400px;
+            padding: 35px;
+            border-radius: 35px;
+            width: 88%;
+            max-width: 420px;
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            animation: entradaModal 0.3s ease-out;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            border: 3px solid #2f3542;
+            animation: entradaModal 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-sizing: border-box;
         }
+
+        .modal-contenido h2 { color: var(--texto-oscuro); margin-top: 0; font-size: 1.6rem; }
 
         .modal-contenido input {
-            width: 90%;
-            padding: 10px;
+            width: 100%;
+            padding: 12px 15px;
             margin: 10px 0;
-            border: 2px solid #ced4da;
-            border-radius: 10px;
-            font-size: 16px;
+            border: 2px solid #ced6e0;
+            border-radius: 16px;
+            font-size: 1rem;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        .modal-contenido input:focus { border-color: #2ed573; }
+
+        .caja-botones-modal { display: flex; gap: 12px; margin-top: 15px; }
+        .btn-modal { width: 100%; padding: 14px; border: none; border-radius: 18px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
+        .btn-guardar { background: #2ed573; color: white; }
+        .btn-cerrar { background: #ff4757; color: white; }
+        .btn-modal:active { transform: scale(0.96); }
+
+        /* --- MEDIAS QUERIES ADAPTIVAS PARA TODO TIPO DE DISPOSITIVOS --- */
+        @media (max-width: 1100px) {
+            .cuadricula-materias { grid-template-columns: repeat(3, 1fr); gap: 20px; }
         }
 
-        .btn-guardar { background-color: #2ed573; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px;}
-        .btn-cerrar { background-color: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px; margin-left: 10px;}
+        @media (max-width: 820px) { /* Modo Tablet */
+            .cuadricula-materias { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+            h1 { font-size: 2.1rem; }
+            .tarjeta { padding: 25px 15px; border-radius: 26px; }
+            .materia-emoji { font-size: 56px; }
+        }
 
-        /* --- ANIMACIONES KEYFRAMES --- */
-        @keyframes flotar {
+        @media (max-width: 480px) { /* Modo Móvil Vertical */
+            body { padding: 15px 10px; }
+            .cuadricula-materias { grid-template-columns: 1fr; gap: 15px; }
+            h1 { font-size: 1.7rem; }
+            .subtitulo { font-size: 0.95rem; margin-bottom: 20px; }
+            .tarjeta { padding: 20px; border-radius: 22px; }
+            .materia-emoji { font-size: 50px; }
+            .tarjeta h2 { font-size: 1.25rem; }
+            .btn-anadir { width: 100%; padding: 16px; font-size: 1rem; }
+        }
+
+        /* --- ANIMACIONES --- */
+        @keyframes flotarTitulo {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-8px); }
         }
-        @keyframes aparecer {
-            from { opacity: 0; transform: translateY(20px); }
+        @keyframes entradaTarjeta {
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
         @keyframes entradaModal {
-            from { transform: scale(0.7); opacity: 0; }
+            from { transform: scale(0.85); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
+
+        /* Retardos secuenciales automáticos usando CSS puro (Efecto Cascada) */
+        .tarjeta:nth-child(1) { animation-delay: 0.05s; }
+        .tarjeta:nth-child(2) { animation-delay: 0.1s; }
+        .tarjeta:nth-child(3) { animation-delay: 0.15s; }
+        .tarjeta:nth-child(4) { animation-delay: 0.2s; }
+        .tarjeta:nth-child(5) { animation-delay: 0.25s; }
+        .tarjeta:nth-child(6) { animation-delay: 0.3s; }
+        .tarjeta:nth-child(7) { animation-delay: 0.35s; }
+        .tarjeta:nth-child(8) { animation-delay: 0.4s; }
     </style>
 </head>
 <body>
 
-    <audio id="sonido-click" src="click.mp3"></audio>
-    <audio id="sonido-success" src="success.mp3"></audio>
-
     <h1>🗺️ ¡Elige tu Próxima Aventura! 🗺️</h1>
+    <div class="subtitulo">Toca un portal de conocimiento para empezar a jugar</div>
 
     <div class="cuadricula-materias" id="contenedor-materias">
         
-        <a href="mates.html" class="tarjeta" onclick="reproducirClick()">
+        <a href="mates.html" class="tarjeta" onclick="sonarClic(event)">
             <div class="materia-emoji">🔢</div>
             <h2>Matemáticas</h2>
             <p>¡Multiplicaciones, retos de tiempo y lógica divertida!</p>
         </a>
 
-        <a href="lengua.html" class="tarjeta" onclick="reproducirClick()">
+        <a href="lengua.html" class="tarjeta" onclick="sonarClic(event)">
             <div class="materia-emoji">✍️</div>
             <h2>Lengua</h2>
-            <p>¡Conviértete en detective de palabras y domina 5 idiomas!</p>
+            <p>¡Conviértete en detective de palabras y domina idiomas!</p>
         </a>
 
-        <a href="plastica.html" class="tarjeta" onclick="reproducirClick()">
-            <div class="materia-emoji">✏</div>
-            <h2>Plastica</h2>
-            <p>¡Dibuja y calca como nunca!</p>
+        <a href="plastica.html" class="tarjeta" onclick="sonarClic(event)">
+            <div class="materia-emoji">✏️</div>
+            <h2>Plástica</h2>
+            <p>¡Dibuja, colorea y calca como un artista profesional!</p>
         </a>
 
-        <a href="memoria.html" class="tarjeta" onclick="reproducirClick()">
+        <a href="memoria.html" class="tarjeta" onclick="sonarClic(event)">
             <div class="materia-emoji">🧠</div>
-            <h2>Entrenamiento de memoria</h2>
-            <p>¡Entrena tu mente como nunca!</p>
+            <h2>Memoria</h2>
+            <p>¡Supera los juegos de emparejar y entrena tu mente!</p>
         </a>
 
-        <a href="musica.html" class="tarjeta" onclick="reproducirClick()">
+        <a href="musica.html" class="tarjeta" onclick="sonarClic(event)">
             <div class="materia-emoji">🎹</div>
-            <h2>Musica</h2>
-            <p>¡Musica,piano y mas!</p>
+            <h2>Música</h2>
+            <p>¡Toca el piano virtual y descubre notas mágicas!</p>
         </a>
 
-        <a href="tiempo.html" class="tarjeta" onclick="reproducirClick()">
+        <a href="tiempo.html" class="tarjeta" onclick="sonarClic(event)">
             <div class="materia-emoji">📖</div>
             <h2>Ciencias e Historia</h2>
-            <p>¡Ciencias,historia y mas!</p>
+            <p>¡Viaja a través de las épocas y los planetas del espacio!</p>
         </a>
 
-        <a href="geografia.html" class="tarjeta" onclick="reproducirClick()">
-            <div class="materia-emoji">📖</div>
-            <h2>Geografia</h2>
-            <p>¡Descubre el mapa del mundo!</p>
+        <a href="geografia.html" class="tarjeta" onclick="sonarClic(event)">
+            <div class="materia-emoji">🌍</div>
+            <h2>Geografía</h2>
+            <p>¡Descubre el mapa del mundo y llena tu pasaporte!</p>
         </a>
 
-        <a href="informatica.html" class="tarjeta" onclick="reproducirClick()">
-            <div class="materia-emoji">🖥</div>
-            <h2>Informatica</h2>
-            <p>¡Descubre el universo digital!</p>
+        <a href="informatica.html" class="tarjeta" onclick="sonarClic(event)">
+            <div class="materia-emoji">🖥️</div>
+            <h2>Informática</h2>
+            <p>¡Programa las órdenes del robot y repara los bugs digitales!</p>
         </a>
     </div>
 
@@ -213,36 +304,63 @@
 
     <div class="modal" id="miModal">
         <div class="modal-contenido">
-            <h2>✨ Nueva Materia ✨</h2>
-            <input type="text" id="ins-emoji" placeholder="Pon un Emoji (Ej: 🚀)">
+            <h2>✨ Nuevo Portal Abierto ✨</h2>
+            <input type="text" id="ins-emoji" placeholder="Pon un Emoji divertido (Ej: 🚀)">
             <input type="text" id="ins-nombre" placeholder="Nombre de la Materia">
-            <input type="text" id="ins-desc" placeholder="Breve descripción para tu hermana">
-            <input type="text" id="ins-enlace" placeholder="Enlace del archivo (Ej: ciencia.html)">
-            <br>
-            <button class="btn-guardar" onclick="guardarMateria()">Guardar</button>
-            <button class="btn-cerrar" onclick="cerrarModal()">Cancelar</button>
+            <input type="text" id="ins-desc" placeholder="¿De qué trata este juego?">
+            <input type="text" id="ins-enlace" placeholder="Archivo del juego (Ej: ciencia.html)">
+            
+            <div class="caja-botones-modal">
+                <button class="btn-modal btn-guardar" onclick="guardarMateria()">Guardar</button>
+                <button class="btn-modal btn-cerrar" onclick="cerrarModal()">Cancelar</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const sonidoClick = document.getElementById('sonido-click');
-        const sonidoSuccess = document.getElementById('sonido-success');
+        // --- PROCESADOR DE EFECTOS DE SONIDO SINTETIZADOS (8-BITS RETRO) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        function reproducirClick() {
-            // Intentar reproducir el archivo de audio si existe
-            if(sonidoClick && sonidoClick.play) {
-                sonidoClick.play().catch(() => { /* Evita errores si el navegador bloquea el audio inicial */ });
+        function sonidoRetro(modo) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+
+            if (modo === 'click') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+            } else if (modo === 'abrir') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(350, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(450, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.16);
+            } else if (modo === 'creado') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(900, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
             }
         }
 
-        // Funciones del formulario flotante
+        function sonarClic(e) {
+            e.preventDefault();
+            sonidoRetro('click');
+            const url = e.currentTarget.getAttribute('href');
+            setTimeout(() => { window.location.href = url; }, 250);
+        }
+
+        // --- SISTEMA AVANZADO DE MODAL ---
         function abrirModal() {
-            reproducirClick();
+            sonidoRetro('abrir');
             document.getElementById('miModal').style.display = 'flex';
         }
 
         function cerrarModal() {
-            reproducirClick();
+            sonidoRetro('click');
             document.getElementById('miModal').style.display = 'none';
             limpiarFormulario();
         }
@@ -254,43 +372,59 @@
             document.getElementById('ins-enlace').value = "";
         }
 
-        // Función lógica para meter la nueva materia en la pantalla
+        // --- MOTOR LOGICO DE PERSISTENCIA (LOCALSTORAGE) ---
         function guardarMateria() {
-            const emoji = document.getElementById('ins-emoji').value || "⭐";
-            const nombre = document.getElementById('ins-nombre').value || "Materia Nueva";
-            const desc = document.getElementById('ins-desc').value || "¡Un nuevo reto divertido!";
-            const enlace = document.getElementById('ins-enlace').value || "#";
+            const emoji = document.getElementById('ins-emoji').value.trim() || "⭐";
+            const nombre = document.getElementById('ins-nombre').value.trim() || "Materia Nueva";
+            const desc = document.getElementById('ins-desc').value.trim() || "¡Un reto por descubrir!";
+            const enlace = document.getElementById('ins-enlace').value.trim() || "#";
 
-            // Crear la estructura HTML de la nueva tarjeta
-            const nuevaTarjeta = document.createElement('a');
-            nuevaTarjeta.href = enlace;
-            nuevaTarjeta.className = 'tarjeta';
-            
-            // Si el enlace es un juego que no existe aún, ponemos una alerta
-            if(enlace === "#") {
-                nuevaTarjeta.onclick = function() { reproducirClick(); alert('¡Este juego se creará pronto!'); return false; };
-            } else {
-                nuevaTarjeta.onclick = function() { reproducirClick(); };
-            }
+            const nuevaMateriaObj = { emoji, nombre, desc, enlace };
 
-            nuevaTarjeta.innerHTML = `
-                <div class="materia-emoji">${emoji}</div>
-                <h2>${nombre}</h2>
-                <p>${desc}</p>
-            `;
+            // Extraer las almacenadas, sumar la nueva y refrescar memoria
+            let materiasGuardadas = JSON.parse(localStorage.getItem('materias_personalizadas_v2')) || [];
+            materiasGuardadas.push(nuevaMateriaObj);
+            localStorage.setItem('materias_personalizadas_v2', JSON.stringify(materiasGuardadas));
 
-            // Añadirla a la pantalla
-            document.getElementById('contenedor-materias').appendChild(nuevaTarjeta);
-            
-            // Sonido de éxito
-            if(sonidoSuccess && sonidoSuccess.play) {
-                sonidoSuccess.play().catch(() => {});
-            }
+            inyectarTarjetaEnPantalla(nuevaMateriaObj);
+            sonidoRetro('creado');
 
-            // Cerrar ventana
             document.getElementById('miModal').style.display = 'none';
             limpiarFormulario();
         }
+
+        function inyectarTarjetaEnPantalla(materia) {
+            const contenedor = document.getElementById('contenedor-materias');
+            const cajaLink = document.createElement('a');
+            cajaLink.href = materia.enlace;
+            cajaLink.className = 'tarjeta';
+            
+            if(materia.enlace === "#") {
+                cajaLink.onclick = function(e) { 
+                    e.preventDefault(); 
+                    sonidoRetro('click'); 
+                    alert('¡Esta aventura se programará muy pronto!'); 
+                };
+            } else {
+                cajaLink.onclick = sonarClic;
+            }
+
+            cajaLink.innerHTML = `
+                <div class="materia-emoji">${materia.emoji}</div>
+                <h2>${materia.nombre}</h2>
+                <p>${materia.desc}</p>
+            `;
+            contenedor.appendChild(cajaLink);
+        }
+
+        // Cargar automáticamente las cartas guardadas en sesiones anteriores al abrir el juego
+        function cargarMateriasGuardadas() {
+            let materiasGuardadas = JSON.parse(localStorage.getItem('materias_personalizadas_v2')) || [];
+            materiasGuardadas.forEach(mat => inyectarTarjetaEnPantalla(mat));
+        }
+
+        // Inicialización
+        window.onload = cargarMateriasGuardadas;
     </script>
 </body>
 </html>
