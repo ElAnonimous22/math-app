@@ -3,367 +3,763 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Language-Lab Arcade 🌍</title>
+    <title>Súper Aventuras del Lenguaje Multilingüe Pro</title>
     <style>
-        /* --- VARIABLES DE COLOR DINÁMICAS --- */
         :root {
-            --bg-juego: #2f3542;
-            --color-principal: #ff6b81;
+            --primary: #2ed573;
+            --accent-lang: #ff6b81;
+            --bg-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #2f3542;
         }
 
-        /* --- ESTILOS GENERALES --- */
         body {
             font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
-            background: linear-gradient(135deg, #fad0c4 0%, #ffd1ff 100%);
-            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #333;
-            overflow-x: hidden;
+            background: var(--bg-gradient);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: var(--text-dark);
+            box-sizing: border-box;
+            user-select: none;
         }
-        .contenedor-principal {
-            background: rgba(255, 255, 255, 0.96); padding: 25px; border-radius: 30px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            max-width: 480px; width: 92%; text-align: center; box-sizing: border-box;
-            transition: all 0.5s ease; position: relative;
-        }
-        .oculto { display: none !important; }
-        h1, h2 { color: #2f3542; margin: 10px 0; font-weight: 900; }
-        
-        /* --- ANIMACIONES --- */
-        .animar-rebote { animation: rebote 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .animar-error { animation: vibrar 0.4s ease-in-out; }
-        .animar-victoria { animation: celebrar 0.6s ease-in-out; }
 
-        @keyframes rebote {
-            0% { transform: scale(0.3); opacity: 0; }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); opacity: 1; }
+        *, *::before, *::after {
+            box-sizing: border-box;
         }
-        @keyframes vibrar {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-10px); }
-            40%, 80% { transform: translateX(10px); }
+
+        /* --- BOTÓN VOLVER --- */
+        .btn-volver {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border: 2px solid var(--accent-lang);
+            color: var(--accent-lang);
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+            z-index: 100;
         }
-        @keyframes celebrar {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1) rotate(5deg); }
+        .btn-volver:hover {
+            background: var(--accent-lang);
+            color: white;
+            transform: translateY(-2px);
         }
+
+        /* --- SELECTOR DE IDIOMA --- */
+        .selector-idioma {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            border: 2px solid #b33939;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+        .selector-idioma select {
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+            color: #b33939;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .hub-container {
+            max-width: 1200px;
+            margin: 80px auto 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #2f3542;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+            animation: flotar 3s ease-in-out infinite;
+        }
+
+        .sub-bar {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .puntos-badge {
+            color: #ffa502;
+            margin-left: 15px;
+            background: #fffaf0;
+            padding: 5px 15px;
+            border-radius: 15px;
+            border: 2px solid #ffa502;
+        }
+
+        /* --- PANELES DE SECCIONES --- */
+        .seccion-bloque {
+            background: var(--glass-bg);
+            border-radius: 35px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.06);
+            border: 2px solid rgba(255,255,255,0.7);
+            text-align: left;
+        }
+
+        .seccion-bloque h2 {
+            font-size: 2rem;
+            color: #b33939;
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 3px dashed #ff9a9e;
+            padding-bottom: 10px;
+        }
+
+        /* --- GRILLA ADAPTIVA --- */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card-actividad {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.04);
+            border: 2px solid #f1f2f6;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card-actividad:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 25px rgba(179, 57, 57, 0.15);
+            border-color: #ff9a9e;
+        }
+
+        .card-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .card-actividad h3 {
+            margin: 10px 0;
+            font-size: 1.4rem;
+            color: #2f3542;
+        }
+
+        .card-actividad p {
+            margin: 0;
+            color: #747d8c;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        /* --- ZONA DE JUEGO ACTIVA --- */
+        .zona-juego-activa {
+            display: none;
+            background: white;
+            border-radius: 35px;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 3px solid #b33939;
+            text-align: center;
+            animation: entrada 0.4s ease-out;
+        }
+
+        .pantalla-operacion {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #2f3542;
+            letter-spacing: 1px;
+            word-break: break-word;
+        }
+
+        .input-respuesta {
+            font-size: 2rem;
+            width: 80%;
+            max-width: 350px;
+            text-align: center;
+            padding: 12px;
+            border: 3px solid #ced6e0;
+            border-radius: 20px;
+            outline: none;
+            font-family: inherit;
+            margin-bottom: 20px;
+        }
+        .input-respuesta:focus { border-color: #b33939; }
+
+        .btn-comprobar {
+            display: block;
+            margin: 0 auto;
+            background: linear-gradient(45deg, #b33939, #ff6b81);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(179, 57, 57, 0.3);
+        }
+
+        /* --- SECCIÓN TUTORA IA --- */
+        .contenedor-tutora {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 20px;
+            align-items: center;
+            background: #fff;
+            padding: 25px;
+            border-radius: 25px;
+            border: 2px solid #b33939;
+        }
+
+        .avatar-ia { font-size: 90px; text-align: center; animation: flotar 4s ease-in-out infinite; }
+
+        .bocadillo-chat {
+            background: #f1f2f6;
+            padding: 20px;
+            border-radius: 25px;
+            position: relative;
+            border: 1px solid #e4e7eb;
+        }
+
+        .bocadillo-chat::before {
+            content: ''; position: absolute; left: -15px; top: 50%;
+            transform: translateY(-50%); border-width: 15px 15px 15px 0;
+            border-style: solid; border-color: transparent #f1f2f6 transparent transparent;
+        }
+
+        .opciones-tutora { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-opcion-chat {
+            background: white; border: 2px solid #b33939; color: #b33939;
+            padding: 8px 16px; border-radius: 15px; cursor: pointer;
+            font-weight: bold; transition: all 0.2s;
+        }
+        .btn-opcion-chat:hover { background: #b33939; color: white; }
+
+        /* --- MODAL DE TEORÍA --- */
+        .modal-teoria {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+
+        .modal-teoria-contenido {
+            background: white; padding: 40px; border-radius: 35px;
+            max-width: 650px; width: 90%; max-height: 85vh; overflow-y: auto;
+            position: relative; text-align: left; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: entrada 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-cerrar-modal {
+            position: absolute; top: 20px; right: 20px; background: #ff4757;
+            color: white; border: none; width: 35px; height: 35px; border-radius: 50%;
+            cursor: pointer; font-weight: bold;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 820px) {
+            h1 { font-size: 2.2rem; }
+            .contenedor-tutora { grid-template-columns: 1fr; text-align: center; }
+            .bocadillo-chat::before { display: none; }
+            .avatar-ia { margin-bottom: 10px; }
+            .pantalla-operacion { font-size: 2.3rem; }
+            .selector-idioma { position: static; display: inline-block; margin-top: 10px; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.8rem; }
+            .seccion-bloque { padding: 20px; border-radius: 25px; }
+            .seccion-bloque h2 { font-size: 1.4rem; }
+            .btn-volver { position: static; display: inline-block; margin-bottom: 15px; }
+            .hub-container { margin-top: 10px; }
+        }
+
         @keyframes flotar {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
+            50% { transform: translateY(-10px); }
         }
-
-        .icono-flotante { animation: flotar 3s ease-in-out infinite; display: inline-block; }
-
-        /* --- BOTONES --- */
-        .btn {
-            background-color: var(--color-principal); color: white; border: none; padding: 15px; font-size: 18px; font-weight: bold;
-            border-radius: 20px; cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            border-bottom: 5px solid rgba(0,0,0,0.2); width: 100%; margin-bottom: 12px;
-            position: relative; top: 0;
+        @keyframes entrada {
+            from { opacity: 0; transform: scale(0.95) translateY(15px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
-        .btn:hover { transform: translateY(-3px); filter: brightness(1.1); }
-        .btn:active { top: 4px; border-bottom-width: 1px; }
-        
-        .btn-volver { 
-            background-color: #576574; color: white; border: none; padding: 8px 18px; border-radius: 50px; 
-            cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 3px 0 #2f3542;
-        }
-        .btn-volver:active { transform: translateY(2px); box-shadow: none; }
-
-        .btn-aprender {
-            background-color: #ff9f43; color: white; border: none; padding: 10px 20px; font-size: 16px; font-weight: bold;
-            border-radius: 15px; cursor: pointer; margin-top: 15px; width: 100%; border-bottom: 4px solid #d35400;
-        }
-        .btn-aprender:hover { filter: brightness(1.1); }
-        .btn-aprender:active { transform: translateY(2px); border-bottom-width: 1px; }
-
-        /* --- SELECCIÓN DE IDIOMAS --- */
-        .zona-progreso { background: #f1f2f6; padding: 12px; border-radius: 20px; margin-bottom: 15px; border: 3px dashed var(--color-principal); }
-        .lista-idiomas { margin-top: 10px; }
-        .tarjeta-idioma {
-            background-color: #f1f2f6; border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 20px;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-bottom: 12px; border: 3px solid transparent;
-        }
-        .tarjeta-idioma:hover { transform: scale(1.03); background-color: #fff; border-color: var(--color-principal); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .bandera { font-size: 45px; transition: transform 0.3s; }
-        .tarjeta-idioma:hover .bandera { transform: scale(1.2) rotate(8deg); }
-        .tarjeta-idioma h3 { margin: 0; font-size: 18px; color: #2f3542; }
-        .tarjeta-idioma p { margin: 3px 0 0 0; font-size: 13px; color: #747d8c; }
-
-        /* --- INTERFAZ DE JUEGO --- */
-        .cabecera { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; background: #eee; padding: 10px 15px; border-radius: 12px; font-weight: bold; }
-        .display-reto { 
-            font-size: 26px; font-weight: bold; background: var(--bg-juego); color: white; padding: 25px; 
-            border-radius: 25px; margin: 15px 0; min-height: 70px; display: flex; align-items: center; justify-content: center; 
-            line-height: 1.4; box-shadow: inset 0 5px 15px rgba(0,0,0,0.3); border: 4px solid rgba(255,255,255,0.2);
-        }
-        .mensaje { font-size: 20px; font-weight: bold; margin-top: 12px; min-height: 30px; }
-
-        /* --- PIZARRA DIDÁCTICA --- */
-        .pizarra-modal {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #2f3542; color: white; border-radius: 30px; padding: 25px;
-            box-sizing: border-box; text-align: left; display: flex; flex-direction: column;
-            z-index: 10; justify-content: space-between; overflow-y: auto;
-        }
-        .pizarra-modal h2 { color: #ff9f43; margin-top: 0; }
-        .pizarra-contenido { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; font-size: 16px; line-height: 1.5; margin-bottom: 15px; }
-        .pizarra-contenido b { color: #2ed573; }
     </style>
 </head>
 <body>
 
-    <div class="contenedor-principal animar-rebote" id="modulo-contenedor">
-        
-        <div id="menu-idiomas">
-            <button class="btn-volver" onclick="reproducirSonido('click'); window.location.href='menuprincipal.html'">🔙 Ir al Mapa</button>
-            <h1>🌍 Language-Lab Arcade 🎮</h1>
-            
-            <div class="zona-progreso">
-                <b>🏆 Estrellas de Idiomas:</b><br>
-                <span style="font-size: 18px;">Puntos Globales: <span id="puntos-globales" style="color:#ff6b81; font-weight:bold;">0</span> ⭐</span>
-                <div id="vitrina-medallas" style="font-size: 28px; margin-top: 5px; letter-spacing: 5px;"></div>
-            </div>
+    <a href="menuprincipal.html" class="btn-volver" id="lbl-volver" onclick="sonarBoton()">⬅ Volver al Mapa</a>
 
-            <div class="lista-idiomas">
-                <div class="tarjeta-idioma" onclick="abrirJuego('espanol')"><div class="bandera">🇪🇸</div><div><h3>Español</h3><p>Ortografía, sinónimos y retos de letras.</p></div></div>
-                <div class="tarjeta-idioma" onclick="abrirJuego('ingles')"><div class="bandera">🇬🇧</div><div><h3>Inglés (English)</h3><p>Vocabulario básico, animales y saludos.</p></div></div>
-                <div class="tarjeta-idioma" onclick="abrirJuego('catalan')"><div class="bandera"> CAT </div><div><h3>Catalán (Català)</h3><p>Vocabulari, dies de la setmana i objectes.</p></div></div>
-                <div class="tarjeta-idioma" onclick="abrirJuego('frances')"><div class="bandera">🇫🇷</div><div><h3>Francés (Français)</h3><p>Los números, colores y palabras mágicas.</p></div></div>
-                <div class="tarjeta-idioma" onclick="abrirJuego('italiano')"><div class="bandera">🇮🇹</div><div><h3>Italiano</h3><p>¡Palabras deliciosas y expresiones divertidas!</p></div></div>
-            </div>
-            
-            <button onclick="borrarTodo()" style="background:none; border:none; color:gray; cursor:pointer; font-size:10px; margin-top: 10px;">Reiniciar todo progreso</button>
+    <div class="selector-idioma">
+        🌐 <select id="select-lang" onchange="cambiarIdioma()">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+        </select>
+    </div>
+
+    <div class="hub-container">
+        <h1 id="main-title">✨ Isla del Lenguaje y Literatura ✨</h1>
+        <div class="sub-bar">
+            <span id="user-badge">Escritor Estrella ✍️</span>
+            <span class="puntos-badge">⭐ <span id="marcador-puntos">0</span> <span id="lbl-puntos">Puntos</span></span>
         </div>
 
-        <div id="pantalla-juego" class="oculto">
-            <button class="btn-volver" onclick="reproducirSonido('click'); irAlMenu()">🔙 Cambiar de Idioma</button>
-            <div class="cabecera"><span id="juego-titulo">Idioma</span> <span>Puntos: <span id="juego-puntos">0</span> ⭐</span></div>
-            
-            <div id="grafico-personalizado" class="icono-flotante" style="font-size: 65px; margin: 10px 0; min-height: 75px;"></div>
-            <div id="juego-reto" class="display-reto">Pregunta</div>
-            <div id="juego-opciones"></div>
-            <div id="juego-msg" class="mensaje"></div>
-
-            <button class="btn-aprender" onclick="mostrarPizarra()">💡 ¡Quiero aprender este truco!</button>
+        <div id="zona-de-juego" class="zona-juego-activa">
+            <h2 id="titulo-juego-activo">Juego</h2>
+            <p id="instrucciones-juego-activo">Analiza el desafío:</p>
+            <div id="pantalla-matematica" class="pantalla-operacion">Palabra</div>
+            <input type="text" id="respuesta-usuario" class="input-respuesta" placeholder="..." autocomplete="off" spellcheck="false">
+            <button class="btn-comprobar" id="btn-verificar" onclick="validarRespuestaJuego()">Comprobar 🚀</button>
         </div>
 
-        <div id="pizarra-tutorial" class="pizarra-modal oculto">
-            <div>
-                <h2 id="pizarra-titulo">💡 Aula de Idiomas</h2>
-                <div class="pizarra-contenido" id="pizarra-texto-ayuda">
-                    Explicación lingüística aquí.
+        <div class="seccion-bloque">
+            <h2 id="sec1-title">🤖 Tu Mentor de Letras e Historias</h2>
+            <div class="contenedor-tutora">
+                <div class="avatar-ia">📚</div>
+                <div class="bocadillo-chat">
+                    <p id="texto-chat-tutora">¡Saludos, guardián de las palabras! Las letras tienen superpoderes para contar mundos increíbles. ¿Qué rama de la lingüística quieres explorar hoy?</p>
+                    <div class="opciones-tutora">
+                        <button class="btn-opcion-chat" id="opt-truco" onclick="charlarTutora('truco')">💡 Truco de ortografía</button>
+                        <button class="btn-opcion-chat" id="opt-miedo" onclick="charlarTutora('miedo')">🦖 Miedo al idioma</button>
+                        <button class="btn-opcion-chat" id="opt-examen" onclick="charlarTutora('examen')">📝 Reto Gramatical (+50 XP)</button>
+                    </div>
                 </div>
             </div>
-            <button class="btn" style="background-color: #2ed573;" onclick="cerrarPizarra()">¡Entendido! ¡A jugar! 🚀</button>
         </div>
 
+        <div class="seccion-bloque">
+            <h2 id="sec2-title">📚 Biblioteca Universal de Gramática</h2>
+            <div class="grid-cards">
+                <div class="card-actividad" onclick="abrirTeoria('acentos')">
+                    <div class="card-icon">🎯</div>
+                    <h3 id="card-t1">Acentuación y Estructura</h3>
+                    <p id="card-d1">El mapa definitivo para dar fuerza a las palabras y sílabas tónicas.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('vocales')">
+                    <div class="card-icon">🌊</div>
+                    <h3 id="card-t2">Unión de Vocales</h3>
+                    <p id="card-d2">Descubre cómo interactúan las vocales al agruparse en sílabas.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('tipos_palabras')">
+                    <div class="card-icon">🎭</div>
+                    <h3 id="card-t3">Clases de Palabras</h3>
+                    <p id="card-d3">Aprende a identificar quién hace la acción, cómo es y qué hace.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('puntuacion')">
+                    <div class="card-icon">✍️</div>
+                    <h3 id="card-t4">Signos de Puntuación</h3>
+                    <p id="card-d4">El uso maestro de pausas, exclamaciones e interrogantes.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('lexico')">
+                    <div class="card-icon">🧠</div>
+                    <h3 id="card-t5">Relaciones Léxicas</h3>
+                    <p id="card-d5">Multiplica tu vocabulario aprendiendo conceptos equivalentes y opuestos.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('literatura')">
+                    <div class="card-icon">🦄</div>
+                    <h3 id="card-t6">Estilo Literario</h3>
+                    <p id="card-d6">Aprende a embellecer textos usando recursos expresivos mágicos.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="seccion-bloque">
+            <h2 id="sec3-title">🎮 Zona de Minijuegos de Palabras (6 Juegos)</h2>
+            <div class="grid-cards">
+                <div class="card-actividad" onclick="iniciarJuego('silabas')">
+                    <div class="card-icon">✂️</div>
+                    <h3 id="game-t1">Cazador de Sílabas</h3>
+                    <p id="game-d1">¡Cuenta los golpes de voz de la palabra en pantalla rápidamente!</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('ortografia')">
+                    <div class="card-icon">👻</div>
+                    <h3 id="game-t2">Misterio Ortográfico</h3>
+                    <p id="game-d2">¿Cumple la palabra con la regla correcta? Responde Sí o No.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('sinonimos')">
+                    <div class="card-icon">🤝</div>
+                    <h3>Detector de Sinónimos</h3>
+                    <p id="game-d3">Encuentra una palabra que signifique exactamente lo mismo.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('clasifica')">
+                    <div class="card-icon">⚡</div>
+                    <h3 id="game-t4">Torneo de Gramática</h3>
+                    <p id="game-d4">Clasifica el tipo o acento de la palabra mostrada.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('identifica_tipo')">
+                    <div class="card-icon">🔍</div>
+                    <h3 id="game-t5">Rastreador de Elementos</h3>
+                    <p id="game-d5">Identifica el componente principal de la frase u oración.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('letras_caidas')">
+                    <div class="card-icon">🦅</div>
+                    <h3 id="game-t6">Letras en Disputa</h3>
+                    <p id="game-d6">Completa la palabra eligiendo la opción gráfica correcta.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-teoria" class="modal-teoria">
+        <div class="modal-teoria-contenido">
+            <button class="btn-cerrar-modal" onclick="cerrarTeoria()">X</button>
+            <h2 id="modal-titulo-teoria">Teoría</h2>
+            <div id="modal-cuerpo-teoria">Contenido...</div>
+        </div>
     </div>
 
     <script>
-        // --- MOTOR CENTRAL DE AUDIO SINTETIZADO NATIVO ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // --- MOTOR DE TRADUCCIÓN (LOCALIZACIÓN MULTILINGÜE) ---
+        let langActual = 'es';
+        const locales = {
+            es: {
+                volver: "⬅ Volver al Mapa", title: "✨ Isla del Lenguaje y Literatura ✨",
+                badge: "Escritor Estrella ✍️", puntos: "Puntos", verificar: "Comprobar Palabra 🚀",
+                sec1: "🤖 Tu Mentor de Letras e Historias", sec2: "📚 Biblioteca Universal de Gramática", sec3: "🎮 Zona de Minijuegos de Palabras (6 Juegos)",
+                chat: "¡Saludos, guardián de las palabras! Las letras tienen superpoderes para contar mundos increíbles. ¿Qué rama de la lingüística quieres explorar hoy?",
+                opt1: "💡 Truco de ortografía", opt2: "🦖 Miedo al idioma", opt3: "📝 Reto Gramatical (+50 XP)",
+                t1: "Acentuación y Estructura", d1: "El mapa definitivo para dar fuerza a las palabras y sílabas tónicas.",
+                t2: "Unión de Vocales", d2: "Descubre cómo interactúan las vocales al agruparse en sílabas.",
+                t3: "Clases de Palabras", d3: "Aprende a identificar quién hace la acción, cómo es y qué hace.",
+                t4: "Signos de Puntuación", d4: "El uso maestro de pausas, exclamaciones e interrogantes.",
+                t5: "Relaciones Léxicas", d5: "Multiplica tu vocabulario aprendiendo conceptos equivalentes y opuestos.",
+                t6: "Estilo Literario", d6: "Aprende a embellecer textos usando recursos expresivos mágicos.",
+                gt1: "Cazador de Sílabas", gd1: "¡Cuenta los golpes de voz de la palabra en pantalla rápidamente!",
+                gt2: "Misterio Ortográfico", gd2: "¿Cumple la palabra con la regla correcta? Responde Sí o No.",
+                gt3: "Detector de Sinónimos", gd3: "Encuentra una palabra que signifique exactamente lo mismo.",
+                gt4: "Torneo de Gramática", gd4: "Clasifica el tipo o acento de la palabra mostrada.",
+                gt5: "Rastreador de Elementos", gd5: "Identifica el componente principal de la frase u oración.",
+                gt6: "Letras en Disputa", gd6: "Completa la palabra eligiendo la opción gráfica correcta.",
+                inst_silaba: "¿Cuántas sílabas tiene esta palabra? (Responde con número)",
+                inst_orto: "¿Esta palabra se escribe con H? (Responde 'si' o 'no')",
+                inst_sin: "Escribe un sinónimo directo para esta palabra:",
+                inst_clas: "¿Es una palabra 'aguda', 'llana' o 'esdrújula'?",
+                inst_id: "Escribe únicamente el sustantivo que es sujeto en la oración:",
+                inst_letra: "Escribe la letra correcta ('b' o 'v') que falta en el espacio:",
+                err: "❌ ¡Casi lo tienes! La respuesta era:", ok: "✨ ¡Espectacular! Dominas el lenguaje. +10 puntos ⭐"
+            },
+            en: {
+                volver: "⬅ Back to Map", title: "✨ Island of Language and Literature ✨",
+                badge: "Star Writer ✍️", puntos: "Points", verificar: "Check Word 🚀",
+                sec1: "🤖 Your Mentor of Letters and Stories", sec2: "📚 Universal Grammar Library", sec3: "🎮 Word Minigames Arcade (6 Games)",
+                chat: "Greetings, wordsmith! Letters have superpowers to build incredible universes. Which branch of linguistics shall we explore today?",
+                opt1: "💡 Spelling Trick", opt2: "🦖 Language Fear", opt3: "📝 Grammar Challenge (+50 XP)",
+                t1: "Syllables & Accents", d1: "The ultimate guide to understanding syllable stress and word rhythm.",
+                t2: "Vowel Connections", d2: "Discover how vowels blend together or split within words.",
+                t3: "Parts of Speech", d3: "Learn to spot nouns, verbs, adjectives, and their functions.",
+                t4: "Punctuation Marks", d4: "Master the use of periods, commas, and question marks.",
+                t5: "Lexical Relations", d5: "Multiply your vocabulary with synonyms and antonyms.",
+                t6: "Literary Style", d6: "Embellish your stories using metaphors and magical devices.",
+                gt1: "Syllable Hunter", gd1: "Count the number of syllables in the word on screen quickly!",
+                gt2: "Spelling Mystery", gd2: "Does this word follow the correct spelling rule? Yes or No.",
+                gt3: "Synonym Detector", gd3: "Find a word that means exactly the same thing.",
+                gt4: "Grammar Tournament", gd4: "Classify the type or form of the given word.",
+                gt5: "Element Tracker", gd5: "Identify the main component or core of the sentence.",
+                gt6: "Letters Duel", gd6: "Complete the word by choosing the correct missing graph.",
+                inst_silaba: "How many syllables does this word have? (Answer with a number)",
+                inst_orto: "Is this word spelled with a silent 'K' at the beginning? (Answer 'yes' or 'no')",
+                inst_sin: "Write a direct synonym for this word:",
+                inst_clas: "Is this word a 'noun', 'verb', or 'adjective'?",
+                inst_id: "Write the verb (action word) found in this sentence:",
+                inst_letra: "Fill in the blank with the correct letter ('c' or 'k'):",
+                err: "❌ Close, but no cigar! The answer was:", ok: "✨ Splendid! You master the language perfectly. +10 points ⭐"
+            },
+            fr: {
+                volver: "⬅ Retour a la Carte", title: "✨ L'Île de la Langue et Littérature ✨",
+                badge: "Écrivain Étoilé ✍️", puntos: "Points", verificar: "Vérifier 🚀",
+                sec1: "🤖 Votre Mentor des Lettres", sec2: "📚 Bibliothèque Grammaticale Universelle", sec3: "🎮 Arcade de Jeux de Mots (6 Jeux)",
+                chat: "Salutations, artisan des mots ! Les lettres possèdent de super-pouvoirs. Quelle branche de la linguistique voulez-vous explorer aujourd'hui ?",
+                opt1: "💡 Astuce d'orthographe", opt2: "🦖 Peur de la grammaire", opt3: "📝 Défi de Grammaire (+50 XP)",
+                t1: "Accents et Structures", d1: "Le guide ultime pour maîtriser les accents aigu, grave et circonflexe.",
+                t2: "Mariage des Voyelles", d2: "Découvrez comment les voyelles s'unissent en diphtongues.",
+                t3: "Classes de Mots", d3: "Apprenez à identifier les noms, adjectifs, et verbes d'action.",
+                t4: "Signes de Ponctuation", d4: "Maîtrisez l'usage des points, virgules et points d'exclamation.",
+                t5: "Relations Lexicales", d5: "Enrichissez votre vocabulaire avec les synonymes et antonymes.",
+                t6: "Style Littéraire", d6: "Sublimez vos écrits grâce aux métaphores et figures de style.",
+                gt1: "Chasseur de Syllabes", gd1: "Comptez rapidement les syllabes du mot affiché à l'écran !",
+                gt2: "Mystère Orthographique", gd2: "Ce mot prend-il un accent? Répondez Oui ou Non.",
+                gt3: "Détecteur de Synonymes", gd3: "Trouvez un mot qui a exactement la même signification.",
+                gt4: "Tournoi de Grammaire", gd4: "Classifiez le type ou le genre du mot affiché.",
+                gt5: "Traqueur d'Éléments", gd5: "Trouvez le composant principal (Sujet/Verbe) de la phrase.",
+                gt6: "Lettres en Duel", gd6: "Complétez le mot avec el bon graphème manquant.",
+                inst_silaba: "Combien de syllabes a ce mot ? (Répondez par un chiffre)",
+                inst_orto: "Ce mot prend-il un 'h' au début ? (Répondez 'oui' ou 'non')",
+                inst_sin: "Écrivez un synonyme direct pour ce mot :",
+                inst_clas: "Ce mot est-il un 'nom', 'verbe', ou 'adjectif' ?",
+                inst_id: "Écrivez le sujet (qui fait l'action) de cette phrase :",
+                inst_letra: "Complétez le mot avec la bonne lettre ('g' ou 'j') :",
+                err: "❌ Presque ! La bonne réponse était :", ok: "✨ Magnifique ! Vous maîtrisez la langue. +10 points ⭐"
+            }
+        };
 
-        function reproducirSonido(tipo) {
-            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        function cambiarIdioma() {
+            langActual = document.getElementById('select-lang').value;
+            const res = locales[langActual];
+            
+            document.getElementById('lbl-volver').innerText = res.volver;
+            document.getElementById('main-title').innerText = res.title;
+            document.getElementById('user-badge').innerText = res.badge;
+            document.getElementById('lbl-puntos').innerText = res.puntos;
+            document.getElementById('btn-verificar').innerText = res.verificar;
+            document.getElementById('sec1-title').innerText = res.sec1;
+            document.getElementById('sec2-title').innerText = res.sec2;
+            document.getElementById('sec3-title').innerText = res.sec3;
+            document.getElementById('texto-chat-tutora').innerText = res.chat;
+            document.getElementById('opt-truco').innerText = res.opt1;
+            document.getElementById('opt-miedo').innerText = res.opt2;
+            document.getElementById('opt-examen').innerText = res.opt3;
+            
+            document.getElementById('card-t1').innerText = res.t1; document.getElementById('card-d1').innerText = res.d1;
+            document.getElementById('card-t2').innerText = res.t2; document.getElementById('card-d2').innerText = res.d2;
+            document.getElementById('card-t3').innerText = res.t3; document.getElementById('card-d3').innerText = res.d3;
+            document.getElementById('card-t4').innerText = res.t4; document.getElementById('card-d4').innerText = res.d4;
+            document.getElementById('card-t5').innerText = res.t5; document.getElementById('card-d5').innerText = res.d5;
+            document.getElementById('card-t6').innerText = res.t6; document.getElementById('card-d6').innerText = res.d6;
+            
+            document.getElementById('game-t1').innerText = res.gt1; document.getElementById('game-d1').innerText = res.gd1;
+            document.getElementById('game-t2').innerText = res.gt2; document.getElementById('game-d2').innerText = res.gd2;
+            document.getElementById('game-d3').innerText = res.gd3;
+            document.getElementById('game-t4').innerText = res.gt4; document.getElementById('game-d4').innerText = res.gd4;
+            document.getElementById('game-t5').innerText = res.gt5; document.getElementById('game-d5').innerText = res.gd5;
+            document.getElementById('game-t6').innerText = res.gt6; document.getElementById('game-d6').innerText = res.gd6;
+            
+            if (document.getElementById('zona-de-juego').style.display === 'block') {
+                generarPreguntaJuego();
+            }
+            sonarSintetizador('clic');
+        }
+
+        // --- MOTOR DE AUDIO ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let puntosTotales = 0;
+
+        function sonarSintetizador(tipo) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
 
-            if (tipo === 'click') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(450, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+            if (tipo === 'clic') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
             } else if (tipo === 'correcto') {
-                // Sonido vibrante musical ascendente
-                osc.type = 'triangle'; 
-                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
-                osc.frequency.setValueAtTime(698.46, audioCtx.currentTime + 0.08); // F5
-                osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.16); // A5
-                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.35);
-            } else if (tipo === 'error') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-                osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(698.46, audioCtx.currentTime + 0.08);
+                osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.16);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (tipo === 'error') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
             }
         }
 
-        // --- BASE DE DATOS DE LECCIONES (LA PIZARRA) ---
-        const leccionesAyuda = {
-            espanol: {
-                titulo: "🇪🇸 Trucos de Lengua Española",
-                texto: "• Los <b>Sinónimos</b> son palabras diferentes que significan lo mismo (ej: contento y feliz).<br>• Las palabras que llevan <b>H</b> no suenan al hablar (¡la H es mudita!).<br>• Se escribe <b>B</b> antes de la L y la R (ej: blanco, brazo)."
+        function sonarBoton() { sonarSintetizador('clic'); }
+
+        // --- BANCO DE DATOS DE LOS MINIJUEGOS (TRILINGÜE) ---
+        const dbJuegos = {
+            es: {
+                silabas: [{p: 'Sol', r: '1'}, {p: 'Árbol', r: '2'}, {p: 'Computadora', r: '5'}, {p: 'Mariposa', r: '4'}, {p: 'Estrella', r: '3'}],
+                ortografia: [{p: '___uevo', r: 'si'}, {p: '___agua', r: 'no'}, {p: '___ueso', r: 'si'}, {p: '___ora', r: 'si'}, {p: '___oso', r: 'no'}],
+                sinonimos: [{p: 'Feliz', r: ['contento', 'alegre']}, {p: 'Rápido', r: ['veloz', 'ligero']}, {p: 'Grande', r: ['enorme', 'gigante']}],
+                clasifica: [{p: 'Camión', r: 'aguda'}, {p: 'Lápiz', r: 'llana'}, {p: 'Plátano', r: 'esdrújula'}, {p: 'Mesa', r: 'llana'}],
+                identifica_tipo: [{p: 'El perro corre rápido.', r: 'perro'}, {p: 'La casa es bonita.', r: 'casa'}, {p: 'Carlos lee libros.', r: 'carlos'}],
+                letras_caidas: [{p: 'A___ion', r: 'v'}, {p: '___arco', r: 'b'}, {p: 'Cam___io', r: 'b'}, {p: 'Venta___a', r: 'v'}]
             },
-            ingles: {
-                titulo: "🇬🇧 English Corner (Esquina del Inglés)",
-                texto: "¡Aprende palabras mágicas en inglés!<br>• <b>Hello</b> = Hola / <b>Goodbye</b> = Adiós.<br>• Los colores: <b>Red</b> (Rojo) 🔴, <b>Blue</b> (Azul) 🔵, <b>Green</b> (Verde) 🟢.<br>• Animales: <b>Dog</b> (Perro) 🐶, <b>Cat</b> (Gato) 🐱, <b>Bird</b> (Pájaro) 🐦."
+            en: {
+                silabas: [{p: 'Sky', r: '1'}, {p: 'Apple', r: '2'}, {p: 'Elephant', r: '3'}, {p: 'Beautiful', r: '3'}, {p: 'University', r: '5'}],
+                ortografia: [{p: '___knife', r: 'yes'}, {p: '___night', r: 'yes'}, {p: '___name', r: 'no'}, {p: '___know', r: 'yes'}, {p: '___open', r: 'no'}],
+                sinonimos: [{p: 'Happy', r: ['cheerful', 'glad']}, {p: 'Quick', r: ['fast', 'rapid']}, {p: 'Big', r: ['large', 'huge']}],
+                clasifica: [{p: 'Run', r: 'verb'}, {p: 'Cat', r: 'noun'}, {p: 'Beautiful', r: 'adjective'}, {p: 'Eat', r: 'verb'}],
+                identifica_tipo: [{p: 'The boy sings loudly.', r: 'sings'}, {p: 'They eat pizza.', r: 'eat'}, {p: 'She writes a story.', r: 'writes'}],
+                letras_caidas: [{p: 'Ba___e', r: 'k'}, {p: '___at', r: 'c'}, {p: 'Du___k', r: 'c'}, {p: 'Ki___k', r: 'c'}]
             },
-            catalan: {
-                titulo: " Mini-pàgina de Català",
-                texto: "Vocabulari bàsic que s'utilitza cada dia:<br>• Els colors: <b>Vermell</b> (Rojo), <b>Blau</b> (Azul), <b>Groc</b> (Amarillo).<br>• Objectes de classe: <b>Goma</b> (Borrador), <b>Llibre</b> (Libro), <b>Llapis</b> (Lápiz).<br>• Saluts: <b>Bon diu!</b> (¡Buenos días!)."
-            },
-            frances: {
-                titulo: "🇫🇷 Atelier de Français (Taller de Francés)",
-                texto: "¡El francés tiene una pronunciación muy elegante y suave!<br>• Para saludar dices <b>Bonjour</b> (Buenos días) o <b>Merci</b> (Gracias).<br>• Los números del 1 al 3: 1 = <b>Un</b>, 2 = <b>Deux</b>, 3 = <b>Trois</b>."
-            },
-            italiano: {
-                titulo: "🇮🇹 Laboratorio d'Italiano",
-                texto: "¡El italiano y el español se parecen muchísimo!<br>• Si quieres saludar con alegría dices <b>Ciao</b> (Hola o Adiós).<br>• Para dar las gracias se dice <b>Grazie</b>.<br>• Tu comida favorita se escribe casi igual: <b>Pizza</b> o <b>Gelato</b> (Helado)."
+            fr: {
+                silabas: [{p: 'Mer', r: '1'}, {p: 'Table', r: '2'}, {p: 'Papillon', r: '3'}, {p: 'Ordinateur', r: '4'}, {p: 'Magnifique', r: '3'}],
+                ortografia: [{p: '___homme', r: 'oui'}, {p: '___oiseau', r: 'non'}, {p: '___histoire', r: 'oui'}, {p: '___arbre', r: 'non'}],
+                sinonimos: [{p: 'Heureux', r: ['joyeux', 'content']}, {p: 'Rapide', r: ['vite', 'veloce']}, {p: 'Grand', r: ['vaste', 'immense']}],
+                clasifica: [{p: 'Manger', r: 'verbe'}, {p: 'Livre', r: 'nom'}, {p: 'Rouge', r: 'adjectif'}, {p: 'Chanter', r: 'verbe'}],
+                identifica_tipo: [{p: 'Le chat boit du lait.', r: 'chat'}, {p: 'Pierre regarde la TV.', r: 'pierre'}, {p: 'La voiture roule.', r: 'voiture'}],
+                letras_caidas: [{p: '___irage', r: 'm'}, {p: 'A___outer', r: 'j'}, {p: 'Gira___e', r: 'f'}, {p: 'Man___er', r: 'g'}]
             }
         };
 
-        // --- SISTEMA DE BANCO DE PREGUNTAS DINÁMICAS ---
-        const bancoPreguntas = {
-            espanol: [
-                {q:"¿Cuál es el sinónimo de la palabra 'RÁPIDO'?", r:"Veloz", f:["Lento", "Pesado"]},
-                {q:"¿Cómo se escribe correctamente el animal nocturno?", r:"Búho", f:["Búo", "Vúho"]},
-                {q:"¿Qué palabra tiene una falta de ortografía?", r:"Harbol", f:["Hijo", "Hermano"]},
-                {q:"Completa la frase: 'El perro corre...'", r:"por el jardín", f:["arriba el agua", "mañana sol"]}
-            ],
-            ingles: [
-                {q:"¿Cómo se dice 'GATO' en inglés?", r:"Cat", f:["Dog", "Bird"]},
-                {q:"¿De qué color es la manzana (RED)?", r:"Rojo", f:["Azul", "Amarillo"]},
-                {q:"Si un amigo te dice 'GOODBYE', ¿qué significa?", r:"Adiós", f:["Hola", "Gracias"]},
-                {q:"¿Qué número es 'THREE'?", r:"3", f:["1", "5"]}
-            ],
-            catalan: [
-                {q:"¿Qué objecte fas servir per esborrar al quadern?", r:"La goma", f:["El llapis", "La taula"]},
-                {q:"¿De quin color és el cel si diem que és 'BLAU'?", r:"Azul", f:["Rojo", "Verde"]},
-                {q:"¿Com es diu 'GRACIAS' en català?", r:"Gràcies", f:["Si us plau", "Hola"]},
-                {q:"¿Quin animal és un 'GOSS'?", r:"Perro", f:["Gato", "Pájaro"]}
-            ],
-            frances: [
-                {q:"¿Qué significa la famosa palabra 'BONJOUR'?", r:"Buenos días", f:["Adiós", "Por favor"]},
-                {q:"¿Qué número es 'UN, DEUX, TROIS'?", r:"3", f:["1", "2"]},
-                {q:"Si te comes un cruasán delicioso dices: '¡______!'", r:"Merci", f:["Bonjour", "Au revoir"]},
-                {q:"¿De qué color es algo 'VERT'?", r:"Verde", f:["Rojo", "Negro"]}
-            ],
-            italiano: [
-                {q:"¿Cómo saludas a un amigo en Roma diciendo 'HOLA'?", r:"Ciao", f:["Grazie", "Prego"]},
-                {q:"¿Qué postre frío y dulce es un 'GELATO'?", r:"Helado", f:["Pastel", "Fruta"]},
-                {q:"¿Cómo se dice 'GRACIAS' en italiano?", r:"Grazie", f:["Ciao", "Buongiorno"]},
-                {q:"Si vas a comer 'SPAGHETTI', ¿qué estás comiendo?", r:"Pasta", f:["Carne", "Pescado"]}
-            ]
-        };
+        let juegoActual = '';
+        let respuestasAceptables = [];
 
-        // --- SISTEMA DEL JUEGO ---
-        let puntos = parseInt(localStorage.getItem('pts_lengua_v1')) || 0;
-        let medallas = JSON.parse(localStorage.getItem('med_lengua_v1')) || [];
-        let juegoActual = "";
-        let solucionCorrectaGlobal = null;
-
-        function guardar() {
-            localStorage.setItem('pts_lengua_v1', puntos);
-            localStorage.setItem('med_lengua_v1', JSON.stringify(medallas));
-            actualizarUI();
-        }
-
-        function actualizarUI() {
-            document.getElementById('puntos-globales').innerText = puntos;
-            document.getElementById('juego-puntos').innerText = puntos;
-            
-            const vitrina = document.getElementById('vitrina-medallas');
-            vitrina.innerHTML = "";
-            medallas.forEach(m => vitrina.innerHTML += m + " ");
-
-            if (puntos >= 100 && !medallas.includes("🏅")) { medallas.push("🏅"); alert("🏅 ¡Premio de Políglota! Has dominado las palabras."); guardar(); }
-        }
-
-        function irAlMenu() {
-            document.getElementById('pantalla-juego').classList.add('oculto');
-            document.getElementById('menu-idiomas').classList.remove('oculto');
-            document.documentElement.style.setProperty('--color-principal', '#ff6b81');
-            actualizarUI();
-        }
-
-        function abrirJuego(tipo) {
-            reproducirSonido('click');
+        function iniciarJuego(tipo) {
+            sonarSintetizador('clic');
             juegoActual = tipo;
-            document.getElementById('menu-idiomas').classList.add('oculto');
-            document.getElementById('pantalla-juego').classList.remove('oculto');
-            document.getElementById('juego-msg').innerText = "";
-            
-            const paletas = {
-                espanol: '#ff9f43', ingles: '#1e90ff', catalan: '#ffa502', frances: '#2ed573', italiano: '#22a6b3'
-            };
-            document.documentElement.style.setProperty('--color-principal', paletas[tipo] || '#ff6b81');
-            cargarNuevoReto();
+            document.getElementById('zona-de-juego').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            generarPreguntaJuego();
         }
 
-        function cargarNuevoReto() {
-            const cont = document.getElementById('modulo-contenedor');
-            cont.classList.remove('animar-victoria', 'animar-error', 'animar-rebote');
-            void cont.offsetWidth;
+        function generarPreguntaJuego() {
+            const pantalla = document.getElementById('pantalla-matematica');
+            const input = document.getElementById('respuesta-usuario');
+            const instrucciones = document.getElementById('instrucciones-juego-activo');
+            const res = locales[langActual];
+            input.value = ''; input.focus();
+            respuestasAceptables = [];
+
+            // Asignar título e instrucciones según juego e idioma
+            if (juegoActual === 'silabas') {
+                document.getElementById('titulo-juego-activo').innerText = "✂️ " + res.gt1;
+                instrucciones.innerText = res.inst_silaba;
+            } else if (juegoActual === 'ortografia') {
+                document.getElementById('titulo-juego-activo').innerText = "👻 " + res.gt2;
+                instrucciones.innerText = res.inst_orto;
+            } else if (juegoActual === 'sinonimos') {
+                document.getElementById('titulo-juego-activo').innerText = "🤝 " + res.gt3;
+                instrucciones.innerText = res.inst_sin;
+            } else if (juegoActual === 'clasifica') {
+                document.getElementById('titulo-juego-activo').innerText = "⚡ " + res.gt4;
+                instrucciones.innerText = res.inst_clas;
+            } else if (juegoActual === 'identifica_tipo') {
+                document.getElementById('titulo-juego-activo').innerText = "🔍 " + res.gt5;
+                instrucciones.innerText = res.inst_id;
+            } else if (juegoActual === 'letras_caidas') {
+                document.getElementById('titulo-juego-activo').innerText = "🦅 " + res.gt6;
+                instrucciones.innerText = res.inst_letra;
+            }
+
+            // Cargar datos aleatorios según la base de datos local del idioma
+            const lista = dbJuegos[langActual][juegoActual];
+            let elegida = lista[Math.floor(Math.random() * lista.length)];
             
-            // Icono/Dibujo temático superior según idioma
-            const iconos = { espanol: "🦁", ingles: "🦊", catalan: "🐻", frances: "🐰", italiano: "🐨" };
-            document.getElementById('grafico-personalizado').innerText = iconos[juegoActual];
-
-            // Elegir pregunta aleatoria del banco del idioma seleccionado
-            const preguntas = bancoPreguntas[juegoActual];
-            const p = preguntas[Math.floor(Math.random() * preguntas.length)];
-            
-            document.getElementById('juego-titulo').innerText = "Modo: " + juegoActual.toUpperCase();
-            document.getElementById('juego-reto').innerText = p.q;
-            solucionCorrectaGlobal = p.r;
-
-            // Construir opciones mezcladas
-            let opciones = [p.r, ...p.f].sort(() => 0.5 - Math.random());
-            let contOpciones = document.getElementById('juego-opciones');
-            contOpciones.innerHTML = "";
-            
-            opciones.forEach(op => {
-                let b = document.createElement('button');
-                b.className = "btn";
-                b.innerText = op;
-                b.onclick = () => verificar(op, p.r);
-                contOpciones.appendChild(b);
-            });
-        }
-
-        function verificar(elegido, correcto) {
-            let m = document.getElementById('juego-msg');
-            let contenedor = document.getElementById('modulo-contenedor');
-            document.querySelectorAll('#juego-opciones button').forEach(b => b.disabled = true);
-
-            if(elegido === correcto) {
-                puntos += 10;
-                reproducirSonido('correcto');
-                contenedor.classList.add('animar-victoria');
-                m.innerText = "🎉 ¡Perfecto! ¡Qué bien hablas! 🌟"; m.style.color = "#2ed573";
-                guardar();
-                setTimeout(() => { cargarNuevoReto(); m.innerText = ""; }, 1400);
+            pantalla.innerText = elegida.p;
+            if (Array.isArray(elegida.r)) {
+                respuestasAceptables = elegida.r;
             } else {
-                reproducirSonido('error');
-                contenedor.classList.add('animar-error');
-                m.innerText = "❌ ¡Casi! Usa la bombilla de abajo de ayuda. 💡"; m.style.color = "#ff4757";
-                setTimeout(() => { 
-                    contenedor.classList.remove('animar-error');
-                    document.querySelectorAll('#juego-opciones button').forEach(b => b.disabled = false);
-                    m.innerText = "";
-                }, 1200);
+                respuestasAceptables.push(elegida.r);
             }
         }
 
-        // --- SISTEMA DE PIZARRA TUTORA ---
-        function mostrarPizarra() {
-            reproducirSonido('click');
-            const lec = leccionesAyuda[juegoActual];
-            document.getElementById('pizarra-titulo').innerText = lec.titulo;
-            document.getElementById('pizarra-texto-ayuda').innerHTML = lec.texto;
-            document.getElementById('pizarra-tutorial').classList.remove('oculto');
+        function validarRespuestaJuego() {
+            const inputVal = document.getElementById('respuesta-usuario').value.trim().toLowerCase();
+            if (inputVal === "") return;
+
+            const limpiarTexto = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            let esCorrecto = respuestasAceptables.some(resp => limpiarTexto(resp) === limpiarTexto(inputVal));
+
+            const res = locales[langActual];
+
+            if (esCorrecto) {
+                sonarSintetizador('correcto');
+                puntosTotales += 10;
+                document.getElementById('marcador-puntos').innerText = puntosTotales;
+                alert(res.ok);
+                generarPreguntaJuego();
+            } else {
+                sonarSintetizador('error');
+                alert(`${res.err} "${respuestasAceptables[0]}"`);
+                generarPreguntaJuego();
+            }
         }
 
-        function cerrarPizarra() {
-            reproducirSonido('click');
-            document.getElementById('pizarra-tutorial').classList.add('oculto');
+        document.getElementById('respuesta-usuario').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') validarRespuestaJuego();
+        });
+
+        // --- SISTEMA DE IA TUTORA SIMULADA ---
+        function charlarTutora(opcion) {
+            sonarSintetizador('clic');
+            const cajaTexto = document.getElementById('texto-chat-tutora');
+            
+            const tips = {
+                es: {
+                    truco: "💡 ¡Delante de 'P' y 'B' siempre escribimos la letra 'M'! Ejemplo: campo, tambor.",
+                    miedo: "🦖 Equivocarse es normal. El cerebro reorganiza las reglas gramaticales cada vez que analizas un error. ¡Sigue adelante!",
+                    examen: "📝 ¡Activado el desafío de sinonimia! Veamos cuánto vocabulario posees."
+                },
+                en: {
+                    truco: "💡 Remember: The letter 'Q' is almost always followed by a silent 'U', like in 'Quick' or 'Queen'.",
+                    miedo: "🦖 Don't fear spelling mistakes. English spelling is eccentric because it blends Latin, Germanic, and French history!",
+                    examen: "📝 Battle time! I've opened the Syllable Hunter booth for you."
+                },
+                fr: {
+                    truco: "💡 Astuce : Devant les lettres 'M', 'B', 'P', le 'N' se transforme généralement en 'M' (ex: emmener, tomber, impossible).",
+                    miedo: "🦖 Les accents en français font peur au début, mais ils ne serve qu'à guider le son de votre voix ! Pas de panique.",
+                    examen: "📝 Place au contrôle surprise ! Identifions les types de mots."
+                }
+            };
+
+            cajaTexto.innerText = tips[langActual][opcion];
+            if(opcion === 'examen') {
+                if (langActual === 'es') iniciarJuego('sinonimos');
+                if (langActual === 'en') iniciarJuego('silabas');
+                if (langActual === 'fr') iniciarJuego('clasifica');
+            }
         }
 
-        function borrarTodo() { if(confirm("¿Borrar estrellas de idiomas?")) { localStorage.clear(); location.reload(); } }
-        actualizarUI();
+        // --- SISTEMA DE CONTENIDO MULTILINGÜE ENCYCLOPEDIA ---
+        function abrirTeoria(tema) {
+            sonarSintetizador('clic');
+            const modal = document.getElementById('modal-teoria');
+            const titulo = document.getElementById('modal-titulo-teoria');
+            const cuerpo = document.getElementById('modal-cuerpo-teoria');
+            modal.style.display = 'flex';
+
+            const biblioteca = {
+                es: {
+                    acentos: {t:"🎯 Acentuación", c:"<p>Las palabras se dividen en:</p><ul><li><b>Agudas:</b> Fuerza al final. Llevan tilde si acaban en N, S o Vocal (Café).</li><li><b>Llanas:</b> Fuerza en la penúltima. Tilde si NO acaban en N, S o Vocal (Lápiz).</li><li><b>Esdrújulas:</b> Fuerza antes. ¡Tilde siempre! (Plátano).</li></ul>"},
+                    vocales: {t:"🌊 Diptongos e Hiatos", c:"<p><b>Diptongo:</b> Dos vocales juntas en la misma sílaba (Fuego, Aire).<br><b>Hiato:</b> Vocales contiguas que se separan en dos sílabas distintas (Te-a-tro, Po-e-ma).</p>"},
+                    tipos_palabras: {t:"🎭 Categorías Gramaticales", c:"<ul><li><b>Sustantivo:</b> Nombres de cosas, personas o lugares (Gato, Madrid).</li><li><b>Adjetivo:</b> Propiedades o estados (Grande, Azul).</li><li><b>Verbo:</b> Acciones en el tiempo (Saltar, Bailó).</li></ul>"},
+                    puntuacion: {t:"✍️ Signos Esenciales", c:"<p>El punto (.) cierra frases completas. La coma (,) añade una micropausa. Recuerda abrir y cerrar los signos de interrogación (¿?) y exclamación (¡!).</p>"},
+                    lexico: {t:"🧠 Red de Vocabulario", c:"<p><b>Sinónimos:</b> Mismo significado (Rápido = Veloz).<br><b>Antónimos:</b> Significados totalmente inversos (Frío / Caliente).</p>"},
+                    literatura: {t:"🦄 Recursos de Estilo", c:"<p><b>Metáfora:</b> Comparación directa sin el 'como' (Tus ojos son dos luceros).<br><b>Personificación:</b> Objetos que cobran vida humana (El viento susurraba).</p>"}
+                },
+                en: {
+                    acentos: {t:"🎯 Syllables & Stress", c:"<p>In English, every word has a stressed syllable where the voice sounds louder and longer. Changing the stress can change a noun into a verb (e.g., an OB-ject vs to ob-JECT).</p>"},
+                    vocales: {t:"🌊 Vowel Teams & Blends", c:"<p>When two vowels go walking, the first one usually does the talking! In combinations like 'EA' (Meat) or 'OA' (Boat), the first vowel usually says its long alphabet name.</p>"},
+                    tipos_palabras: {t:"🎭 Parts of Speech", c:"<ul><li><b>Noun:</b> Person, place, or thing (Dog, London, Table).</li><li><b>Verb:</b> Action or state of being (Run, Is, Think).</li><li><b>Adjective:</b> Describes a noun (Fast, Beautiful, Shiny).</li></ul>"},
+                    puntuacion: {t:"✍️ Punctuation Rules", c:"<p>Use a period (.) to end statements, a question mark (?) for inquiries, and a comma (,) to separate list items or create necessary breathing pauses.</p>"},
+                    lexico: {t:"🧠 Synonyms & Antonyms", c:"<p><b>Synonyms:</b> Words with identical meanings (Smart = Clever).<br><b>Antonyms:</b> Structural opposites (Dark / Light, Big / Small).</p>"},
+                    literatura: {t:"🦄 Figurative Language", c:"<p><b>Simile:</b> Comparing using 'Like' or 'As' (Brave as a lion).<br><b>Metaphor:</b> Direct substitution (Time is a thief).</p>"}
+                },
+                fr: {
+                    acentos: {t:"🎯 Les Accents Français", c:"<p>Les accents changent la prononciation ou le sens des mots :</p><ul><li><b>Accent aigu (é):</b> Ferme le son (Café).</li><li><b>Accent grave (à, è, ù):</b> Ouvre le son (Mère) ou distingue des homonymes (ou / où).</li><li><b>Accent circonflexe (â, ê, î, ô, û):</b> Indique souvent un ancien 'S' disparu du vieux français (Hôpital).</li></ul>"},
+                    vocales: {t:"🌊 Combinaisons de Sons", c:"<p>En français, regrouper des voyelles crée de nouveaux sons uniques : <b>'OU'</b> fait le son /u/, <b>'AU/EAU'</b> donne le son /o/, et <b>'OI'</b> crée le son /wa/ (Moi).</p>"},
+                    tipos_palabras: {t:"🎭 Nature des Mots", c:"<ul><li><b>Le Nom:</b> Personne, animal ou objet (Chat, Voiture).</li><li><b>L'Adjectif:</b> Donne une qualité au nom (Petit, Intelligent).</li><li><b>Le Verbe:</b> Exprime l'action du sujet (Manger, Courir).</li></ul>"},
+                    puntuacion: {t:"✍️ Règles de Ponctuation", c:"<p>Le point (.) finit la phrase. Attention : en français, on met toujours un espace avant los signes doubles comme les deux-points (:), le point d'interrogation (?) ou d'exclamation (!).</p>"},
+                    lexico: {t:"🧠 Synonymes et Antonymes", c:"<p><b>Synonymes:</b> Mots proches (Crier = Hurler).<br><b>Antonymes:</b> Mots diamétralement opposés (Gagner / Perdre).</p>"},
+                    literatura: {t:"🦄 Figures de Style", c:"<p><b>La Métaphore:</b> Image poétique directe (Une pluie de critiques).<br><b>La Comparaison:</b> Rapprochement avec outil (Fort comme un hercule).</p>"}
+                }
+            };
+
+            const nodo = biblioteca[langActual][tema];
+            titulo.innerText = nodo.t;
+            cuerpo.innerHTML = nodo.c;
+        }
+
+        function cerrarTeoria() {
+            sonarSintetizador('clic');
+            document.getElementById('modal-teoria').style.display = 'none';
+        }
     </script>
 </body>
 </html>
