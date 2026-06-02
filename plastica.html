@@ -3,277 +3,755 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Art-Studio Arcade 🎨</title>
+    <title>Isla de las Artes Plásticas y Visuales</title>
     <style>
         :root {
-            --bg-juego: #2f3542;
-            --color-principal: #ff4757;
+            --primary: #9b59b6;
+            --accent-art: #e67e22;
+            --bg-gradient: linear-gradient(135deg, #fad390 0%, #f8a5c2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #2c3e50;
         }
 
         body {
             font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
-            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
-            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #333;
-            overflow-x: hidden;
-        }
-        .contenedor-principal {
-            background: rgba(255, 255, 255, 0.96); padding: 25px; border-radius: 30px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            max-width: 480px; width: 92%; text-align: center; box-sizing: border-box;
-            transition: all 0.5s ease; position: relative;
-        }
-        .oculto { display: none !important; }
-        h1, h2 { color: #2f3542; margin: 10px 0; font-weight: 900; }
-        
-        /* --- ANIMACIONES --- */
-        .animar-rebote { animation: rebote 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .animar-error { animation: vibrar 0.4s ease-in-out; }
-        .animar-victoria { animation: celebrar 0.6s ease-in-out; }
-
-        @keyframes rebote { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes vibrar { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
-        @keyframes celebrar { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1) rotate(5deg); } }
-
-        /* --- BOTONES --- */
-        .btn {
-            background-color: var(--color-principal); color: white; border: none; padding: 15px; font-size: 18px; font-weight: bold;
-            border-radius: 20px; cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            border-bottom: 5px solid rgba(0,0,0,0.2); width: 100%; margin-bottom: 12px; position: relative; top: 0;
-        }
-        .btn:hover { transform: translateY(-3px); filter: brightness(1.1); }
-        .btn:active { top: 4px; border-bottom-width: 1px; }
-        
-        .btn-volver { 
-            background-color: #576574; color: white; border: none; padding: 8px 18px; border-radius: 50px; 
-            cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 3px 0 #2f3542;
+            background: var(--bg-gradient);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: var(--text-dark);
+            box-sizing: border-box;
+            user-select: none;
         }
 
-        .btn-aprender {
-            background-color: #ff9f43; color: white; border: none; padding: 10px 20px; font-size: 16px; font-weight: bold;
-            border-radius: 15px; cursor: pointer; margin-top: 15px; width: 100%; border-bottom: 4px solid #d35400;
+        *, *::before, *::after {
+            box-sizing: border-box;
         }
 
-        /* --- MENÚ DE JUEGOS --- */
-        .tarjeta-juego {
-            background-color: #f1f2f6; border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 20px;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-bottom: 12px;
+        /* --- BOTÓN VOLVER --- */
+        .btn-volver {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border: 2px solid var(--accent-art);
+            color: var(--accent-art);
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+            z-index: 100;
         }
-        .tarjeta-juego:hover { transform: scale(1.03); background-color: #fff; border-color: var(--color-principal); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .icono { font-size: 45px; }
-
-        /* --- LIENZO DE DIBUJO --- */
-        .zona-canvas { background: white; border: 4px solid #2f3542; border-radius: 20px; overflow: hidden; margin: 15px 0; }
-        canvas { background: white; cursor: crosshair; display: block; }
-        .paleta-colores { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; padding: 5px; }
-        .color-bloque { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 3px solid #eee; transition: transform 0.2s; }
-        .color-bloque:hover { transform: scale(1.2); }
-
-        /* --- INTERFAZ RETOS --- */
-        .display-reto { font-size: 24px; font-weight: bold; background: var(--bg-juego); color: white; padding: 20px; border-radius: 25px; margin: 15px 0; }
-        .mensaje { font-size: 20px; font-weight: bold; margin-top: 12px; min-height: 30px; }
-
-        /* --- PIZARRA --- */
-        .pizarra-modal {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #2f3542; color: white; border-radius: 30px; padding: 25px;
-            box-sizing: border-box; text-align: left; display: flex; flex-direction: column; z-index: 10; justify-content: space-between; overflow-y: auto;
+        .btn-volver:hover {
+            background: var(--accent-art);
+            color: white;
+            transform: translateY(-2px);
         }
-        .pizarra-contenido { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; font-size: 16px; line-height: 1.5; }
+
+        /* --- SELECTOR DE IDIOMA --- */
+        .selector-idioma {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            border: 2px solid #2980b9;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+        .selector-idioma select {
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+            color: #2980b9;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .hub-container {
+            max-width: 1200px;
+            margin: 80px auto 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+            animation: flotar 3s ease-in-out infinite;
+        }
+
+        .sub-bar {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .puntos-badge {
+            color: #27ae60;
+            margin-left: 15px;
+            background: #f1f9f5;
+            padding: 5px 15px;
+            border-radius: 15px;
+            border: 2px solid #27ae60;
+        }
+
+        /* --- PANELES DE SECCIONES --- */
+        .seccion-bloque {
+            background: var(--glass-bg);
+            border-radius: 35px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.06);
+            border: 2px solid rgba(255,255,255,0.7);
+            text-align: left;
+        }
+
+        .seccion-bloque h2 {
+            font-size: 2rem;
+            color: #2980b9;
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 3px dashed #f8a5c2;
+            padding-bottom: 10px;
+        }
+
+        /* --- GRILLA ADAPTIVA --- */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card-actividad {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.04);
+            border: 2px solid #f1f2f6;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card-actividad:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 25px rgba(41, 128, 185, 0.15);
+            border-color: #f8a5c2;
+        }
+
+        .card-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .card-actividad h3 {
+            margin: 10px 0;
+            font-size: 1.4rem;
+            color: #2c3e50;
+        }
+
+        .card-actividad p {
+            margin: 0;
+            color: #7f8c8d;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        /* --- ZONA DE JUEGO ACTIVA --- */
+        .zona-juego-activa {
+            display: none;
+            background: white;
+            border-radius: 35px;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 3px solid #2980b9;
+            text-align: center;
+            animation: entrada 0.4s ease-out;
+        }
+
+        .pantalla-operacion {
+            font-size: 2.8rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #2c3e50;
+            letter-spacing: 1px;
+            word-break: break-word;
+        }
+
+        .input-respuesta {
+            font-size: 2rem;
+            width: 80%;
+            max-width: 350px;
+            text-align: center;
+            padding: 12px;
+            border: 3px solid #bdc3c7;
+            border-radius: 20px;
+            outline: none;
+            font-family: inherit;
+            margin-bottom: 20px;
+        }
+        .input-respuesta:focus { border-color: #2980b9; }
+
+        .btn-comprobar {
+            display: block;
+            margin: 0 auto;
+            background: linear-gradient(45deg, #2980b9, #9b59b6);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(41, 128, 185, 0.3);
+        }
+
+        /* --- SECCIÓN TUTOR ARTÍSTICO --- */
+        .contenedor-tutora {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 20px;
+            align-items: center;
+            background: #fff;
+            padding: 25px;
+            border-radius: 25px;
+            border: 2px solid #2980b9;
+        }
+
+        .avatar-ia { font-size: 90px; text-align: center; animation: flotar 4s ease-in-out infinite; }
+
+        .bocadillo-chat {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 25px;
+            position: relative;
+            border: 1px solid #e2e8f0;
+        }
+
+        .bocadillo-chat::before {
+            content: ''; position: absolute; left: -15px; top: 50%;
+            transform: translateY(-50%); border-width: 15px 15px 15px 0;
+            border-style: solid; border-color: transparent #f8f9fa transparent transparent;
+        }
+
+        .opciones-tutora { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-opcion-chat {
+            background: white; border: 2px solid #2980b9; color: #2980b9;
+            padding: 8px 16px; border-radius: 15px; cursor: pointer;
+            font-weight: bold; transition: all 0.2s;
+        }
+        .btn-opcion-chat:hover { background: #2980b9; color: white; }
+
+        /* --- MODAL DE TEORÍA --- */
+        .modal-teoria {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+
+        .modal-teoria-contenido {
+            background: white; padding: 40px; border-radius: 35px;
+            max-width: 650px; width: 90%; max-height: 85vh; overflow-y: auto;
+            position: relative; text-align: left; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: entrada 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-cerrar-modal {
+            position: absolute; top: 20px; right: 20px; background: #e74c3c;
+            color: white; border: none; width: 35px; height: 35px; border-radius: 50%;
+            cursor: pointer; font-weight: bold;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 820px) {
+            h1 { font-size: 2.2rem; }
+            .contenedor-tutora { grid-template-columns: 1fr; text-align: center; }
+            .bocadillo-chat::before { display: none; }
+            .avatar-ia { margin-bottom: 10px; }
+            .pantalla-operacion { font-size: 2.1rem; }
+            .selector-idioma { position: static; display: inline-block; margin-top: 10px; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.8rem; }
+            .seccion-bloque { padding: 20px; border-radius: 25px; }
+            .seccion-bloque h2 { font-size: 1.4rem; }
+            .btn-volver { position: static; display: inline-block; margin-bottom: 15px; }
+            .hub-container { margin-top: 10px; }
+        }
+
+        @keyframes flotar {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes entrada {
+            from { opacity: 0; transform: scale(0.95) translateY(15px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
     </style>
 </head>
 <body>
 
-    <div class="contenedor-principal animar-rebote" id="modulo-contenedor">
-        
-        <div id="menu-plastica">
-            <button class="btn-volver" onclick="window.location.href='menuprincipal.html'">🔙 Ir al Mapa</button>
-            <h1>🎨 Art-Studio Arcade 🖌️</h1>
-            
-            <div style="background: #f1f2f6; padding: 12px; border-radius: 20px; margin-bottom: 15px; border: 3px dashed #ff4757;">
-                <b>🏆 Puntos de Artista: <span id="puntos-globales" style="color:#ff4757;">0</span> ⭐</b>
-            </div>
+    <a href="menuprincipal.html" class="btn-volver" id="lbl-volver" onclick="sonarBoton()">⬅ Volver al Mapa</a>
 
-            <div class="lista-juegos">
-                <div class="tarjeta-juego" onclick="abrirJuego('mezclas')"><div class="icono">🧪</div><div><h3>Laboratorio de Color</h3><p>¿Qué pasa si juntas el azul y el amarillo?</p></div></div>
-                <div class="tarjeta-juego" onclick="abrirJuego('formas')"><div class="icono">📐</div><div><h3>Líneas y Formas</h3><p>Aprende sobre figuras, fondos y simetría.</p></div></div>
-                <div class="tarjeta-juego" onclick="abrirJuego('lienzo')"><div class="icono">✏️</div><div><h3>Pizarra Mágica Libre</h3><p>¡Dibuja y pinta lo que tú quieras aquí!</p></div></div>
-            </div>
+    <div class="selector-idioma">
+        🌐 <select id="select-lang" onchange="cambiarIdioma()">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+        </select>
+    </div>
+
+    <div class="hub-container">
+        <h1 id="main-title">🎨 Isla de las Artes Plásticas y Visuales 🗺️</h1>
+        <div class="sub-bar">
+            <span id="user-badge">Gran Maestro Creador 🖌️</span>
+            <span class="puntos-badge">⭐ <span id="marcador-puntos">0</span> <span id="lbl-puntos">Puntos</span></span>
         </div>
 
-        <div id="pantalla-retos" class="oculto">
-            <button class="btn-volver" onclick="irAlMenu()">🔙 Cambiar de Juego</button>
-            <div class="display-reto" id="juego-reto">Pregunta</div>
-            <div id="juego-opciones"></div>
-            <div id="juego-msg" class="mensaje"></div>
-            <button class="btn-aprender" onclick="mostrarPizarra()">💡 ¡Ver Truco de Pintura!</button>
+        <div id="zona-de-juego" class="zona-juego-activa">
+            <h2 id="titulo-juego-activo">Desafío Técnico</h2>
+            <p id="instrucciones-juego-activo">Observa el problema artístico:</p>
+            <div id="pantalla-artes" class="pantalla-operacion">Concepto</div>
+            <input type="text" id="respuesta-usuario" class="input-respuesta" placeholder="..." autocomplete="off" spellcheck="false">
+            <button class="btn-comprobar" id="btn-verificar" onclick="validarRespuestaJuego()">Comprobar Dibujo 🚀</button>
         </div>
 
-        <div id="pantalla-lienzo" class="oculto">
-            <button class="btn-volver" onclick="irAlMenu()">🔙 Volver al Menú</button>
-            <h3>🎨 ¡Dibuja tu Obra de Arte!</h3>
-            
-            <div class="paleta-colores">
-                <div class="color-bloque" style="background: #000000;" onclick="cambiarColor('#000000')"></div>
-                <div class="color-bloque" style="background: #ff4757;" onclick="cambiarColor('#ff4757')"></div>
-                <div class="color-bloque" style="background: #2ed573;" onclick="cambiarColor('#2ed573')"></div>
-                <div class="color-bloque" style="background: #1e90ff;" onclick="cambiarColor('#1e90ff')"></div>
-                <div class="color-bloque" style="background: #ffa502;" onclick="cambiarColor('#ffa502')"></div>
-                <div class="color-bloque" style="background: #ffffff; border: 3px solid #ccc;" onclick="cambiarColor('#ffffff')"></div>
-            </div>
-
-            <div class="zona-canvas">
-                <canvas id="pizarraCanvas" width="400" height="280"></canvas>
-            </div>
-            
-            <button class="btn" style="background-color: #747d8c;" onclick="limpiarLienzo()">🧼 Borrar Todo e Iniciar</button>
-        </div>
-
-        <div id="pizarra-tutorial" class="pizarra-modal oculto">
-            <div>
-                <h2 style="color: #ff9f43;">💡 Lección de Artista</h2>
-                <div class="pizarra-contenido" id="pizarra-texto-ayuda">
-                    Conceptos cargados dinámicamente...
+        <div class="seccion-bloque">
+            <h2 id="sec1-title">🤖 Tu Mentor del Atrapasueños Visual</h2>
+            <div class="contenedor-tutora">
+                <div class="avatar-ia">👨‍نان</div>
+                <div class="bocadillo-chat">
+                    <p id="texto-chat-tutora">¡Hola, creador del mañana! El espacio, las formas y las luces son herramientas mágicas para expresar lo invisible. ¿Qué misterio visual resolveremos hoy?</p>
+                    <div class="opciones-tutora">
+                        <button class="btn-opcion-chat" id="opt-truco" onclick="charlarTutora('truco')">💡 Consejo de color</button>
+                        <button class="btn-opcion-chat" id="opt-miedo" onclick="charlarTutora('miedo')">🦖 Bloqueo creativo</button>
+                        <button class="btn-opcion-chat" id="opt-examen" onclick="charlarTutora('examen')">📝 Reto del Atelier (+50 XP)</button>
+                    </div>
                 </div>
             </div>
-            <button class="btn" style="background-color: #2ed573; margin-top: 15px;" onclick="cerrarPizarra()">¡Entendido! 🚀</button>
         </div>
 
+        <div class="seccion-bloque">
+            <h2 id="sec2-title">📚 Galería Teórica del Lenguaje Visual</h2>
+            <div class="grid-cards">
+                <div class="card-actividad" onclick="abrirTeoria('color')">
+                    <div class="card-icon">🌈</div>
+                    <h3 id="card-t1">Teoría del Color</h3>
+                    <p id="card-d1">Domina el círculo cromático, las armonías y las propiedades de la luz-color.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('formas')">
+                    <div class="card-icon">📐</div>
+                    <h3 id="card-t2">Morfología y Líneas</h3>
+                    <p id="card-d2">Cómo las líneas y formas expresan dinamismo, peso o estabilidad.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('texturas')">
+                    <div class="card-icon">🪵</div>
+                    <h3 id="card-t3">Cualidades del Relieve</h3>
+                    <p id="card-d3">Explora la diferencia entre texturas ópticas artificiales y hápticas.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('perspectiva')">
+                    <div class="card-icon">🏢</div>
+                    <h3 id="card-t4">Perspectiva y Espacio</h3>
+                    <p id="card-d4">Crea la ilusión tridimensional sobre el plano bidimensional plano.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('composicion')">
+                    <div class="card-icon">📸</div>
+                    <h3 id="card-t5">Sintaxis de la Imagen</h3>
+                    <p id="card-d5">Aprende sobre encuadres, la regla de los tercios y proporciones físicas.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('tecnicas')">
+                    <div class="card-icon">✒️</div>
+                    <h3 id="card-t6">Técnicas Graficoplásticas</h3>
+                    <p id="card-d6">Estudio analítico de materiales secos, húmedos e impresiones.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="seccion-bloque">
+            <h2 id="sec3-title">🎮 Arcade de Desafíos Visuales (6 Juegos)</h2>
+            <div class="grid-cards">
+                <div class="card-actividad" onclick="iniciarJuego('color_mix')">
+                    <div class="card-icon">🧪</div>
+                    <h3 id="game-t1">Mezclador Alquimista</h3>
+                    <p id="game-d1">¡Averigua qué color resulta de las combinaciones o armonías!</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('formas_geom')">
+                    <div class="card-icon">🔮</div>
+                    <h3 id="game-t2">Filtro de Siluetas</h3>
+                    <p id="game-d2">Clasifica las formas según sean geométricas u orgánicas.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('textura_lab')">
+                    <div class="card-icon">🖐️</div>
+                    <h3 id="game-t3">Escáner de Texturas</h3>
+                    <p id="game-d3">Identifica la naturaleza de la superficie descrita.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('persp_master')">
+                    <div class="card-icon">🛣️</div>
+                    <h3 id="game-t4">Especialista de Fuga</h3>
+                    <p id="game-d4">Encuentra el elemento geométrico espacial correcto.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('planos')">
+                    <div class="card-icon">🎬</div>
+                    <h3 id="game-t5">Director de Escena</h3>
+                    <p id="game-d5">Determina el tipo de encuadre o plano de cámara idóneo.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('materiales')">
+                    <div class="card-icon">🎨</div>
+                    <h3 id="game-t6">Experto en Técnicas</h3>
+                    <p id="game-d6">¿Qué material o técnica produce los acabados propuestos?</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-teoria" class="modal-teoria">
+        <div class="modal-teoria-contenido">
+            <button class="btn-cerrar-modal" onclick="cerrarTeoria()">X</button>
+            <h2 id="modal-titulo-teoria">Teoría de Arte</h2>
+            <div id="modal-cuerpo-teoria">Contenido...</div>
+        </div>
     </div>
 
     <script>
-        // --- MOTOR AUDIO NATIVO ---
+        // --- MOTOR DE LOCALIZACIÓN MULTILINGÜE ---
+        let langActual = 'es';
+        const locales = {
+            es: {
+                volver: "⬅ Volver al Mapa", title: "🎨 Isla de las Artes Plásticas y Visuales 🗺️",
+                badge: "Gran Maestro Creador 🖌️", puntos: "Puntos", verificar: "Comprobar Dibujo 🚀",
+                sec1: "🤖 Tu Mentor del Atrapasueños Visual", sec2: "📚 Galería Teórica del Lenguaje Visual", sec3: "🎮 Arcade de Desafíos Visuales (6 Juegos)",
+                chat: "¡Hola, creador del mañana! El espacio, las formas y las luces son herramientas mágicas para expresar lo invisible. ¿Qué misterio visual resolveremos hoy?",
+                opt1: "💡 Consejo de color", opt2: "🦖 Bloqueo creativo", opt3: "📝 Reto del Atelier (+50 XP)",
+                t1: "Teoría del Color", d1: "Domina el círculo cromático, las armonías y las propiedades de la luz-color.",
+                t2: "Morfología y Líneas", d2: "Cómo las líneas y formas expresan dinamismo, peso o estabilidad.",
+                t3: "Cualidades del Relieve", d3: "Explora la diferencia entre texturas ópticas artificiales y hápticas.",
+                t4: "Perspectiva y Espacio", d4: "Crea la ilusión tridimensional sobre el plano bidimensional plano.",
+                t5: "Sintaxis de la Imagen", d5: "Aprende sobre encuadres, la regla de los tercios y proporciones físicas.",
+                t6: "Técnicas Graficoplásticas", d6: "Estudio analítico de materiales secos, húmedos e impresiones.",
+                gt1: "Mezclador Alquimista", gd1: "¡Averigua qué color resulta de las combinaciones o armonías!",
+                gt2: "Filtro de Siluetas", gd2: "Clasifica las formas según sean geométricas u orgánicas.",
+                gt3: "Escáner de Texturas", gd3: "Identifica la naturaleza de la superficie descrita.",
+                gt4: "Especialista de Fuga", gd4: "Encuentra el elemento geométrico espacial correcto.",
+                gt5: "Director de Escena", gd5: "Determina el tipo de encuadre o plano de cámara idóneo.",
+                gt6: "Experto en Técnicas", gd6: "¿Qué material o técnica produce los acabados propuestos?",
+                inst_color: "Rojo + Amarillo = ¿Qué color secundario se forma?",
+                inst_forma: "¿Un círculo o un cuadrado es una forma 'geometrica' u 'organica'?",
+                inst_textura: "La lija o el tronco de un árbol tienen una textura... ¿'tactil' o 'visual'?",
+                inst_persp: "¿Dónde convergen las líneas paralelas que van hacia el fondo? (Punto de ...)",
+                inst_planos: "El plano que corta a una persona por el pecho/hombros es el Plano... ¿'medio' o 'detalle'?",
+                inst_tecn_es: "¿Qué técnica pictórica usa agua y capas translúcidas sobre papel?",
+                err: "❌ ¡Error de trazo! La respuesta artística correcta era:", ok: "✨ ¡Obra maestra completada! Increíble técnica. +10 puntos ⭐"
+            },
+            en: {
+                volver: "⬅ Back to Map", title: "🎨 Plastic and Visual Arts Island 🗺️",
+                badge: "Grand Creative Master 🖌️", puntos: "Points", verificar: "Verify Artwork 🚀",
+                sec1: "🤖 Your Visual Dreams Mentor", sec2: "📚 Theoretical Visual Language Gallery", sec3: "🎮 Visual Challenges Arcade (6 Games)",
+                chat: "Hello, creator of tomorrow! Space, shapes, and lights are magical tools to reveal the invisible. What visual mystery shall we solve today?",
+                opt1: "💡 Color Tip", opt2: "🦖 Creative Block", opt3: "📝 Atelier Challenge (+50 XP)",
+                t1: "Color Theory", d1: "Master the color wheel, color harmonies, and properties of light-color.",
+                t2: "Lines & Morphology", d2: "How lines and shapes express weight, movement, or balance.",
+                t3: "Texture Qualities", d3: "Explore differences between artificial optical and haptic textures.",
+                t4: "Perspective & Space", d4: "Create a 3D illusion perfectly on a flat 2D sheet.",
+                t5: "Image Syntax", d5: "Learn framing rules, the rule of thirds, and balanced ratios.",
+                t6: "Studio Techniques", d6: "Analytical study of dry media, wet paint, and printmaking.",
+                gt1: "Alchemy Mixer", gd1: "Find out what color results from combinations or matching sets!",
+                gt2: "Silhouette Filter", gd2: "Classify items as geometric or organic structural shapes.",
+                gt3: "Texture Scanner", gd3: "Identify the biological or artificial surface type described.",
+                gt4: "Perspective Specialist", gd4: "Locate the exact spatial geometric anchor point requested.",
+                gt5: "Stage Director", gd5: "Determine the ideal framing or photographic camera angle.",
+                gt6: "Techniques Expert", gd6: "Which fine art medium produces the listed aesthetic finish?",
+                inst_color: "Red + Yellow = Which secondary color is made?",
+                inst_forma: "Is a perfect square a 'geometric' or 'organic' shape?",
+                inst_textura: "Tree bark or rough sandpaper has a... 'tactile' or 'visual' texture?",
+                inst_persp: "Where do parallel lines meet in a drawing? (The vanishing ...)",
+                inst_planos: "A shot showing only a person's head and shoulders is a 'closeup' or 'wide' shot?",
+                inst_tecn_es: "Which medium uses translucent pigments washed with water on paper?",
+                err: "❌ Brush stroke failure! The accurate artistic answer was:", ok: "✨ Masterpiece completed! Stellar technique. +10 points ⭐"
+            },
+            fr: {
+                volver: "⬅ Retour a la Carte", title: "🎨 L'Île des Arts Plastiques et Visuels 🗺️",
+                badge: "Grand Maître Créateur 🖌️", puntos: "Points", verificar: "Vérifier le Dessin 🚀",
+                sec1: "🤖 Votre Mentor de l'Espace Visuel", sec2: "📚 Galerie Théorique du Langage Visuel", sec3: "🎮 Arcade de Défis Visuels (6 Jeux)",
+                chat: "Bonjour, créateur de demain ! L'espace, les formes et les lumières sont des outils magiques. Quel mystère artistique allons-nous percer ?",
+                opt1: "💡 Conseil Couleur", opt2: "🦖 Panne d'inspiration", opt3: "📝 Défi de l'Atelier (+50 XP)",
+                t1: "Théorie de la Couleur", d1: "Maîtrisez le cercle chromatique, les harmonies et la synthèse.",
+                t2: "Lignes et Formes", d2: "Comment les lignes créent le dynamisme, le poids ou l'équilibre.",
+                t3: "Qualités des Textures", d3: "Explorez la différence entre textures visuelles et tactiles.",
+                t4: "Perspective et Espace", d4: "Créez l'illusion de la 3D sur un support papier plat en 2D.",
+                t5: "Syntaxe de l'Image", d5: "Apprenez le cadrage, la règle des tiers et la composition pure.",
+                t6: "Techniques Plastiques", d6: "Étude des médiums secs, humides et des procédés d'impression.",
+                gt1: "Mélangeur Alchimiste", gd1: "Trouvez quelle nuance naît des combinaisons chromatiques !",
+                gt2: "Filtre de Silhouettes", gd2: "Classez les formes selon qu'elles sont géométriques ou organiques.",
+                gt3: "Scanner de Textures", gd3: "Identifiez la nature de la surface ou du relief représenté.",
+                gt4: "Spécialiste de la Fuite", gd4: "Trouvez le bon repère géométrique spatial de la scène.",
+                gt5: "Directeur de Scène", gd5: "Déterminez le type de cadrage ou de plan cinématographique.",
+                gt6: "Expert en Techniques", gd6: "Quel matériau produit le rendu artistique mentionné ?",
+                inst_color: "Rouge + Jaune = Quel coloris secondaire obtient-on ?",
+                inst_forma: "Un cercle ou un losange est une forme 'geometrique' ou 'organique' ?",
+                inst_textura: "L'écorce d'un arbre a une texture... 'tactile' ou 'visuelle' ?",
+                inst_persp: "Où convergent les lignes de fuite parallèles ? (Point de ...)",
+                inst_planos: "Le plan cadrant un acteur au niveau de la poitrine est un plan 'moyen' ou 'rapproche' ?",
+                inst_tecn_es: "Quelle technique utilise des pigments transparents délayés dans l'eau ?",
+                err: "❌ Faute de composition ! La réponse académique était :", ok: "✨ Chef-d'œuvre accompli ! Une sensibilité unique. +10 points ⭐"
+            }
+        };
+
+        function cambiarIdioma() {
+            langActual = document.getElementById('select-lang').value;
+            const res = locales[langActual];
+            
+            document.getElementById('lbl-volver').innerText = res.volver;
+            document.getElementById('main-title').innerText = res.title;
+            document.getElementById('user-badge').innerText = res.badge;
+            document.getElementById('lbl-puntos').innerText = res.puntos;
+            document.getElementById('btn-verificar').innerText = res.verificar;
+            document.getElementById('sec1-title').innerText = res.sec1;
+            document.getElementById('sec2-title').innerText = res.sec2;
+            document.getElementById('sec3-title').innerText = res.sec3;
+            document.getElementById('texto-chat-tutora').innerText = res.chat;
+            document.getElementById('opt-truco').innerText = res.opt1;
+            document.getElementById('opt-miedo').innerText = res.opt2;
+            document.getElementById('opt-examen').innerText = res.opt3;
+            
+            document.getElementById('card-t1').innerText = res.t1; document.getElementById('card-d1').innerText = res.d1;
+            document.getElementById('card-t2').innerText = res.t2; document.getElementById('card-d2').innerText = res.d2;
+            document.getElementById('card-t3').innerText = res.t3; document.getElementById('card-d3').innerText = res.d3;
+            document.getElementById('card-t4').innerText = res.t4; document.getElementById('card-d4').innerText = res.d4;
+            document.getElementById('card-t5').innerText = res.t5; document.getElementById('card-d5').innerText = res.d5;
+            document.getElementById('card-t6').innerText = res.t6; document.getElementById('card-d6').innerText = res.d6;
+            
+            document.getElementById('game-t1').innerText = res.gt1; document.getElementById('game-d1').innerText = res.gd1;
+            document.getElementById('game-t2').innerText = res.gt2; document.getElementById('game-d2').innerText = res.gd2;
+            document.getElementById('game-t3').innerText = res.gt3; document.getElementById('game-d3').innerText = res.gd3;
+            document.getElementById('game-t4').innerText = res.gt4; document.getElementById('game-d4').innerText = res.gd4;
+            document.getElementById('game-t5').innerText = res.gt5; document.getElementById('game-d5').innerText = res.gd5;
+            document.getElementById('game-t6').innerText = res.gt6; document.getElementById('game-d6').innerText = res.gd6;
+            
+            if (document.getElementById('zona-de-juego').style.display === 'block') {
+                generarPreguntaJuego();
+            }
+            sonarSintetizador('clic');
+        }
+
+        // --- SINTETIZADOR DE EFECTOS SONOROS ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function sonido(tipo) {
+        let puntosTotales = 0;
+
+        function sonarSintetizador(tipo) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
-            if (tipo === 'ok') {
-                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-                osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.1);
+
+            if (tipo === 'clic') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(450, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+            } else if (tipo === 'correcto') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08); // E5
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.16); // G5
                 gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (tipo === 'error') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.25);
-            } else if (tipo === 'err') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(140, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
             }
         }
+        function sonarBoton() { sonarSintetizador('clic'); }
 
-        // --- BANCO DIDÁCTICO ---
-        const lecciones = {
-            mezclas: "• Los colores <b>Primarios</b> son tres: Rojo, Amarillo y Azul (no se pueden crear mezclando).<br><br>• ¡Mezclas Mágicas (Secundarios)!:<br> Azul + Amarillo = <b>Verde</b> 🟢<br> Rojo + Amarillo = <b>Naranja</b> 🟠<br> Rojo + Azul = <b>Violeta/Morado</b> 🟣",
-            formas: "• Las líneas pueden ser <b>Horizontales</b> (acostadas como el mar 🌊) o <b>Verticales</b> (de pie como un árbol 🌲).<br><br>• Los dibujos <b>Simétricos</b> son los que si los cortas por la mitad, el lado izquierdo y el derecho son exactamente iguales (¡como una hermosa mariposa! 🦋)."
+        // --- BANCO DE DATOS DE DIBUJO Y DISEÑO ---
+        const dbJuegos = {
+            es: {
+                color_mix: [{p: 'Azul + Amarillo', r: 'verde'}, {p: 'Rojo + Azul', r: 'violeta'}, {p: 'Complementario del Azul', r: 'naranja'}],
+                formas_geom: [{p: 'Una Hoja de Árbol', r: 'organica'}, {p: 'Un Triángulo Rectángulo', r: 'geometrica'}, {p: 'Una Nube', r: 'organica'}],
+                textura_lab: [{p: 'La corteza de un pino', r: 'tactil'}, {p: 'Una foto digital de mármol liso', r: 'visual'}, {p: 'Ladrillo visto', r: 'tactil'}],
+                persp_master: [{p: 'Punto de...', r: 'fuga'}, {p: 'Línea de...', r: 'horizonte'}, {p: 'Plano del...', r: 'cuadro'}],
+                planos: [{p: 'Corte a la altura de las rodillas', r: 'americano'}, {p: 'Rostro entero del actor', r: 'primer plano'}, {p: 'Muestra un ojo gigante', r: 'detalle'}],
+                materiales: [{p: 'Acuarela', r: 'humeda'}, {p: 'Carboncillo', r: 'seca'}, {p: 'Lápiz de Grafito', r: 'seca'}, {p: 'Óleo', r: 'humeda'}]
+            },
+            en: {
+                color_mix: [{p: 'Blue + Yellow', r: 'green'}, {p: 'Red + Blue', r: 'purple'}, {p: 'Complement of Blue', r: 'orange'}],
+                formas_geom: [{p: 'A tree leaf', r: 'organic'}, {p: 'A perfect hexagon', r: 'geometric'}, {p: 'A cloud shape', r: 'organic'}],
+                textura_lab: [{p: 'Rough dry wood', r: 'tactile'}, {p: 'Digital flat marble photo', r: 'visual'}, {p: 'A smooth screen', r: 'visual'}],
+                persp_master: [{p: 'Vanishing...', r: 'point'}, {p: 'Horizon...', r: 'line'}, {p: 'Ground...', r: 'line'}],
+                planos: [{p: 'Shot from the knees up', r: 'american'}, {p: 'Full face of character', r: 'closeup'}, {p: 'A single macro eye', r: 'detail'}],
+                materiales: [{p: 'Watercolor', r: 'wet'}, {p: 'Charcoal stick', r: 'dry'}, {p: 'Oil paint', r: 'wet'}, {p: 'Colored pencil', r: 'dry'}]
+            },
+            fr: {
+                color_mix: [{p: 'Bleu + Jaune', r: 'vert'}, {p: 'Rouge + Bleu', r: 'violet'}, {p: 'Complémentaire du Bleu', r: 'orange'}],
+                formas_geom: [{p: 'Une feuille de chêne', r: 'organique'}, {p: 'Un polygone régulier', r: 'geometrique'}, {p: 'Un nuage', r: 'organique'}],
+                textura_lab: [{p: 'Écorce de bois', r: 'tactile'}, {p: 'Image plate de granite', r: 'visuelle'}, {p: 'Papier de verre rugueux', r: 'tactile'}],
+                persp_master: [{p: 'Point de...', r: 'fuite'}, {p: 'Ligne d\'...', r: 'horizon'}, {p: 'Point de...', r: 'vue'}],
+                planos: [{p: 'Cadrage au niveau des genoux', r: 'americain'}, {p: 'Visage entier cadré', r: 'rapproche'}, {p: 'Un zoom sur une bague', r: 'detail'}],
+                materiales: [{p: 'Aquarelle', r: 'humide'}, {p: 'Fusain', r: 'seche'}, {p: 'Peinture à l\'huile', r: 'humide'}, {p: 'Craie', r: 'seche'}]
+            }
         };
 
-        const preguntasJuegos = {
-            mezclas: [
-                {q:"Si mezclas pintura ROJA y AMARILLA, ¿qué color consigues?", r:"Naranja", f:["Verde", "Morado"]},
-                {q:"¿Cuál de estos colores es un COLOR PRIMARIO?", r:"Azul", f:["Verde", "Rosa"]},
-                {q:"¿Qué dos colores necesitas para fabricar el color VERDE?", r:"Azul y Amarillo", f:["Rojo y Azul", "Blanco y Negro"]}
-            ],
-            formas: [
-                {q:"¿Qué elemento de la naturaleza tiene simetría perfecta?", r:"Una mariposa 🦋", f:["Una roca rota 🪨", "Una nube ☁️"]},
-                {q:"¿Cómo es una línea VERTICAL?", r:"De pie, recta hacia arriba", f:["Acostada, como el suelo", "Dando vueltas como un muelle"]}
-            ]
-        };
+        let juegoActual = '';
+        let respuestasAceptables = [];
 
-        let puntos = parseInt(localStorage.getItem('pts_plastica_v1')) || 0;
-        let juegoActual = "";
-
-        function actualizarUI() { document.getElementById('puntos-globales').innerText = puntos; }
-        function irAlMenu() {
-            document.getElementById('pantalla-retos').classList.add('oculto');
-            document.getElementById('pantalla-lienzo').classList.add('oculto');
-            document.getElementById('menu-plastica').classList.remove('oculto');
-            actualizarUI();
-        }
-
-        function abrirJuego(tipo) {
+        function iniciarJuego(tipo) {
+            sonarSintetizador('clic');
             juegoActual = tipo;
-            document.getElementById('menu-plastica').classList.add('oculto');
-            if(tipo === 'lienzo') {
-                document.getElementById('pantalla-lienzo').classList.remove('oculto');
-                inicializarCanvas();
+            document.getElementById('zona-de-juego').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            generarPreguntaJuego();
+        }
+
+        function generarPreguntaJuego() {
+            const pantalla = document.getElementById('pantalla-artes');
+            const input = document.getElementById('respuesta-usuario');
+            const instrucciones = document.getElementById('instrucciones-juego-activo');
+            const res = locales[langActual];
+            input.value = ''; input.focus();
+            respuestasAceptables = [];
+
+            if (juegoActual === 'color_mix') {
+                document.getElementById('titulo-juego-activo').innerText = "🧪 " + res.gt1;
+                instrucciones.innerText = res.inst_color;
+            } else if (juegoActual === 'formas_geom') {
+                document.getElementById('titulo-juego-activo').innerText = "🔮 " + res.gt2;
+                instrucciones.innerText = res.inst_forma;
+            } else if (juegoActual === 'textura_lab') {
+                document.getElementById('titulo-juego-activo').innerText = "🖐️ " + res.gt3;
+                instrucciones.innerText = res.inst_textura;
+            } else if (juegoActual === 'persp_master') {
+                document.getElementById('titulo-juego-activo').innerText = "🛣️ " + res.gt4;
+                instrucciones.innerText = res.inst_persp;
+            } else if (juegoActual === 'planos') {
+                document.getElementById('titulo-juego-activo').innerText = "🎬 " + res.gt5;
+                instrucciones.innerText = res.inst_planos;
+            } else if (juegoActual === 'materiales') {
+                document.getElementById('titulo-juego-activo').innerText = "🎨 " + res.gt6;
+                instrucciones.innerText = res.inst_tecn_es;
+            }
+
+            const lista = dbJuegos[langActual][juegoActual];
+            let elegida = lista[Math.floor(Math.random() * lista.length)];
+            
+            pantalla.innerText = elegida.p;
+            respuestasAceptables.push(elegida.r);
+        }
+
+        function validarRespuestaJuego() {
+            const inputVal = document.getElementById('respuesta-usuario').value.trim().toLowerCase();
+            if (inputVal === "") return;
+
+            const limpiarTexto = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            let esCorrecto = respuestasAceptables.some(resp => limpiarTexto(resp) === limpiarTexto(inputVal));
+            const res = locales[langActual];
+
+            if (esCorrecto) {
+                sonarSintetizador('correcto');
+                puntosTotales += 10;
+                document.getElementById('marcador-puntos').innerText = puntosTotales;
+                alert(res.ok);
+                generarPreguntaJuego();
             } else {
-                document.getElementById('pantalla-retos').classList.remove('oculto');
-                document.getElementById('juego-msg').innerText = "";
-                cargarReto();
+                sonarSintetizador('error');
+                alert(`${res.err} "${respuestasAceptables[0]}"`);
+                generarPreguntaJuego();
             }
         }
 
-        function cargarReto() {
-            const lista = preguntasJuegos[juegoActual];
-            const p = lista[Math.floor(Math.random() * lista.length)];
-            document.getElementById('juego-reto').innerText = p.q;
+        document.getElementById('respuesta-usuario').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') validarRespuestaJuego();
+        });
+
+        // --- INTELIGENCIA DE TUTOR VIRTUAL DE ARTE ---
+        function charlarTutora(opcion) {
+            sonarSintetizador('clic');
+            const cajaTexto = document.getElementById('texto-chat-tutora');
             
-            let opciones = [p.r, ...p.f].sort(() => 0.5 - Math.random());
-            let cont = document.getElementById('juego-opciones'); cont.innerHTML = "";
-            
-            opciones.forEach(op => {
-                let b = document.createElement('button'); b.className = "btn"; b.innerText = op;
-                b.onclick = () => {
-                    if(op === p.r) {
-                        puntos += 10; localStorage.setItem('pts_plastica_v1', puntos);
-                        sonido('ok'); document.getElementById('modulo-contenedor').classList.add('animar-victoria');
-                        document.getElementById('juego-msg').innerText = "🎉 ¡Qué gran artista! ¡Acertaste! 🌟";
-                        setTimeout(() => { document.getElementById('modulo-contenedor').classList.remove('animar-victoria'); cargarReto(); document.getElementById('juego-msg').innerText = ""; }, 1500);
-                    } else {
-                        sonido('err'); document.getElementById('modulo-contenedor').classList.add('animar-error');
-                        document.getElementById('juego-msg').innerText = "❌ ¡Prueba otra vez! Revisa el botón de ayuda.";
-                        setTimeout(() => document.getElementById('modulo-contenedor').classList.remove('animar-error'), 800);
-                    }
-                };
-                cont.appendChild(b);
-            });
+            const tips = {
+                es: {
+                    truco: "💡 Los colores opuestos en el círculo cromático se llaman Complementarios (ej: Azul y Naranja). ¡Puestos juntos vibran con fuerza!",
+                    miedo: "🦖 El lienzo en blanco asusta a cualquiera. Haz un garabato al azar sin pensar, rompe el blanco y verás cómo fluyen las formas.",
+                    examen: "📝 ¡Puertas abiertas del Atelier! Demuestra tus conocimientos sobre encuadres de cine y fotografía."
+                },
+                en: {
+                    truco: "💡 Colors directly opposite each other on the color wheel are Complementary (e.g., Red and Green). Side by side, they make each other pop!",
+                    miedo: "🦖 Don't fear an empty page. Draw a random messy line, break the digital perfect white canvas, and let your eye follow the path.",
+                    examen: "📝 Surprise Critique! Let's examine spatial design in the Perspective Booth."
+                },
+                fr: {
+                    truco: "💡 Les couleurs diamétralement opposées sont dites Complémentaires (ex : Jaune et Violet). Elles créent un contraste maximal !",
+                    miedo: "🦖 La peur de rater un dessin paralyse le geste. Utilisez un fusain pour jeter de grandes masses d'ombres sans chercher le détail.",
+                    examen: "📝 Évaluation Surprise ! Voyons si vous connaissez les mélanges chromatiques."
+                }
+            };
+
+            cajaTexto.innerText = tips[langActual][opcion];
+            if(opcion === 'examen') {
+                if (langActual === 'es') iniciarJuego('planos');
+                if (langActual === 'en') iniciarJuego('persp_master');
+                if (langActual === 'fr') iniciarJuego('color_mix');
+            }
         }
 
-        // --- SISTEMA PIZARRA TUTORA ---
-        function mostrarPizarra() {
-            document.getElementById('pizarra-texto-ayuda').innerHTML = lecciones[juegoActual];
-            document.getElementById('pizarra-tutorial').classList.remove('oculto');
-        }
-        function cerrarPizarra() { document.getElementById('pizarra-tutorial').classList.add('oculto'); }
+        // --- SISTEMA ENCYCLOPEDIA DE HISTORIA Y LENGUAJE VISUAL ---
+        function abrirTeoria(tema) {
+            sonarSintetizador('clic');
+            const modal = document.getElementById('modal-teoria');
+            const titulo = document.getElementById('modal-titulo-teoria');
+            const cuerpo = document.getElementById('modal-cuerpo-teoria');
+            modal.style.display = 'flex';
 
-        // --- MOTOR DEL LIENZO INTERACTIVO (CANVAS) ---
-        let canvas, ctx, pintando = false, colorActual = "#000000";
+            const biblioteca = {
+                es: {
+                    color: {t:"🌈 Propiedades del Círculo Cromático", c:"<p>El color se define por tres dimensiones fundamentales:</p><ul><li><b>Tono o Matiz:</b> El nombre del propio color (Verde, Cian).</li><li><b>Valor o Luminosidad:</b> El grado de claridad u oscuridad (añadiendo blanco o negro).</li><li><b>Saturación:</b> Nivel de pureza o viveza del pigmento.</li></ul>"},
+                    formas: {t:"📐 Tipos de Contornos", c:"<p>Las formas configuran el lenguaje formal:</p><ul><li><b>Geométricas:</b> Matemáticas y precisas (Rectángulos, Elipses). Expresan orden y estabilidad estructural.</li><li><b>Orgánicas:</b> Libres, fluidas y naturales (Hojas, Manchas). Expresan vida, cambio y espontaneidad.</li></ul>"},
+                    texturas: {t:"🪵 Estructura Superficial", c:"<p>La textura es la piel de los objetos:</p><p><b>Táctiles (Hápticas):</b> Tienen relieve físico real (Ej: Escultura de bronce, madera rugosa).<br><b>Visuales (Ópticas):</b> Son bidimensionales planas; simulan el relieve mediante luces y sombras dibujadas (Ej: Fotografía o dibujo de un muro de piedra).</p>"},
+                    perspectiva: {t:"🏢 Construcción del Espacio", c:"<p>Sistema cónico para proyectar la tridimensionalidad:</p><ul><li><b>Línea de Horizonte (LH):</b> Línea imaginaria a la altura de los ojos del espectador.</li><li><b>Punto de Fuga (PF):</b> Lugar sobre la LH donde convergen todas las líneas paralelas profundas.</li></ul>"},
+                    composicion: {t:"📸 Leyes de Encuadre", c:"<p><b>Regla de los Tercios:</b> Divide el cuadro en un mapa de 3x3. Las intersecciones son los puntos de máximo interés dinámico.<br><b>Planos:</b> Plano General (describe el espacio), Plano Americano (hasta las rodillas) y Primer Plano (máxima carga emocional en el rostro).</p>"},
+                    tecnicas: {t:"✒️ Procedimientos Artísticos", c:"<p><b>Técnicas Secas:</b> No necesitan disolvente (Lápices, Carboncillo, Ceras). Permiten gran control lineal.<br><b>Técnicas Húmedas:</b> Requieren aglutinantes líquidos (Acuarela, Gouache, Óleo). Ideales para degradados, veladuras y manchas pictóricas.</p>"}
+                },
+                en: {
+                    color: {t:"🌈 Properties of Color", c:"<p>Color is defined by three dimensions:</p><ul><li><b>Hue:</b> The name of the color family itself (Red, Indigo).</li><li><b>Value:</b> The brightness or darkness (adding White tint or Black shade).</li><li><b>Saturation:</b> The intensity and pure strength of the pigment.</li></ul>"},
+                    formas: {t:"📐 Shape & Contour Layouts", c:"<ul><li><b>Geometric Shapes:</b> Rigid, structural, and mathematical (Circles, Squares). They evoke stability.</li><li><b>Organic Shapes:</b> Fluid, irregular, and loose (Vines, Puddles). They symbolize growth and nature.</li></ul>"},
+                    texturas: {t:"🪵 Surface Qualities", c:"<p><b>Tactile (Haptic):</b> Real physical three-dimensional texture you can feel with your fingers.<br><b>Visual (Optical):</b> An illusion of depth drawn on a flat paper sheet using values and gradients.</p>"},
+                    perspectiva: {t:"🏢 Linear Perspective", c:"<p>The geometric trick to create depth:</p><ul><li><b>Horizon Line:</b> Represents the viewer's eye level.</li><li><b>Vanishing Point:</b> The dot on the horizon line where parallel receding paths appear to meet and disappear.</p>"},
+                    composicion: {t:"📸 Composition & Rule of Thirds", c:"<p><b>Rule of Thirds:</b> Grid points where attention peaks naturally.<br><b>Camera Shots:</b> Wide Shot (establishes location), Medium Shot (focuses on action), and Close-Up (captures strong facial expressions).</p>"},
+                    tecnicas: {t:"✒️ Fine Art Media Properties", c:"<p><b>Dry Media:</b> Materials applied dry (Graphite, Pastels, Charcoal). Ideal for sketches.<br><b>Wet Media:</b> Uses liquid binders or pigments (Watercolor, Tempera, Acrylic). Excellent for seamless blends and painterly brushwork.</p>"}
+                },
+                fr: {
+                    color: {t:"🌈 Propriétés de la Couleur", c:"<p>La couleur se caractérise par trois éléments :</p><ul><li><b>La Teinte :</b> Le nom de la couleur (Bleu, Vert).</li><li><b>La Valeur :</b> Le degré de clarté ou d'obscurité.</li><li><b>La Saturation :</b> La pureté ou l'intensité de la nuance chromatic.</li></ul>"},
+                    formas: {t:"📐 Typologie des Formes", c:"<ul><li><b>Géométriques :</b> Rigides et régulières (Carrés, Ovales). Elles évoquent l'ordre rationnel.</li><li><b>Organiques :</b> Libres et asymétriques (Silhouettes de nuages, vagues). Elles évoquent le vivant.</li></ul>"},
+                    texturas: {t:"🪵 Nature des Textures", c:"<p><b>Textures Tactiles :</b> Matière réelle en relief tridimensionnel (Sculptures, écorce).<br><b>Textures Visuelles :</b> Une imitation bidimensionnelle plane obtenue grâce au rendu du clair-obscur.</p>"},
+                    perspectiva: {t:"🏢 Perspective Linéaire", c:"<p>Technique géométrique pour simuler la profondeur :</p><ul><li><b>Ligne d'Horizon :</b> Niveau des yeux du dessinateur.</li><li><b>Point de Fuite :</b> Le point sur l'horizon où se croisent toutes les lignes fuyantes de la scène.</p>"},
+                    composicion: {t:"📸 Règles de Composition Graphique", c:"<p><b>Règle des Tiers :</b> Découpage harmonieux en 3x3 pour placer les éléments clés.<br><b>Plans :</b> Plan d'Ensemble (décor global), Plan Américain (coupe aux genoux) et Gros Plan (visage expressif).</p>"},
+                    tecnicas: {t:"✒️ Techniques de l'Atelier", c:"<p><b>Médiums Secs :</b> S'utilisent sans eau (Crayons, Fusain, Pastels). Très précis.<br><b>Médiums Humides :</b> Nécessitent un liant liquide (Aquarelle, Gouache, Peinture à l'huile). Idéal pour les lavis et les empâtements.</p>"}
+                }
+            };
 
-        function inicializarCanvas() {
-            canvas = document.getElementById('pizarraCanvas');
-            ctx = canvas.getContext('2d');
-            ctx.lineCap = 'round'; ctx.lineWidth = 6;
-            
-            // Eventos de ratón
-            canvas.onmousedown = () => pintando = true;
-            canvas.onmouseup = () => { pintando = false; ctx.beginPath(); };
-            canvas.onmousemove = dibujarMouse;
-
-            // Eventos táctiles para móvil/tablet
-            canvas.ontouchstart = (e) => { pintando = true; e.preventDefault(); };
-            canvas.ontouchend = () => { pintando = false; ctx.beginPath(); };
-            canvas.ontouchmove = dibujarTouch;
-        }
-
-        function cambiarColor(c) { colorActual = c; }
-        function limpiarLienzo() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-
-        function dibujarMouse(e) {
-            if (!pintando) return;
-            const rect = canvas.getBoundingClientRect();
-            ctx.strokeStyle = colorActual;
-            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            ctx.stroke(); ctx.beginPath(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-        }
-
-        function dibujarTouch(e) {
-            if (!pintando) return;
-            const rect = canvas.getBoundingClientRect();
-            const touch = e.touches[0];
-            ctx.strokeStyle = colorActual;
-            ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
-            ctx.stroke(); ctx.beginPath(); ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+            const nodo = biblioteca[langActual][tema];
+            titulo.innerText = nodo.t;
+            cuerpo.innerHTML = nodo.c;
         }
 
-        actualizarUI();
+        function cerrarTeoria() {
+            sonarSintetizador('clic');
+            document.getElementById('modal-teoria').style.display = 'none';
+        }
     </script>
 </body>
 </html>
