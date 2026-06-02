@@ -3,546 +3,581 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Súper Mates de 3º de Primaria - Edición Arcade y Tutor</title>
+    <title>Súper Aventuras Matemáticas Pro</title>
     <style>
-        /* --- VARIABLES DE COLOR DINÁMICAS --- */
         :root {
-            --bg-juego: #2f3542;
-            --color-principal: #1e90ff;
+            --primary: #4a6fa5;
+            --accent-math: #ff4757;
+            --bg-gradient: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #2f3542;
         }
 
-        /* --- ESTILOS GENERALES --- */
         body {
             font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
-            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
-            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #333;
-            overflow-x: hidden;
+            background: var(--bg-gradient);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: var(--text-dark);
+            box-sizing: border-box;
+            user-select: none;
         }
-        .contenedor-principal {
-            background: rgba(255, 255, 255, 0.96); padding: 25px; border-radius: 30px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            max-width: 480px; width: 92%; text-align: center; box-sizing: border-box;
-            transition: all 0.5s ease; position: relative;
-        }
-        .oculto { display: none !important; }
-        h1, h2 { color: #2f3542; margin: 10px 0; font-weight: 900; }
-        
-        /* --- ANIMACIONES --- */
-        .animar-rebote { animation: rebote 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .animar-error { animation: vibrar 0.4s ease-in-out; }
-        .animar-victoria { animation: celebrar 0.6s ease-in-out; }
 
-        @keyframes rebote {
-            0% { transform: scale(0.3); opacity: 0; }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); opacity: 1; }
+        *, *::before, *::after {
+            box-sizing: border-box;
         }
-        @keyframes vibrar {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-10px); }
-            40%, 80% { transform: translateX(10px); }
+
+        /* --- BOTÓN VOLVER --- */
+        .btn-volver {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border: 2px solid #ff4757;
+            color: #ff4757;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+            z-index: 100;
         }
-        @keyframes celebrar {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1) rotate(5deg); }
+        .btn-volver:hover {
+            background: #ff4757;
+            color: white;
+            transform: translateY(-2px);
         }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .hub-container {
+            max-width: 1200px;
+            margin: 60px auto 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #2f3542;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+            animation: flotar 3s ease-in-out infinite;
+        }
+
+        .sub-bar {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .puntos-badge {
+            color: #ffa502;
+            margin-left: 15px;
+            background: #fffaf0;
+            padding: 5px 15px;
+            border-radius: 15px;
+            border: 2px solid #ffa502;
+        }
+
+        /* --- PANELES DE SECCIONES --- */
+        .seccion-bloque {
+            background: var(--glass-bg);
+            border-radius: 35px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.06);
+            border: 2px solid rgba(255,255,255,0.7);
+            text-align: left;
+        }
+
+        .seccion-bloque h2 {
+            font-size: 2rem;
+            color: #4a6fa5;
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 3px dashed #a1c4fd;
+            padding-bottom: 10px;
+        }
+
+        /* --- GRILLA ADAPTIVA --- */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card-actividad {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.04);
+            border: 2px solid #f1f2f6;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card-actividad:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 25px rgba(74, 111, 165, 0.15);
+            border-color: #a1c4fd;
+        }
+
+        .card-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .card-actividad h3 {
+            margin: 10px 0;
+            font-size: 1.4rem;
+            color: #2f3542;
+        }
+
+        .card-actividad p {
+            margin: 0;
+            color: #747d8c;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        /* --- ZONA DE JUEGO ACTIVA --- */
+        .zona-juego-activa {
+            display: none;
+            background: white;
+            border-radius: 35px;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 3px solid #4a6fa5;
+            text-align: center;
+            animation: entrada 0.4s ease-out;
+        }
+
+        .pantalla-operacion {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #2f3542;
+            letter-spacing: 2px;
+        }
+
+        .input-respuesta {
+            font-size: 2.5rem;
+            width: 180px;
+            text-align: center;
+            padding: 10px;
+            border: 3px solid #ced6e0;
+            border-radius: 20px;
+            outline: none;
+            font-family: inherit;
+            margin-bottom: 20px;
+        }
+        .input-respuesta:focus { border-color: #4a6fa5; }
+
+        .btn-comprobar {
+            display: block;
+            margin: 0 auto;
+            background: linear-gradient(45deg, #4a6fa5, #54a0ff);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(74, 111, 165, 0.3);
+        }
+
+        /* --- SECCIÓN TUTORA IA --- */
+        .contenedor-tutora {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 20px;
+            align-items: center;
+            background: #fff;
+            padding: 25px;
+            border-radius: 25px;
+            border: 2px solid #ff7f50;
+        }
+
+        .avatar-ia { font-size: 90px; text-align: center; animation: flotar 4s ease-in-out infinite; }
+
+        .bocadillo-chat {
+            background: #f1f2f6;
+            padding: 20px;
+            border-radius: 25px;
+            position: relative;
+            border: 1px solid #e4e7eb;
+        }
+
+        .bocadillo-chat::before {
+            content: ''; position: absolute; left: -15px; top: 50%;
+            transform: translateY(-50%); border-width: 15px 15px 15px 0;
+            border-style: solid; border-color: transparent #f1f2f6 transparent transparent;
+        }
+
+        .opciones-tutora { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-opcion-chat {
+            background: white; border: 2px solid #ff7f50; color: #ff7f50;
+            padding: 8px 16px; border-radius: 15px; cursor: pointer;
+            font-weight: bold; transition: all 0.2s;
+        }
+        .btn-opcion-chat:hover { background: #ff7f50; color: white; }
+
+        /* --- MODAL DE TEORÍA --- */
+        .modal-teoria {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+
+        .modal-teoria-contenido {
+            background: white; padding: 40px; border-radius: 35px;
+            max-width: 650px; width: 90%; max-height: 85vh; overflow-y: auto;
+            position: relative; text-align: left; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: entrada 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .tabla-multiplicar-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+            font-size: 1.1rem; background: #f7f9fa; padding: 15px; border-radius: 20px; margin-top: 15px;
+        }
+
+        .btn-cerrar-modal {
+            position: absolute; top: 20px; right: 20px; background: #ff4757;
+            color: white; border: none; width: 35px; height: 35px; border-radius: 50%;
+            cursor: pointer; font-weight: bold;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 820px) {
+            h1 { font-size: 2.2rem; }
+            .contenedor-tutora { grid-template-columns: 1fr; text-align: center; }
+            .bocadillo-chat::before { display: none; }
+            .avatar-ia { margin-bottom: 10px; }
+            .pantalla-operacion { font-size: 3rem; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.8rem; }
+            .seccion-bloque { padding: 20px; border-radius: 25px; }
+            .seccion-bloque h2 { font-size: 1.4rem; }
+            .btn-volver { position: static; display: inline-block; margin-bottom: 15px; }
+            .hub-container { margin-top: 10px; }
+            .tabla-multiplicar-grid { grid-template-columns: 1fr; }
+        }
+
         @keyframes flotar {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
+            50% { transform: translateY(-10px); }
         }
-
-        .icono-flotante { animation: flotar 3s ease-in-out infinite; display: inline-block; }
-
-        /* --- BOTONES ESTILO VIDEOJUEGO --- */
-        .btn {
-            background-color: var(--color-principal); color: white; border: none; padding: 15px; font-size: 18px; font-weight: bold;
-            border-radius: 20px; cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            border-bottom: 5px solid rgba(0,0,0,0.2); width: 100%; margin-bottom: 12px;
-            position: relative; top: 0;
+        @keyframes entrada {
+            from { opacity: 0; transform: scale(0.95) translateY(15px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
-        .btn:hover { transform: translateY(-3px); filter: brightness(1.1); }
-        .btn:active { top: 4px; border-bottom-width: 1px; }
-        
-        .btn-volver { 
-            background-color: #576574; color: white; border: none; padding: 8px 18px; border-radius: 50px; 
-            cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 3px 0 #2f3542;
-        }
-        .btn-volver:active { transform: translateY(2px); box-shadow: none; }
-
-        .btn-aprender {
-            background-color: #ff9f43; color: white; border: none; padding: 10px 20px; font-size: 16px; font-weight: bold;
-            border-radius: 15px; cursor: pointer; margin-top: 15px; width: 100%; border-bottom: 4px solid #d35400;
-        }
-        .btn-aprender:hover { filter: brightness(1.1); }
-        .btn-aprender:active { transform: translateY(2px); border-bottom-width: 1px; }
-
-        /* --- MENÚ DE JUEGOS --- */
-        .zona-progreso { background: #f1f2f6; padding: 12px; border-radius: 20px; margin-bottom: 15px; border: 3px dashed var(--color-principal); }
-        .lista-juegos-scroll { max-height: 350px; overflow-y: auto; padding-right: 5px; }
-        .tarjeta-juego {
-            background-color: #f1f2f6; border-radius: 20px; padding: 14px; display: flex; align-items: center; gap: 15px;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-bottom: 12px; border: 3px solid transparent;
-        }
-        .tarjeta-juego:hover { transform: scale(1.02); background-color: #fff; border-color: var(--color-principal); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .icono { font-size: 38px; transition: transform 0.3s; }
-        .tarjeta-juego:hover .icono { transform: scale(1.2) rotate(10deg); }
-        .tarjeta-juego h3 { margin: 0; font-size: 16px; color: #2f3542; }
-        .tarjeta-juego p { margin: 3px 0 0 0; font-size: 12px; color: #747d8c; }
-
-        /* --- INTERFAZ DE JUEGO --- */
-        .cabecera { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; background: #eee; padding: 10px 15px; border-radius: 12px; font-weight: bold; }
-        .display-reto { 
-            font-size: 30px; font-weight: bold; background: var(--bg-juego); color: white; padding: 25px; 
-            border-radius: 25px; margin: 15px 0; min-height: 70px; display: flex; align-items: center; justify-content: center; 
-            line-height: 1.4; box-shadow: inset 0 5px 15px rgba(0,0,0,0.3); border: 4px solid rgba(255,255,255,0.2);
-        }
-        .mensaje { font-size: 20px; font-weight: bold; margin-top: 12px; min-height: 30px; }
-        
-        .item-super { font-size: 75px; margin: 0; display: inline-block; }
-        .precio-tag { background: #ff4757; color: white; padding: 6px 18px; border-radius: 12px; font-size: 20px; display: inline-block; font-weight: bold; }
-        .fraccion { display: inline-flex; flex-direction: column; vertical-align: middle; align-items: center; font-size: 26px; padding: 0 8px; font-weight: bold; }
-        .linea-fraccion { border-top: 3px solid white; width: 120%; margin: 2px 0; }
-
-        /* --- VENTANA FLOTANTE: LA PIZARRA DIDÁCTICA --- */
-        .pizarra-modal {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #2f3542; color: white; border-radius: 30px; padding: 25px;
-            box-sizing: border-box; text-align: left; display: flex; flex-direction: column;
-            z-index: 10; justify-content: space-between; overflow-y: auto;
-        }
-        .pizarra-modal h2 { color: #ff9f43; margin-top: 0; }
-        .pizarra-contenido { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; font-size: 16px; line-height: 1.5; margin-bottom: 15px; }
-        .pizarra-contenido b { color: #2ed573; }
-        .pizarra-ejemplo { background: #fff; color: #333; padding: 10px; border-radius: 10px; font-weight: bold; font-family: monospace; text-align: center; margin-top: 10px; font-size: 18px; }
     </style>
 </head>
 <body>
 
-    <div class="contenedor-principal animar-rebote" id="modulo-contenedor">
-        
-        <div id="menu-mates">
-            <button class="btn-volver" onclick="reproducirSonido('click'); window.location.href='menuprincipal.html'">🔙 Ir al Mapa</button>
-            <h1>🔢 Mates-Lab Arcade 🎮</h1>
-            
-            <div class="zona-progreso">
-                <b>🏆 Progreso Guardado:</b><br>
-                <span style="font-size: 18px;">Puntos Totales: <span id="puntos-globales" style="color:#2ed573; font-weight:bold;">0</span> ⭐</span>
-                <div id="vitrina-medallas" style="font-size: 28px; margin-top: 5px; letter-spacing: 5px;"></div>
-            </div>
+    <a href="menuprincipal.html" class="btn-volver" onclick="sonarBoton()">⬅ Volver al Mapa</a>
 
-            <div class="lista-juegos-scroll">
-                <div class="tarjeta-juego" onclick="abrirJuego('monstruo')"><div class="icono">👾</div><div><h3>1. El Monstruo de las Tablas</h3><p>¡Tablas evolutivas multiplicadoras!</p></div></div>
-                <div class="tarjeta-juego" onclick="abrirJuego('reloj')"><div class="icono">⏰</div><div><h3>2. El Reloj Mágico</h3><p>Aprende las horas analógicas y digitales.</p></div></div>
-                <div class="tarjeta-juego" onclick="abrirJuego('super')"><div class="icono">🛒</div><div><h3>3. El Súper del Barrio</h3><p>Calcula vueltas y maneja monedas.</p></div></div>
-                <div class="tarjeta-juego" onclick="abrirJuego('romanos')"><div class="icono">🏛️</div><div><h3>4. Imperio Romano</h3><p>Traduce números normales a romanos.</p></div></div>
-                <div class="tarjeta-juego" onclick="abrirJuego('mayorMenor')"><div class="icono">⚖️</div><div><h3>5. El Cocodrilo Tragón</h3><p>Compara números usando &lt;, &gt; o =.</p></div></div>
-                <div class="tarjeta-juego" onclick="abrirJuego('series')"><div class="icono">🚂</div><div><h3>6. El Tren de las Series</h3><p>Encuentra el número oculto que falta.</p></div></div>
-                <div class="tarjeta-juego" onclick="abrirJuego('fracciones')"><div class="icono">🍕</div><div><h3>7. Fiesta de Fracciones</h3><p>Aprende a leer el numerador y denominador.</p></div></div>
-                <div class="tarjeta-juego" onclick="abrirJuego('geometria')"><div class="icono">📐</div><div><h3>8. Detective de Formas</h3><p>¿Cuántos lados o qué cuerpo geométrico es?</p></div></div>
-                <div class="tarjeta-juego" onclick="abrirJuego('mitadDoble')"><div class="icono">🧪</div><div><h3>9. El Duplicador Clínico</h3><p>Calcula el doble y la mitad de números rápidos.</p></div></div>
-                <div class="tarjeta-juego" onclick="abrirJuego('problemas')"><div class="icono">💡</div><div><h3>10. Mini Problemas</h3><p>Problemas cotidianos de lógica matemática.</p></div></div>
-                <div class="tarjeta-juego" onclick="abrirJuego('unidades')"><div class="icono">📦</div><div><h3>11. Unidades y Decenas</h3><p>Descompón números en U, D y C.</p></div></div>
-                <div class="tarjeta-juego" onclick="abrirJuego('paresImpares')"><div class="icono">🔢</div><div><h3>12. Radar Par o Impar</h3><p>Clasifica números velozmente.</p></div></div>
-                <div class="tarjeta-juego" onclick="abrirJuego('aproximar')"><div class="icono">🎯</div><div><h3>13. Tiro a la Decena</h3><p>Aproxima números a la decena más cercana.</p></div></div>
-            </div>
-            
-            <button onclick="borrarTodo()" style="background:none; border:none; color:gray; cursor:pointer; font-size:10px; margin-top: 10px;">Reiniciar todo</button>
+    <div class="hub-container">
+        <h1>✨ Isla de las Matemáticas Pro ✨</h1>
+        <div class="sub-bar">
+            <span>Aventurera Activa 👩‍💻</span>
+            <span class="puntos-badge">⭐ <span id="marcador-puntos">0</span> Puntos</span>
         </div>
 
-        <div id="pantalla-juego" class="oculto">
-            <button class="btn-volver" onclick="reproducirSonido('click'); irAlMenu()">🔙 Cambiar de Juego</button>
-            <div class="cabecera"><span id="juego-titulo">Juego</span> <span>Puntos: <span id="juego-puntos">0</span> ⭐</span></div>
-            
-            <div id="grafico-personalizado" class="icono-flotante" style="font-size: 65px; margin: 10px 0; min-height: 75px;"></div>
-            <div id="juego-reto" class="display-reto">Pregunta</div>
-            <div id="juego-opciones"></div>
-            <div id="juego-msg" class="mensaje"></div>
-
-            <button class="btn-aprender" onclick="mostrarPizarra()">💡 ¡Quiero aprender cómo se hace!</button>
+        <div id="zona-de-juego" class="zona-juego-activa">
+            <h2 id="titulo-juego-activo">Juego</h2>
+            <p id="instrucciones-juego-activo">Resuelve la operación rápida:</p>
+            <div id="pantalla-matematica" class="pantalla-operacion">2 + 2</div>
+            <input type="number" id="respuesta-usuario" class="input-respuesta" placeholder="?" inputmode="numeric">
+            <button class="btn-comprobar" onclick="validarRespuestaJuego()">Comprobar Respuesta 🚀</button>
         </div>
 
-        <div id="pizarra-tutorial" class="pizarra-modal oculto">
-            <div>
-                <h2 id="pizarra-titulo">💡 Pizarra de Ayuda</h2>
-                <div class="pizarra-contenido" id="pizarra-texto-ayuda">
-                    Explicación matemática cargada aquí.
+        <div class="seccion-bloque">
+            <h2>🤖 Tu Profesora IA de Confianza</h2>
+            <div class="contenedor-tutora">
+                <div class="avatar-ia">🧠</div>
+                <div class="bocadillo-chat">
+                    <p id="texto-chat-tutora">¡Hola de nuevo! He actualizado los módulos con nuevos misterios lógicos y libros mágicos. ¿Qué deseas hacer hoy?</p>
+                    <div class="opciones-tutora">
+                        <button class="btn-opcion-chat" onclick="charlarTutora('truco')">💡 Truco mental nuevo</button>
+                        <button class="btn-opcion-chat" onclick="charlarTutora('miedo')">🦖 ¿Y si me equivoco?</button>
+                        <button class="btn-opcion-chat" onclick="charlarTutora('examen')">📝 Examen sorpresa (+50 XP)</button>
+                    </div>
                 </div>
             </div>
-            <button class="btn" style="background-color: #2ed573;" onclick="cerrarPizarra()">¡Ya lo he entendido! 🚀</button>
         </div>
 
+        <div class="seccion-bloque">
+            <h2>📚 Enciclopedia de Libros Mágicos</h2>
+            <div class="grid-cards">
+                <div class="card-actividad" onclick="abrirTeoria('multiplicar')">
+                    <div class="card-icon">⚡</div>
+                    <h3>Tablas de Multiplicar</h3>
+                    <p>Aprende las tablas del 2 al 9 con trucos y reglas nemotécnicas.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('fracciones')">
+                    <div class="card-icon">🍕</div>
+                    <h3>El Truco de la Pizza</h3>
+                    <p>Entiende las fracciones dividiendo deliciosas porciones.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('romanos')">
+                    <div class="card-icon">🏛️</div>
+                    <h3>Números Romanos</h3>
+                    <p>Descubre cómo contaban los emperadores usando letras del alfabeto.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('geometria')">
+                    <div class="card-icon">🔷</div>
+                    <h3>Geometría de Figuras</h3>
+                    <p>¡Aprende a contar los lados, esquinas y nombres de los polígonos!</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('posicional')">
+                    <div class="card-icon">🔢</div>
+                    <h3>Unidades, Decenas y Centenas</h3>
+                    <p>Descubre el gran poder del orden de los números y el misterioso cero.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('medidas')">
+                    <div class="card-icon">📏</div>
+                    <h3>Reglas, Kilos y Litros</h3>
+                    <p>¿Cómo medimos el tamaño de un dinosaurio o el peso de un pastel?</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="seccion-bloque">
+            <h2>🎮 Zona de Minijuegos Arcade (6 Juegos)</h2>
+            <div class="grid-cards">
+                <div class="card-actividad" onclick="iniciarJuego('multiplicacion')">
+                    <div class="card-icon">⚔️</div>
+                    <h3>Desafío de Multiplicar</h3>
+                    <p>¡Tablas aleatorias contra reloj para ganar estrellas!</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('sumas_rapidas')">
+                    <div class="card-icon">🏃‍♀️</div>
+                    <h3>Maratón de Sumas Veloces</h3>
+                    <p>Cálculo mental rápido. ¿Cuántas sumas seguidas acertarás?</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('mayor_menor')">
+                    <div class="card-icon">⚖️</div>
+                    <h3>El Monstruo Glotón (&lt; o &gt;)</h3>
+                    <p>Adivina qué número es el más grande antes de que se agote el tiempo.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('restas')">
+                    <div class="card-icon">🌙</div>
+                    <h3>Restas Nocturnas</h3>
+                    <p>Entrena tu mente quitando números sin perder la concentración.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('divisiones')">
+                    <div class="card-icon">➗</div>
+                    <h3>La Máquina de Dividir</h3>
+                    <p>Reparte en partes iguales y resuelve divisiones exactas al instante.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('secuencias')">
+                    <div class="card-icon">🧩</div>
+                    <h3>Series Lógicas</h3>
+                    <p>Averigua el número secreto que falta en la cadena numérica.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-teoria" class="modal-teoria">
+        <div class="modal-teoria-contenido">
+            <button class="btn-cerrar-modal" onclick="cerrarTeoria()">X</button>
+            <h2 id="modal-titulo-teoria">Teoría</h2>
+            <div id="modal-cuerpo-teoria">Contenido...</div>
+        </div>
     </div>
 
     <script>
-        // --- MOTOR CENTRAL DE AUDIO SINTETIZADO ---
+        // --- MOTOR DE AUDIO ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let puntosTotales = 0;
 
-        function reproducirSonido(tipo) {
-            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        function sonarSintetizador(tipo) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
 
-            if (tipo === 'click') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            if (tipo === 'clic') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
                 gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.1);
             } else if (tipo === 'correcto') {
                 osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08);
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.16);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.3);
             } else if (tipo === 'error') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(70, audioCtx.currentTime + 0.25);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
                 gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
             }
         }
 
-        // --- BASE DE DATOS DIDÁCTICA (LECCIONES DE LA PIZARRA) ---
-        const leccionesAyuda = {
-            monstruo: {
-                titulo: "👾 Multiplicar es Sumar Rápido",
-                texto: "Multiplicar es repetir un número muchas veces.<br><br>Si ves <b>3 x 4</b>, significa tener el número 4 sumado 3 veces.<br>¡Es como tener 3 bolsas con 4 caramelos dentro de cada una!"
-            },
-            reloj: {
-                titulo: "⏰ Las Horas del Reloj digital",
-                texto: "• Si los minutos marcan <b>:00</b> es 'En punto'.<br>• Si marcan <b>:15</b> es 'Y cuarto'.<br>• Si marcan <b>:30</b> es 'Y media'.<br>• Si marcan <b>:45</b> es 'Menos cuarto' (¡falta poquito para la siguiente hora!)."
-            },
-            super: {
-                titulo: "🛒 El Truco de las Vueltas en el Súper",
-                texto: "Para saber cuánto dinero te tienen que devolver, haz una <b>Resta</b>:<br><br>Resta al billete con el que pagas el precio de lo que compras.<br>Si pagas con 10€ y vale 7€... haces 10 - 7 = <b>3€ de devolución</b>."
-            },
-            romanos: {
-                titulo: "🏛️ Guía de Números Romanos",
-                texto: "Los romanos usaban letras especiales:<br>• <b>I</b> vale 1<br>• <b>V</b> vale 5<br>• <b>X</b> vale 10<br><br>Si pones una letra menor a la izquierda, RESTA (ej: IV es 5-1 = 4). Si la pones a la derecha, SUMA (ej: VI es 5+1 = 6)."
-            },
-            mayorMenor: {
-                titulo: "🐊 La Boca del Cocodrilo Tragón",
-                texto: "Al cocodrilo le encanta comer números grandes. ¡Tiene mucha hambre!<br><br>• La boca abierta apunta siempre al <b>número más grande</b>: 800 &gt; 200.<br>• Si son idénticos, se pone el signo igual: 500 = 500."
-            },
-            series: {
-                titulo: "🚂 ¿Cómo resolver Series?",
-                texto: "Mira los dos primeros números para descubrir el <b>Secreto del Salto</b>.<br><br>Si la serie hace: 5 - 10 - 15... ¡El secreto es que va sumando de 5 en 5! Sigue sumando ese secreto para adivinar el número que falta."
-            },
-            fracciones: {
-                titulo: "🍕 El Secreto de las Fracciones",
-                texto: "• El número de <b>ABAJO</b> (Denominador) dice en cuántos trozos iguales hemos cortado la pizza entera.<br>• El número de <b>ARRIBA</b> (Numerador) dice cuántos trozos nos vamos a comer nosotros."
-            },
-            geometria: {
-                titulo: "📐 Guía de Cuerpos y Formas",
-                texto: "• Las figuras planas son planas como un folio (Triángulo 🔺, Cuadrado 🟪).<br>• Los cuerpos geométricos tienen volumen y espacio dentro (un dado es un <b>Cubo</b>, un tejado es un <b>Prisma</b>, un balón es una <b>Esfera</b>)."
-            },
-            mitadDoble: {
-                titulo: "🧪 Doble y Mitad",
-                texto: "• Para calcular el <b>DOBLE</b>: Multiplica por 2 (o suma el número consigo mismo). El doble de 5 es 5 + 5 = 10.<br>• Para calcular la <b>MITAD</b>: Reparte en 2 partes iguales. La mitad de 10 es 5."
-            },
-            problemas: {
-                titulo: "💡 Detectives de Problemas",
-                texto: "Lee despacio y busca la palabra mágica:<br>• Si te piden el 'Total' o te dan más cosas: <b>Suma</b>.<br>• Si pierdes, vuelan, se rompen o gastas dinero: <b>Resta</b>.<br>• Si repartes en partes iguales: <b>Divide (Reparte)</b>."
-            },
-            unidades: {
-                titulo: "📦 Unidades, Decenas y Centenas",
-                texto: "¡Los números se desarman en paquetes!<br>• <b>U</b> (Unidades): Sueltos (valen 1).<br>• <b>D</b> (Decenas): Paquetes de 10.<br>• <b>C</b> (Centenas): Paquetes grandes de 100.<br><br>El número 125 tiene 1 Centena, 2 Decenas y 5 Unidades."
-            },
-            paresImpares: {
-                titulo: "🔢 El Truco del Par o Impar",
-                texto: "Mira siempre el <b>ÚLTIMO número</b> de todos:<br>• Si termina en 0, 2, 4, 6 u 8 es <b>PAR</b> (se pueden hacer parejas perfectas sin que sobre nada).<br>• Si termina en 1, 3, 5, 7 o 9 es <b>IMPAR</b> (¡siempre sobra uno solo!)."
-            },
-            aproximar: {
-                titulo: "🎯 ¿A qué decena se acerca más?",
-                texto: "Mira el número de las unidades (el último):<br>• Si termina en <b>1, 2, 3 o 4</b>, se queda en la decena más baja.<br>• Si termina en <b>5, 6, 7, 8 o 9</b>, sube a la decena más alta.<br>Ejemplo: El 43 se acerca al 40. El 47 se acerca al 50."
-            }
-        };
+        function sonarBoton() { sonarSintetizador('clic'); }
 
-        function mostrarPizarra() {
-            reproducirSonido('click');
-            const lec = leccionesAyuda[juegoActual];
-            document.getElementById('pizarra-titulo').innerText = lec.titulo;
-            document.getElementById('pizarra-texto-ayuda').innerHTML = lec.texto;
-            document.getElementById('pizarra-tutorial').classList.remove('oculto');
-        }
+        // --- MOTOR DE LÓGICA DE JUEGOS ---
+        let juegoActual = '';
+        let respuestaCorrectaEsperada = 0;
 
-        function cerrarPizarra() {
-            reproducirSonido('click');
-            document.getElementById('pizarra-tutorial').classList.add('oculto');
-        }
-
-        // --- MOTOR CENTRAL DE JUEGOS Y LOCALSTORAGE ---
-        let puntos = parseInt(localStorage.getItem('pts_arcade_v3')) || 0;
-        let medallas = JSON.parse(localStorage.getItem('med_arcade_v3')) || [];
-        let juegoActual = "";
-        let solucionCorrectaGlobal = null;
-
-        function guardar() {
-            localStorage.setItem('pts_arcade_v3', puntos);
-            localStorage.setItem('med_arcade_v3', JSON.stringify(medallas));
-            actualizarUI();
-        }
-
-        function actualizarUI() {
-            document.getElementById('puntos-globales').innerText = puntos;
-            document.getElementById('juego-puntos').innerText = puntos;
-            
-            const vitrina = document.getElementById('vitrina-medallas');
-            vitrina.innerHTML = "";
-            medallas.forEach(m => vitrina.innerHTML += m + " ");
-
-            if (puntos >= 200 && !medallas.includes("🥉")) { medallas.push("🥉"); alert("🥉 ¡Desbloqueaste Medalla de Bronce!"); guardar(); }
-            if (puntos >= 600 && !medallas.includes("🥈")) { medallas.push("🥈"); alert("🥈 ¡Desbloqueaste Medalla de Plata!"); guardar(); }
-            if (puntos >= 1200 && !medallas.includes("🥇")) { medallas.push("🥇"); alert("👑 ¡Brillante! Medalla de Oro Máxima."); guardar(); }
-        }
-
-        function irAlMenu() {
-            document.getElementById('pantalla-juego').classList.add('oculto');
-            document.getElementById('menu-mates').classList.remove('oculto');
-            document.documentElement.style.setProperty('--color-principal', '#1e90ff');
-            actualizarUI();
-        }
-
-        function abrirJuego(tipo) {
-            reproducirSonido('click');
+        function iniciarJuego(tipo) {
+            sonarSintetizador('clic');
             juegoActual = tipo;
-            document.getElementById('menu-mates').classList.add('oculto');
-            document.getElementById('pantalla-juego').classList.remove('oculto');
-            document.getElementById('juego-msg').innerText = "";
-            
-            const paletas = {
-                monstruo: '#ff4757', reloj: '#ffa502', super: '#2ed573', romans: '#747d8c',
-                mayorMenor: '#1e90ff', series: '#9b59b6', fracciones: '#ff6b81', geometria: '#341f97'
-            };
-            document.documentElement.style.setProperty('--color-principal', paletas[tipo] || '#1e90ff');
-            cargarNuevoReto();
+            document.getElementById('zona-de-juego').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            generarPreguntaJuego();
         }
 
-        function cargarNuevoReto() {
-            const cont = document.getElementById('modulo-contenedor');
-            cont.classList.remove('animar-victoria', 'animar-error', 'animar-rebote');
-            void cont.offsetWidth;
-            document.getElementById('grafico-personalizado').innerHTML = "";
-            
-            switch(juegoActual) {
-                case 'monstruo': juegoMonstruo(); break;
-                case 'reloj': juegoReloj(); break;
-                case 'super': juegoSuper(); break;
-                case 'romanos': juegoRomanos(); break;
-                case 'mayorMenor': juegoMayorMenor(); break;
-                case 'series': juegoSeries(); break;
-                case 'fracciones': juegoFracciones(); break;
-                case 'geometria': juegoGeometria(); break;
-                case 'mitadDoble': juegoMitadDoble(); break;
-                case 'problemas': juegoProblemas(); break;
-                case 'unidades': juegoUnidades(); break;
-                case 'paresImpares': juegoParesImpares(); break;
-                case 'aproximar': juegoAproximar(); break;
+        function generarPreguntaJuego() {
+            const pantalla = document.getElementById('pantalla-matematica');
+            const input = document.getElementById('respuesta-usuario');
+            const instrucciones = document.getElementById('instrucciones-juego-activo');
+            input.value = ''; input.focus();
+            instrucciones.innerText = 'Resuelve la operación rápida:';
+
+            if (juegoActual === 'multiplicacion') {
+                document.getElementById('titulo-juego-activo').innerText = '⚔️ Desafío de Multiplicar';
+                let n1 = Math.floor(Math.random() * 8) + 2;
+                let n2 = Math.floor(Math.random() * 9) + 1;
+                respuestaCorrectaEsperada = n1 * n2;
+                pantalla.innerText = `${n1} × ${n2}`;
+            } 
+            else if (juegoActual === 'sumas_rapidas') {
+                document.getElementById('titulo-juego-activo').innerText = '🏃‍♀️ Maratón de Sumas Veloces';
+                let n1 = Math.floor(Math.random() * 50) + 10;
+                let n2 = Math.floor(Math.random() * 40) + 10;
+                respuestaCorrectaEsperada = n1 + n2;
+                pantalla.innerText = `${n1} + ${n2}`;
+            } 
+            else if (juegoActual === 'mayor_menor') {
+                document.getElementById('titulo-juego-activo').innerText = '⚖️ El Monstruo Glotón';
+                instrucciones.innerText = 'Escribe el número que sea el MAYOR de los dos:';
+                let n1 = Math.floor(Math.random() * 100);
+                let n2 = Math.floor(Math.random() * 100);
+                while(n1 === n2) n2 = Math.floor(Math.random() * 100);
+                respuestaCorrectaEsperada = n1 > n2 ? n1 : n2;
+                pantalla.innerText = `${n1}  ?  ${n2}`;
+            }
+            else if (juegoActual === 'restas') {
+                document.getElementById('titulo-juego-activo').innerText = '🌙 Restas Nocturnas';
+                let n1 = Math.floor(Math.random() * 50) + 40; // 40 a 90
+                let n2 = Math.floor(Math.random() * 30) + 5;  // 5 a 35
+                respuestaCorrectaEsperada = n1 - n2;
+                pantalla.innerText = `${n1} - ${n2}`;
+            }
+            else if (juegoActual === 'divisiones') {
+                document.getElementById('titulo-juego-activo').innerText = '➗ La Máquina de Dividir';
+                let divisor = Math.floor(Math.random() * 7) + 2; // 2 al 8
+                let cociente = Math.floor(Math.random() * 9) + 1; // 1 al 9
+                let dividendo = divisor * cociente;
+                respuestaCorrectaEsperada = cociente;
+                pantalla.innerText = `${dividendo} ÷ ${divisor}`;
+            }
+            else if (juegoActual === 'secuencias') {
+                document.getElementById('titulo-juego-activo').innerText = '🧩 Series Lógicas';
+                instrucciones.innerText = '¿Qué número sigue en la secuencia?';
+                let tipoSerie = Math.floor(Math.random() * 3);
+                if (tipoSerie === 0) { // De 2 en 2
+                    let inicio = Math.floor(Math.random() * 10) + 1;
+                    respuestaCorrectaEsperada = inicio + 6;
+                    pantalla.innerText = `${inicio}, ${inicio+2}, ${inicio+4}, ?`;
+                } else if (tipoSerie === 1) { // De 5 en 5
+                    let inicio = Math.floor(Math.random() * 20);
+                    respuestaCorrectaEsperada = inicio + 15;
+                    pantalla.innerText = `${inicio}, ${inicio+5}, ${inicio+10}, ?`;
+                } else { // De 10 en 10
+                    let inicio = Math.floor(Math.random() * 50);
+                    respuestaCorrectaEsperada = inicio + 30;
+                    pantalla.innerText = `${inicio}, ${inicio+10}, ${inicio+20}, ?`;
+                }
             }
         }
 
-        // --- LÓGICA DE RETOS DE JUEGOS ---
-        function juegoMonstruo() {
-            document.getElementById('juego-titulo').innerText = "El Monstruo de las Tablas";
-            let n = puntos < 150 ? 1 : puntos < 500 ? 2 : 3;
-            document.getElementById('grafico-personalizado').innerText = n==1?"👶":n==2?"🦖":"👑";
-            let tab = n==1?[2,3,4]:n==2?[5,6,7]:[8,9];
-            let t = tab[Math.floor(Math.random()*tab.length)]; let m = Math.floor(Math.random()*10)+1;
-            solucionCorrectaGlobal = t * m;
-            document.getElementById('juego-reto').innerText = `${t} x ${m}`;
-            construirBotones(solucionCorrectaGlobal, [solucionCorrectaGlobal+2, solucionCorrectaGlobal-2, solucionCorrectaGlobal+4]);
-        }
+        function validarRespuestaJuego() {
+            const inputVal = parseInt(document.getElementById('respuesta-usuario').value);
+            if (isNaN(inputVal)) return;
 
-        function juegoReloj() {
-            document.getElementById('juego-titulo').innerText = "El Reloj Mágico";
-            document.getElementById('grafico-personalizado').innerText = "⏰";
-            const h = ["2:30", "4:15", "6:00", "8:45", "10:30", "1:15", "5:45", "12:00"];
-            const txt = ["Las dos y media", "Las cuatro y cuarto", "Las seis en punto", "Las nueve menos cuarto", "Las diez y media", "La una y cuarto", "Las seis menos cuarto", "Las doce en punto"];
-            let idx = Math.floor(Math.random()*h.length);
-            solucionCorrectaGlobal = h[idx];
-            document.getElementById('juego-reto').innerText = txt[idx];
-            let falsos = h.filter(x => x !== h[idx]).sort(() => 0.5 - Math.random()).slice(0,2);
-            construirBotones(solucionCorrectaGlobal, falsos);
-        }
-
-        function juegoSuper() {
-            document.getElementById('juego-titulo').innerText = "El Súper del Barrio";
-            const items = [{e:"🍎",p:4}, {e:"🍕",p:7}, {e:"🍦",p:3}, {e:"🧸",p:12}, {e:"🍩",p:2}];
-            let it = items[Math.floor(Math.random()*items.length)];
-            let billete = it.p <= 5 ? 10 : 20;
-            solucionCorrectaGlobal = billete - it.p;
-            document.getElementById('grafico-personalizado').innerHTML = `<span class="item-super">${it.e}</span> <span class="precio-tag">${it.p}€</span>`;
-            document.getElementById('juego-reto').innerText = `Pagas con ${billete}€ ¿Cuánto te devuelven?`;
-            construirBotones(solucionCorrectaGlobal + "€", [(solucionCorrectaGlobal+1)+"€", (solucionCorrectaGlobal-1)+"€", (solucionCorrectaGlobal+2)+"€"], true);
-        }
-
-        function juegoRomanos() {
-            document.getElementById('juego-titulo').innerText = "Imperio Romano";
-            document.getElementById('grafico-personalizado').innerText = "🏛️";
-            const arabes = [3, 5, 9, 10, 12, 15, 20, 24, 30];
-            const rom = ["III", "V", "IX", "X", "XII", "XV", "XX", "XXIV", "XXX"];
-            let idx = Math.floor(Math.random()*arabes.length);
-            solucionCorrectaGlobal = rom[idx];
-            document.getElementById('juego-reto').innerText = `¿Cómo se escribe el ${arabes[idx]} en números romanos?`;
-            let falsos = rom.filter(x => x !== rom[idx]).sort(() => 0.5 - Math.random()).slice(0,2);
-            construirBotones(solucionCorrectaGlobal, falsos);
-        }
-
-        function juegoMayorMenor() {
-            document.getElementById('juego-titulo').innerText = "El Cocodrilo Tragón";
-            document.getElementById('grafico-personalizado').innerText = "🐊";
-            let n1 = Math.floor(Math.random()*800)+100; let n2 = Math.floor(Math.random()*800)+100;
-            if(Math.random() > 0.7) n2 = n1;
-            solucionCorrectaGlobal = n1 > n2 ? ">" : n1 < n2 ? "<" : "=";
-            document.getElementById('juego-reto').innerText = `${n1}  [ ? ]  ${n2}`;
-            construirBotones(solucionCorrectaGlobal, [">", "<", "="], false, true);
-        }
-
-        function juegoSeries() {
-            document.getElementById('juego-titulo').innerText = "El Tren de las Series";
-            document.getElementById('grafico-personalizado').innerText = "🚂";
-            let salto = [2, 5, 10, 3][Math.floor(Math.random()*4)];
-            let inicio = Math.floor(Math.random()*30)+5;
-            let s = [inicio, inicio+salto, inicio+(salto*2), inicio+(salto*3), inicio+(salto*4)];
-            let ocultoIdx = Math.floor(Math.random()*3)+1;
-            solucionCorrectaGlobal = s[ocultoIdx]; s[ocultoIdx] = "?";
-            document.getElementById('juego-reto').innerText = s.join(" - ");
-            construirBotones(solucionCorrectaGlobal, [solucionCorrectaGlobal+salto, solucionCorrectaGlobal-salto, solucionCorrectaGlobal+1]);
-        }
-
-        function juegoFracciones() {
-            document.getElementById('juego-titulo').innerText = "Fiesta de Fracciones";
-            document.getElementById('grafico-personalizado').innerText = "🍕";
-            const nombres = ["Un tercio", "Dos cuartos", "Tres quintos", "Un medio", "Cuatro sextos"];
-            const codigos = [
-                `<div class="fraccion"><span>1</span><span class="linea-fraccion"></span><span>3</span></div>`,
-                `<div class="fraccion"><span>2</span><span class="linea-fraccion"></span><span>4</span></div>`,
-                `<div class="fraccion"><span>3</span><span class="linea-fraccion"></span><span>5</span></div>`,
-                `<div class="fraccion"><span>1</span><span class="linea-fraccion"></span><span>2</span></div>`,
-                `<div class="fraccion"><span>4</span><span class="linea-fraccion"></span><span>6</span></div>`
-            ];
-            let idx = Math.floor(Math.random()*nombres.length);
-            solucionCorrectaGlobal = codigos[idx];
-            document.getElementById('juego-reto').innerText = `Busca la fracción: ${nombres[idx]}`;
-            let falsos = codigos.filter(x => x !== codigos[idx]).sort(() => 0.5 - Math.random()).slice(0,2);
-            construirBotonesRaw(solucionCorrectaGlobal, falsos);
-        }
-
-        function juegoGeometria() {
-            document.getElementById('juego-titulo').innerText = "Detective de Formas";
-            const figuras = [
-                {e:"🔺", q:"¿Cuántos lados tiene un triángulo?", r:"3"},
-                {e:"🟪", q:"¿Cuántos vértices tiene un cuadrado?", r:"4"},
-                {e:"🟢", q:"¿Cómo se llama esta figura plana?", r:"Círculo"},
-                {e:"📦", q:"Un dado de parchís es un...", r:"Cubo"}
-            ];
-            let f = figuras[Math.floor(Math.random()*figuras.length)];
-            document.getElementById('grafico-personalizado').innerText = f.e;
-            document.getElementById('juego-reto').innerText = f.q;
-            solucionCorrectaGlobal = f.r;
-            let falsos = ["3","4","Círculo","Cubo","5","Esfera"].filter(x => x !== f.r).sort(() => 0.5 - Math.random()).slice(0,2);
-            construirBotones(solucionCorrectaGlobal, falsos);
-        }
-
-        function juegoMitadDoble() {
-            document.getElementById('juego-titulo').innerText = "El Duplicador Clínico";
-            document.getElementById('grafico-personalizado').innerText = "🧪";
-            let num = [10, 20, 30, 40, 6, 12, 16][Math.floor(Math.random()*7)];
-            let tipo = Math.random() > 0.5 ? "doble" : "mitad";
-            solucionCorrectaGlobal = tipo === "doble" ? num * 2 : num / 2;
-            document.getElementById('juego-reto').innerText = `¿Cuál es la ${tipo.toUpperCase()} de ${num}?`;
-            construirBotones(solucionCorrectaGlobal, [solucionCorrectaGlobal+4, solucionCorrectaGlobal-2, num+1]);
-        }
-
-        function juegoProblemas() {
-            document.getElementById('juego-titulo').innerText = "Mini Problemas";
-            document.getElementById('grafico-personalizado').innerText = "💡";
-            const lista = [
-                {q:"Tengo 3 cajas con 5 caramelos en cada una. ¿Cuántos tengo en total?", r:15, f:[8, 12]},
-                {q:"En un árbol había 24 pájaros y volaron 10. ¿Cuántos quedan?", r:14, f:[34, 12]},
-                {q:"Reparto 12 gominolas entre 2 amigas. ¿Cuántas doy a cada una?", r:6, f:[10, 4]}
-            ];
-            let p = lista[Math.floor(Math.random()*lista.length)];
-            solucionCorrectaGlobal = p.r; document.getElementById('juego-reto').innerText = p.q;
-            construirBotones(solucionCorrectaGlobal, p.f);
-        }
-
-        function juegoUnidades() {
-            document.getElementById('juego-titulo').innerText = "Fábrica de Unidades";
-            document.getElementById('grafico-personalizado').innerText = "📦";
-            let c = Math.floor(Math.random()*3)+1; let d = Math.floor(Math.random()*7)+1; let u = Math.floor(Math.random()*9)+1;
-            let numTotal = (c*100) + (d*10) + u;
-            solucionCorrectaGlobal = `${c}C + ${d}D + ${u}U`;
-            document.getElementById('juego-reto').innerText = `Descompón el número ${numTotal}:`;
-            construirBotones(solucionCorrectaGlobal, [`${c}C + ${u}D + ${d}U`, `${u}C + ${d}D + ${c}U`]);
-        }
-
-        function juegoParesImpares() {
-            document.getElementById('juego-titulo').innerText = "Radar Par o Impar";
-            document.getElementById('grafico-personalizado').innerText = "🔢";
-            let n = Math.floor(Math.random()*800)+12;
-            solucionCorrectaGlobal = n % 2 === 0 ? "PAR" : "IMPAR";
-            document.getElementById('juego-reto').innerText = `El número ${n} es...`;
-            construirBotones(solucionCorrectaGlobal, ["PAR", "IMPAR"], false, true);
-        }
-
-        function juegoAproximar() {
-            document.getElementById('juego-titulo').innerText = "Tiro a la Decena";
-            document.getElementById('grafico-personalizado').innerText = "🎯";
-            let base = Math.floor(Math.random()*80)+10; let uni = Math.floor(Math.random()*8)+1;
-            let n = (Math.floor(base/10)*10) + uni;
-            let deAbajo = Math.floor(n/10)*10; let deArriba = deAbajo + 10;
-            solucionCorrectaGlobal = (uni >= 5) ? deArriba : deAbajo;
-            document.getElementById('juego-reto').innerText = `Aproxima ${n} a la decena más cercana:`;
-            construirBotones(solucionCorrectaGlobal, [solucionCorrectaGlobal === deAbajo ? deArriba : deAbajo, deAbajo+5]);
-        }
-
-        // --- RENDERIZADORES ---
-        function construirBotones(correcta, falsos, esString = false, forzarUnicos = false) {
-            let opciones = forzarUnicos ? [...falsos] : [...new Set([correcta, ...falsos])].sort(() => 0.5 - Math.random());
-            let cont = document.getElementById('juego-opciones'); cont.innerHTML = "";
-            opciones.forEach(op => {
-                let b = document.createElement('button'); b.className = "btn"; b.innerText = op;
-                b.onclick = () => verificar(op, correcta); cont.appendChild(b);
-            });
-        }
-
-        function construirBotonesRaw(correcta, falsos) {
-            let opciones = [correcta, ...falsos].sort(() => 0.5 - Math.random());
-            let cont = document.getElementById('juego-opciones'); cont.innerHTML = "";
-            opciones.forEach(op => {
-                let b = document.createElement('button'); b.className = "btn"; b.innerHTML = op;
-                b.onclick = () => verificar(op, correcta); cont.appendChild(b);
-            });
-        }
-
-        // --- VALIDADOR ---
-        function verificar(elegido, correcto) {
-            let m = document.getElementById('juego-msg');
-            let contenedor = document.getElementById('modulo-contenedor');
-            document.querySelectorAll('#juego-opciones button').forEach(b => b.disabled = true);
-
-            if(elegido === correcto) {
-                puntos += 10;
-                reproducirSonido('correcto');
-                contenedor.classList.add('animar-victoria');
-                m.innerText = "🎉 ¡Espectacular! ¡Acertaste! 🥳"; m.style.color = "#2ed573";
-                guardar();
-                setTimeout(() => { cargarNuevoReto(); m.innerText = ""; }, 1300);
+            if (inputVal === respuestaCorrectaEsperada) {
+                sonarSintetizador('correcto');
+                puntosTotales += 10;
+                document.getElementById('marcador-puntos').innerText = puntosTotales;
+                alert('✨ ¡Espléndido! Respuesta correcta. +10 puntos ⭐');
+                generarPreguntaJuego();
             } else {
-                reproducirSonido('error');
-                contenedor.classList.add('animar-error');
-                m.innerText = "❌ ¡Casi! Vuelve a intentarlo, tú puedes. 💪"; m.style.color = "#ff4757";
-                setTimeout(() => { 
-                    contenedor.classList.remove('animar-error');
-                    document.querySelectorAll('#juego-opciones button').forEach(b => b.disabled = false);
-                    m.innerText = "";
-                }, 1000);
+                sonarSintetizador('error');
+                alert(`❌ ¡Uh oh! La respuesta correcta era ${respuestaCorrectaEsperada}. ¡Vamos a por el siguiente intento!`);
+                generarPreguntaJuego();
             }
         }
 
-        function borrarTodo() { if(confirm("¿Borrar todo el progreso?")) { localStorage.clear(); location.reload(); } }
-        actualizarUI();
+        document.getElementById('respuesta-usuario').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') validarRespuestaJuego();
+        });
+
+        // --- SISTEMA DE IA TUTORA SIMULADA ---
+        function charlarTutora(opcion) {
+            sonarSintetizador('clic');
+            const cajaTexto = document.getElementById('texto-chat-tutora');
+            
+            if (opcion === 'truco') {
+                cajaTexto.innerText = "💡 ¡Truco de la suma! Para sumar 9 a cualquier número de cabeza, primero súmale 10 y luego réstale 1. ¡Es magia pura e instantánea!";
+            } else if (opcion === 'miedo') {
+                cajaTexto.innerText = "🦖 ¡Escúchame bien! Errar es la única forma de enseñarle al cerebro cómo acertar. Cada fallo te hace más inteligente, ¡no les tengas miedo jamás!";
+            } else if (opcion === 'examen') {
+                cajaTexto.innerText = "📝 ¡Examen relámpago! Te he activado la ruleta de Series Lógicas. ¡Demuestra tu lógica y llévate esos puntos!";
+                iniciarJuego('secuencias');
+            }
+        }
+
+        // --- SISTEMA DE CONTENIDO ENCYCLOPEDIA ---
+        function abrirTeoria(tema) {
+            sonarSintetizador('clic');
+            const modal = document.getElementById('modal-teoria');
+            const titulo = document.getElementById('modal-titulo-teoria');
+            const cuerpo = document.getElementById('modal-cuerpo-teoria');
+            modal.style.display = 'flex';
+
+            if (tema === 'multiplicar') {
+                titulo.innerText = "⚡ Secretos de las Tablas";
+                cuerpo.innerHTML = `<p>Multiplicar es simplemente sumar el mismo número de forma veloz. 3 × 4 es sumar tres veces cuatro (4+4+4).</p><strong>Truco del 5:</strong> Terminan siempre en 0 o 5.<div class="tabla-multiplicar-grid"><div>5 × 1 = 5</div><div>5 × 2 = 10</div><div>5 × 3 = 15</div><div>5 × 4 = 20</div><div>5 × 5 = 25</div><div>5 × 6 = 30</div></div>`;
+            } else if (tema === 'fracciones') {
+                titulo.innerText = "🍕 Las Fracciones y la Pizza";
+                cuerpo.innerHTML = `<p>Si divides una pizza en 2 partes iguales, cada mitad se escribe <strong>1/2</strong>. Si la divides en 4 trozos, cada trozo es <strong>1/4</strong>.</p><p>El número de abajo indica en cuántas partes cortas la comida, y el de arriba cuántas partes te quedan.</p>`;
+            } else if (tema === 'romanos') {
+                titulo.innerText = "🏛️ Números del Imperio Romano";
+                cuerpo.innerHTML = `<p>Los romanos usaban letras de su abecedario:</p><ul><li><strong>I</strong> = 1</li><li><strong>V</strong> = 5</li><li><strong>X</strong> = 10</li><li><strong>L</strong> = 50</li><li><strong>C</strong> = 100</li></ul><p>Letra menor a la derecha suma (VI = 6), a la izquierda resta (IV = 4).</p>`;
+            } else if (tema === 'geometria') {
+                titulo.innerText = "🔷 Geometría y Polígonos";
+                cuerpo.innerHTML = `<p>Las formas geométricas se definen por sus líneas cerradas:</p><ul><li><strong>Triángulo:</strong> 3 lados y 3 esquinas (vértices).</li><li><strong>Cuadrado:</strong> 4 lados exactamente iguales.</li><li><strong>Pentágono:</strong> 5 lados (¡Como una casita!).</li><li><strong>Hexágono:</strong> 6 lados perfectos (Como los panales de abejas 🐝).</li></ul>`;
+            } else if (tema === 'posicional') {
+                titulo.innerText = "🔢 Unidades, Decenas y Centenas";
+                cuerpo.innerHTML = `<p>Dependiendo de dónde pongas un número, este cambia por completo su valor:</p><ul><li><strong>Unidad:</strong> Elementos sueltos del 1 al 9.</li><li><strong>Decena:</strong> Grupos cerrados de 10 unidades (El número 20 tiene 2 decenas).</li><li><strong>Centena:</strong> Paquetes gigantes de 100 unidades.</li></ul><p>El <strong>Cero (0)</strong> sirve para avisar de que esa posición está vacía pero guarda el espacio (ej: 105 tiene cero decenas).</p>`;
+            } else if (tema === 'medidas') {
+                titulo.innerText = "📏 Reglas, Kilos y Litros";
+                cuerpo.innerHTML = `<p>Para que todo el mundo se ponga de acuerdo, usamos las unidades de medida oficiales:</p><ul><li><strong>El Metro (m):</strong> Para saber la distancia o longitud de algo (Tu regla del cole suele medir centímetros).</li><li><strong>El Kilo (kg):</strong> Para saber cuánto pesa un cuerpo (Como la harina de un pastel).</li><li><strong>El Litro (l):</strong> Para medir líquidos en botellas o piscinas.</li></ul>`;
+            }
+        }
+
+        function cerrarTeoria() {
+            sonarSintetizador('clic');
+            document.getElementById('modal-teoria').style.display = 'none';
+        }
     </script>
 </body>
 </html>
