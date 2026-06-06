@@ -3,222 +3,753 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time-Machine Arcade ⏳</title>
+    <title>Isla del Tiempo, Ciencias e Historia</title>
     <style>
         :root {
-            --color-principal: #ff9f43;
-            --bg-juego: #1e272e;
+            --primary: #55efc4;
+            --accent-tie: #e17055;
+            --bg-gradient: linear-gradient(135deg, #2f3640 0%, #636e72 100%);
+            --glass-bg: rgba(255, 255, 255, 0.96);
+            --text-dark: #2d3436;
         }
 
         body {
             font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
-            background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
-            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff;
-            overflow-x: hidden;
+            background: var(--bg-gradient);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: var(--text-dark);
+            box-sizing: border-box;
+            user-select: none;
         }
 
-        .contenedor-principal {
-            background: rgba(30, 39, 46, 0.95); padding: 25px; border-radius: 30px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 3px solid var(--color-principal);
-            max-width: 480px; width: 92%; text-align: center; box-sizing: border-box;
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* --- BOTÓN VOLVER --- */
+        .btn-volver {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border: 2px solid var(--accent-tie);
+            color: var(--accent-tie);
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            z-index: 100;
+        }
+        .btn-volver:hover {
+            background: var(--accent-tie);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* --- SELECTOR DE IDIOMA --- */
+        .selector-idioma {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            border: 2px solid #b2bec3;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        .selector-idioma select {
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+            color: var(--text-dark);
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .hub-container {
+            max-width: 1200px;
+            margin: 80px auto 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            animation: flotar 3s ease-in-out infinite;
+        }
+
+        .sub-bar {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .puntos-badge {
+            color: var(--accent-tie);
+            margin-left: 15px;
+            background: #fff5f3;
+            padding: 5px 15px;
+            border-radius: 15px;
+            border: 2px solid var(--accent-tie);
+        }
+
+        /* --- PANELES DE SECCIONES --- */
+        .seccion-bloque {
+            background: var(--glass-bg);
+            border-radius: 35px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border: 2px solid rgba(255,255,255,0.8);
+            text-align: left;
+        }
+
+        .seccion-bloque h2 {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 3px dashed var(--accent-tie);
+            padding-bottom: 10px;
+        }
+
+        /* --- GRILLA ADAPTIVA --- */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card-actividad {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.04);
+            border: 2px solid #dfe6e9;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card-actividad:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.1);
+            border-color: var(--accent-tie);
+        }
+
+        .card-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .card-actividad h3 {
+            margin: 10px 0;
+            font-size: 1.4rem;
+            color: #2d3436;
+        }
+
+        .card-actividad p {
+            margin: 0;
+            color: #636e72;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        /* --- ZONA DE JUEGO ACTIVA --- */
+        .zona-juego-activa {
+            display: none;
+            background: white;
+            border-radius: 35px;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border: 3px solid var(--accent-tie);
+            text-align: center;
+            animation: entrada 0.4s ease-out;
+        }
+
+        .pantalla-operacion {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #2d3436;
+            letter-spacing: 1px;
+            word-break: break-word;
+        }
+
+        .input-respuesta {
+            font-size: 1.8rem;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            padding: 12px;
+            border: 3px solid #b2bec3;
+            border-radius: 20px;
+            outline: none;
+            font-family: inherit;
+            margin-bottom: 20px;
+        }
+        .input-respuesta:focus { border-color: var(--accent-tie); }
+
+        .btn-comprobar {
+            display: block;
+            margin: 0 auto;
+            background: linear-gradient(45deg, #2c3e50, var(--accent-tie));
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(225, 112, 85, 0.3);
+        }
+
+        /* --- SECCIÓN MENTOR DE CRÓNICAS --- */
+        .contenedor-tutora {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 20px;
+            align-items: center;
+            background: #fff;
+            padding: 25px;
+            border-radius: 25px;
+            border: 2px solid var(--accent-tie);
+        }
+
+        .avatar-ia { font-size: 90px; text-align: center; animation: flotar 4s ease-in-out infinite; }
+
+        .bocadillo-chat {
+            background: #fdfefe;
+            padding: 20px;
+            border-radius: 25px;
             position: relative;
+            border: 1px solid #dfe6e9;
         }
 
-        h1 { color: #fff; margin: 10px 0; font-weight: 900; text-shadow: 0 0 10px var(--color-principal); }
-        p { color: #dcdde1; }
-
-        .btn-volver { 
-            background-color: #576574; color: white; border: none; padding: 8px 18px; border-radius: 50px; 
-            cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 3px 0 #000;
+        .bocadillo-chat::before {
+            content: ''; position: absolute; left: -15px; top: 50%;
+            transform: translateY(-50%); border-width: 15px 15px 15px 0;
+            border-style: solid; border-color: transparent #fdfefe transparent transparent;
         }
 
-        /* --- MARCADOR DE CRISTALES --- */
-        .marcador {
-            background: rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; margin-bottom: 20px; 
-            border: 2px dashed #00d2d3; font-weight: bold; font-size: 18px; color: #00d2d3;
+        .opciones-tutora { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-opcion-chat {
+            background: white; border: 2px solid var(--accent-tie); color: var(--accent-tie);
+            padding: 8px 16px; border-radius: 15px; cursor: pointer;
+            font-weight: bold; transition: all 0.2s;
+        }
+        .btn-opcion-chat:hover { background: var(--accent-tie); color: white; }
+
+        /* --- MODAL DE TEORÍA --- */
+        .modal-teoria {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 1000;
+            justify-content: center; align-items: center;
         }
 
-        /* --- PANTALLA DE AVENTURA --- */
-        .pantalla-viaje {
-            background: #2f3542; border-radius: 20px; padding: 20px; margin: 15px 0;
-            box-shadow: inset 0 5px 15px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.1);
+        .modal-teoria-contenido {
+            background: white; padding: 40px; border-radius: 35px;
+            max-width: 650px; width: 90%; max-height: 85vh; overflow-y: auto;
+            position: relative; text-align: left; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: entrada 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .gran-emoji { font-size: 70px; margin: 15px 0; animation: flotar 3s ease-in-out infinite; }
-
-        /* --- OPCIONES DE RESPUESTA --- */
-        .btn-opcion {
-            background: #341f97; color: white; border: none; padding: 14px; font-size: 16px; 
-            font-weight: bold; border-radius: 15px; cursor: pointer; width: 100%; margin-bottom: 12px;
-            border-bottom: 4px solid #1e0b70; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 10px;
+        .btn-cerrar-modal {
+            position: absolute; top: 20px; right: 20px; background: #e17055;
+            color: white; border: none; width: 35px; height: 35px; border-radius: 50%;
+            cursor: pointer; font-weight: bold;
         }
-        .btn-opcion:hover { background: #5f27cd; transform: translateX(5px); }
-        .btn-opcion:active { transform: translateY(2px); border-bottom-width: 1px; }
 
-        .mensaje-historia { font-size: 17px; line-height: 1.5; margin-bottom: 20px; text-align: left; }
+        /* --- RESPONSIVE --- */
+        @media (max-width: 820px) {
+            h1 { font-size: 2.2rem; }
+            .contenedor-tutora { grid-template-columns: 1fr; text-align: center; }
+            .bocadillo-chat::before { display: none; }
+            .avatar-ia { margin-bottom: 10px; }
+            .pantalla-operacion { font-size: 1.8rem; }
+            .selector-idioma { position: static; display: inline-block; margin-top: 10px; }
+        }
 
-        .oculto { display: none !important; }
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.6rem; }
+            .seccion-bloque { padding: 20px; border-radius: 25px; }
+            .seccion-bloque h2 { font-size: 1.3rem; }
+            .btn-volver { position: static; display: inline-block; margin-bottom: 15px; }
+            .hub-container { margin-top: 10px; }
+        }
 
         @keyframes flotar {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-10px) rotate(5deg); }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes entrada {
+            from { opacity: 0; transform: scale(0.95) translateY(15px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    <div class="contenedor-principal">
-        <button class="btn-volver" onclick="window.location.href='menuprincipal.html'">🔙 Salir al Mapa</button>
-        <h1 id="titulo-maquina">⏳ Máquina del Tiempo 🚀</h1>
+    <a href="menuprincipal.html" class="btn-volver" id="lbl-volver" onclick="sonarBoton()">⬅ Volver al Mapa</a>
 
-        <div class="marcador">
-            <span>💎 Cristales Temporales: <span id="cristales-contador">0</span></span>
+    <div class="selector-idioma">
+        🌐 <select id="select-lang" onchange="cambiarIdioma()">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+        </select>
+    </div>
+
+    <div class="hub-container">
+        <h1 id="main-title">⏳ Isla de las Ciencias y la Historia 🚀</h1>
+        <div class="sub-bar">
+            <span id="user-badge">Historiador Galáctico 🔬</span>
+            <span class="puntos-badge">⭐ <span id="marcador-puntos">0</span> <span id="lbl-puntos">Puntos</span></span>
         </div>
 
-        <div id="menu-epocas">
-            <p>¡Elige una época en los mandos de la nave y repara la historia!</p>
-            <button class="btn-opcion" style="background:#🍎; background-color:#ee5253; border-color:#c8d6e5;" onclick="viajarA('dinos')">🦕 Era de los Dinosaurios</button>
-            <button class="btn-opcion" style="background-color:#feca57; border-color:#ff9f43;" onclick="viajarA('egipto')">📿 Antiguo Egipto</button>
-            <button class="btn-opcion" style="background-color:#10ac84; border-color:#1dd1a1;" onclick="viajarA('media')">🏰 Edad Media y Castillos</button>
-            <button class="btn-opcion" style="background-color:#54a0ff; border-color:#2e86de;" onclick="viajarA('futuro')">🚀 Año 3000: Estación Espacial</button>
+        <div id="zona-de-juego" class="zona-juego-activa">
+            <h2 id="titulo-juego-activo">Cápsula del Tiempo</h2>
+            <p id="instrucciones-juego-activo">Analiza el enigma propuesto:</p>
+            <div id="pantalla-tiempo" class="pantalla-operacion">Data</div>
+            <input type="text" id="respuesta-usuario" class="input-respuesta" placeholder="..." autocomplete="off" spellcheck="false">
+            <button class="btn-comprobar" id="btn-verificar" onclick="validarRespuestaJuego()">Verificar Registro 🚀</button>
         </div>
 
-        <div id="pantalla-aventura" class="oculto">
-            <div class="pantalla-viaje">
-                <div id="aventura-emoji" class="gran-emoji">⏳</div>
-                <div id="aventura-texto" class="mensaje-historia">Cargando datos temporales...</div>
+        <div class="seccion-bloque">
+            <h2 id="sec1-title">🤖 Tu Mentor de Eras y Descubrimientos</h2>
+            <div class="contenedor-tutora">
+                <div class="avatar-ia">🦖</div>
+                <div class="bocadillo-chat">
+                    <p id="texto-chat-tutora">¡Saludos, explorador del saber! Desde las cenizas de los dinosaurios hasta la era de la inteligencia artificial, todo descubrimiento sigue un método y toda cultura deja un legado. ¿Qué misterio desenterraremos hoy?</p>
+                    <div class="opciones-tutora">
+                        <button class="btn-opcion-chat" id="opt-truco" onclick="charlarTutora('truco')">💡 Método de estudio</button>
+                        <button class="btn-opcion-chat" id="opt-miedo" onclick="charlarTutora('miedo')">🌋 Paradojas del Tiempo</button>
+                        <button class="btn-opcion-chat" id="opt-examen" onclick="charlarTutora('examen')">📝 Gran Examen del Laboratorio (+50 XP)</button>
+                    </div>
+                </div>
             </div>
-            <div id="aventura-opciones"></div>
-            <h3 id="resultado-feedback" style="min-height:30px; margin-top:15px;"></h3>
         </div>
 
+        <div class="seccion-bloque">
+            <h2 id="sec2-title">📚 Enciclopedia de Ciencia Universal e Historia</h2>
+            <div class="grid-cards">
+                <div class="card-actividad" onclick="abrirTeoria('metodo')">
+                    <div class="card-icon">🧪</div>
+                    <h3 id="card-t1">El Método Científico</h3>
+                    <p id="card-d1">Observación, Hipótesis, Experimentación y Conclusiones lógicas.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('eras')">
+                    <div class="card-icon">🏛️</div>
+                    <h3 id="card-t2">Grandes Eras Históricas</h3>
+                    <p id="card-d2">De la Edad Antigua a la Edad Contemporánea y sus límites.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('materia')">
+                    <div class="card-icon">⚛️</div>
+                    <h3 id="card-t3">Estados de la Materia</h3>
+                    <p id="card-d3">Propiedades físicas: Sólido, Líquido, Gaseoso y Plasma.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('egipto')">
+                    <div class="card-icon">☥</div>
+                    <h3 id="card-t4">Imperios Antiguos</h3>
+                    <p id="card-d4">El legado estructural de Egipto, Mesopotamia y el Valle del Indo.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('universo')">
+                    <div class="card-icon">🌌</div>
+                    <h3 id="card-t5">Origen del Cosmos</h3>
+                    <p id="card-d5">El Big Bang, formación estelar y el calendario cósmico de Sagan.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('revolucion')">
+                    <div class="card-icon">⚙️</div>
+                    <h3 id="card-t6">Revolución Industrial</h3>
+                    <p id="card-d6">El salto tecnológico del vapor y el carbón hacia la sociedad fabril.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="seccion-bloque">
+            <h2 id="sec3-title">🎮 Arcade de Arqueología y Ciencias (6 Juegos)</h2>
+            <div class="grid-cards">
+                <div class="card-actividad" onclick="iniciarJuego('linea')">
+                    <div class="card-icon">⏳</div>
+                    <h3 id="game-t1">Línea de la Historia</h3>
+                    <p id="game-d1">Determina a qué gran era pertenece el acontecimiento propuesto.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('laboratorio')">
+                    <div class="card-icon">🔬</div>
+                    <h3 id="game-t2">Paso del Método</h3>
+                    <p id="game-d2">Identifica qué fase científica se ejecuta según la acción descrita.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('geologia')">
+                    <div class="card-icon">🌋</div>
+                    <h3 id="game-t3">Radar Geológico</h3>
+                    <p id="game-d3">¿En qué era o periodo dominaron los seres indicados?</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('inventos')">
+                    <div class="card-icon">💡</div>
+                    <h3 id="game-t4">Cazador de Siglos</h3>
+                    <p id="game-d4">¿En qué siglo exacto se patentó o descubrió este invento?</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('civilizaciones')">
+                    <div class="card-icon">🛡️</div>
+                    <h3 id="game-t5">Gabinete de Historia</h3>
+                    <p id="game-d5">Asocia monumentos o mitos con su cultura correspondiente.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('quimica')">
+                    <div class="card-icon">🧪</div>
+                    <h3 id="game-t6">Física y Química Flash</h3>
+                    <p id="game-d6">Responde rápido sobre estados, átomos o elementos químicos.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-teoria" class="modal-teoria">
+        <div class="modal-teoria-contenido">
+            <button class="btn-cerrar-modal" onclick="cerrarTeoria()">X</button>
+            <h2 id="modal-titulo-teoria">Estudio Científico</h2>
+            <div id="modal-cuerpo-teoria">Contenido...</div>
+        </div>
     </div>
 
     <script>
-        // --- EFECTOS DE AUDIO SINTETIZADOS ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function sonido(tipo) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            if (tipo === 'teleport') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-            } else if (tipo === 'cristal') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-                osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-            } else if (tipo === 'error') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.25);
-            }
-        }
-
-        // --- BASE DE DATOS DE LA HISTORIA ---
-        const historiaAventuras = {
-            dinos: {
-                emoji: "🦖",
-                titulo: "🌋 ¡Era Jurásica!",
-                texto: "¡Cuidado! Un enorme Triceratops te mira fijamente. El ordenador de la nave te dice que para encender los propulsores debes responder: ¿Qué causó la extinción total de estos increíbles gigantes hace millones de años?",
-                opciones: [
-                    { t: "☄️ El impacto de un gigantesco meteorito", c: true },
-                    { t: "❄️ Una lluvia que duró diez mil años seguidos", c: false },
-                    { t: "🍦 Se congelaron por comer demasiados helados", c: false }
-                ]
+        // --- MOTOR DE LOCALIZACIÓN MULTILINGÜE ---
+        let langActual = 'es';
+        const locales = {
+            es: {
+                volver: "⬅ Volver al Mapa", title: "⏳ Isla de las Ciencias y la Historia 🚀",
+                badge: "Historiador Galáctico 🔬", puntos: "Puntos", verificar: "Verificar Registro 🚀",
+                sec1: "🤖 Tu Mentor de Eras y Descubrimientos", sec2: "📚 Enciclopedia de Ciencia Universal e Historia", sec3: "🎮 Arcade de Arqueología y Ciencias (6 Juegos)",
+                chat: "¡Saludos, explorador del saber! Desde las cenizas de los dinosaurios hasta la era de la inteligencia artificial, todo descubrimiento sigue un método y toda cultura deja un legado. ¿Qué misterio desenterraremos hoy?",
+                opt1: "💡 Método de estudio", opt2: "🌋 Paradojas del Tiempo", opt3: "📝 Gran Examen del Laboratorio (+50 XP)",
+                t1: "El Método Científico", d1: "Observación, Hipótesis, Experimentación y Conclusiones lógicas.",
+                t2: "Grandes Eras Históricas", d2: "De la Edad Antigua a la Edad Contemporánea y sus límites.",
+                t3: "Estados de la Materia", d3: "Propiedades físicas: Sólido, Líquido, Gaseoso y Plasma.",
+                t4: "Imperios Antiguos", d4: "El legado estructural de Egipto, Mesopotamia y el Valle del Indo.",
+                t5: "Origen del Cosmos", d5: "El Big Bang, formación estelar y el calendario cósmico de Sagan.",
+                t6: "Revolución Industrial", d6: "El salto tecnológico del vapor y el carbón hacia la sociedad fabril.",
+                gt1: "Línea de la Historia", gd1: "Determina a qué gran era pertenece el acontecimiento propuesto.",
+                gt2: "Paso del Método", gd2: "Identifica qué fase científica se ejecuta según la acción descrita.",
+                gt3: "Radar Geológico", gd3: "¿En qué era o periodo dominaron los seres indicados?",
+                gt4: "Cazador de Siglos", gd4: "¿En qué siglo exacto se patentó o descubrió este invento?",
+                gt5: "Gabinete de Historia", gd5: "Asocia monumentos o mitos con su cultura correspondiente.",
+                gt6: "Física y Química Flash", gd6: "Responde rápido sobre estados, átomos o elementos químicos.",
+                inst_linea: "¿A qué era pertenece el Descubrimiento de América? (antigua / media / moderna / contemporanea)",
+                inst_lab: "Diseñar un test controlado en un tubo de ensayo es... (observacion / hipotesis / experimentacion)",
+                inst_geo: "¿En qué era vivieron los dinosaurios como el T-Rex? (paleozoica / mesozoica / cenozoica)",
+                inst_inv: "¿En qué siglo se inventó la imprenta de Gutenberg? (Escribe el número, ej: 15)",
+                inst_civ: "¿Qué cultura construyó el Coliseo? (roma / egipto / grecia)",
+                inst_quim: "El paso directo de estado Sólido a Gaseoso se llama... (sublimacion / fusion / evaporacion)",
+                err: "❌ ¡Error de registro histórico! La respuesta exacta archivada era:", ok: "✨ ¡Enigma resuelto con rigor científico! +10 puntos ⭐"
             },
-            egipto: {
-                emoji: "🔺",
-                titulo: "🇪🇬 Egipto de los Faraones",
-                texto: "Has aterrizado junto al río Nilo. Un escriba te confunde con un dios y te pide ayuda para terminar su plano: ¿Cuál era la función principal de las gigantescas Pirámides de Egipto?",
-                opciones: [
-                    { t: "👑 Eran las tumbas sagradas de los faraones", c: true },
-                    { t: "🛒 Eran centros comerciales para comprar trigo", c: false },
-                    { t: "🎢 Eran parques de atracciones con toboganes", c: false }
-                ]
+            en: {
+                volver: "⬅ Back to Map", title: "⏳ Science & History Island 🚀",
+                badge: "Galactic Historian 🔬", puntos: "Points", verificar: "Verify Record 🚀",
+                sec1: "🤖 Your Mentor of Eras & Breakthroughs", sec2: "📚 Universal Science & History Encyclopedia", sec3: "🎮 Archeology & Science Arcade (6 Games)",
+                chat: "Greetings, knowledge explorer! From the ashes of dinosaurs to the rise of AI, every breakthrough follows a method, and every culture leaves a legacy. What mystery shall we unearth today?",
+                opt1: "💡 Study Framework", opt2: "🌋 Time Paradoxes", opt3: "📝 Grand Lab Exam (+50 XP)",
+                t1: "Scientific Method", d1: "Observation, Hypothesis, Experimentation, and Logical Conclusions.",
+                t2: "Great Historical Eras", d2: "From the Ancient World to Modern times and their key milestones.",
+                t3: "States of Matter", d3: "Physical structural properties: Solid, Liquid, Gas, and Plasma.",
+                t4: "Ancient Empires", d4: "The monumental legacies of Egypt, Mesopotamia, and Indus Valley.",
+                t5: "Cosmic Beginnings", d5: "The Big Bang, stellar nursery metrics, and Sagan's Cosmic Calendar.",
+                t6: "Industrial Revolution", d6: "The technological shift from muscles to coal and steam power houses.",
+                gt1: "Timeline Alignment", gd1: "Determine which historical era matches the selected event context.",
+                gt2: "Methodical Step", gd2: "Identify the exact research phase described in the current scenario.",
+                gt3: "Geological Radar", gd3: "In which era or timeframe did the noted species dominate the biosphere?",
+                gt4: "Century Hunter", gd4: "In which specific century was this invention patented or made public?",
+                gt5: "Cabinet of History", gd5: "Match ancient structures or myths with their base sovereign culture.",
+                gt6: "Flash Physics & Chemistry", gd6: "Quick answers regarding states, atomic particles, or periodic elements.",
+                inst_linea: "To which era belongs the Discovery of America? (ancient / medieval / modern / contemporary)",
+                inst_lab: "Running a controlled test in a test tube represents... (observation / hypothesis / experimentation)",
+                inst_geo: "In which era did dinosaurs like the T-Rex live? (paleozoic / mesozoic / cenozoic)",
+                inst_inv: "In which century was Gutenberg's printing press invented? (Type the digit, e.g., 15)",
+                inst_civ: "Which culture engineered the Colosseum? (rome / egypt / greece)",
+                inst_quim: "The transition from Solid directly to Gas is called... (sublimation / melting / evaporation)",
+                err: "❌ Timeline disruption! The actual archival entry was:", ok: "✨ Mystery solved with scientific precision! +10 points ⭐"
             },
-            media: {
-                emoji: "🏰",
-                titulo: "⚔️ Edad Media",
-                texto: "Un caballero con armadura brillante te frena en el puente levadizo del castillo. Te dejará pasar a ver al rey si demuestras sabiduría: ¿Cómo se llamaba el sistema donde los reyes mandaban y los caballeros defendían las tierras?",
-                opciones: [
-                    { t: "🛡️ Feudalismo", c: true },
-                    { t: "📱 Capitalismo Digital", c: false },
-                    { t: "🏴‍☠️ Piratería Marina", c: false }
-                ]
-            },
-            futuro: {
-                emoji: "🚀",
-                titulo: "🌌 Estación Alfa 3000",
-                texto: "¡Viaje al futuro! Flotas en una estación espacial cerca de Marte. La gravedad es cero y las luces parpadean. El capitán robot te pregunta: ¿Cuál es la estrella más brillante de nuestro sistema planetario, que nos da calor cada día?",
-                opciones: [
-                    { t: "☀️ El Sol", c: true },
-                    { t: "🌙 La Luna", c: false },
-                    { t: "🪐 Saturno", c: false }
-                ]
+            fr: {
+                volver: "⬅ Retour a la Carte", title: "⏳ L'Île des Sciences et de l'Histoire 🚀",
+                badge: "Historien Galactique 🔬", puntos: "Points", verificar: "Vérifier l'Enregistrement 🚀",
+                sec1: "🤖 Votre Mentor d'Ères et de Découvertes", sec2: "📚 Encyclopédie des Sciences et d'Histoire", sec3: "🎮 Arcade d'Archéologie et de Sciences (6 Jeux)",
+                chat: "Salutations, explorateur du savoir ! Des cendres des dinosaures à l'essor de l'IA, chaque découverte suit une méthode et chaque peuple laisse une empreinte. Quel secret allons-nous percer ?",
+                opt1: "💡 Cadre d'analyse", opt2: "🌋 Paradoxes Temporels", opt3: "📝 Grand Examen de Laboratoire (+50 XP)",
+                t1: "La Méthode Scientifique", d1: "Observation, Hypothèse, Expérimentation et Conclusions rigoureuses.",
+                t2: "Grandes Ères Historiques", d2: "De l'Antiquité à l'Époque Contemporaine et leurs ruptures.",
+                t3: "États de la Matière", d3: "Propriétés moléculaires de base : Solide, Liquide, Gazeux et Plasma.",
+                t4: "Empires Antiques", d4: "L'héritage d'Égypte, de Mésopotamie et de la Vallée de l'Indus.",
+                t5: "Origine du Cosmos", d5: "Le Big Bang, la nucléosynthèse et le calendrier cosmique de Sagan.",
+                t6: "Révolution Industrielle", d6: "Le basculement technologique de la vapeur et du charbon vers l'usine.",
+                gt1: "Ligne du Temps", gd1: "Déterminez à quelle grande époque appartient l'événement proposé.",
+                gt2: "Étape de la Méthode", gd2: "Identifiez la phase de recherche correspondante à l'action.",
+                gt3: "Radar Géologique", gd3: "À quelle ère géologique appartenaient les êtres mentionnés ?",
+                gt4: "Chasseur de Siècles", gd4: "En quel siècle précis cette invention a-t-il été conçue ?",
+                gt5: "Cabinet d'Histoire", gd5: "Associez les monuments ou mythes à leur civilisation d'origine.",
+                gt6: "Physique-Chimie Flash", gd6: "Réponses rapides sur les états, les atomes ou le tableau périodique.",
+                inst_linea: "À quelle époque appartient la Découverte de l'Amérique ? (antique / medievale / moderne / contemporaine)",
+                inst_lab: "Réaliser un test contrôlé en éprouvette relève de... (observation / hypothese / experimentation)",
+                inst_geo: "À quelle ère appartenaient les dinosaures comme le T-Rex ? (paleozoique / mesozoique / cenozoique)",
+                inst_inv: "En quel siècle l'imprimerie de Gutenberg a-t-elle été inventée ? (Ex: 15)",
+                inst_civ: "Quelle civilisation a bâti le Colisée ? (rome / egypte / grece)",
+                inst_quim: "Le passage direct de l'état Solide à Gazeux s'appelle... (sublimation / fusion / evaporation)",
+                err: "❌ Anachronisme ! La réponse exacte archivée était :", ok: "✨ Énigme résolue avec rigueur scientifique ! +10 points ⭐"
             }
         };
 
-        let cristales = parseInt(localStorage.getItem('cristales_tiempo_v1')) || 0;
-        document.getElementById('cristales-contador').innerText = cristales;
-
-        function viajarA(epoca) {
-            sonido('teleport');
-            document.getElementById('menu-epocas').classList.add('oculto');
-            document.getElementById('pantalla-aventura').classList.remove('oculto');
+        function cambiarIdioma() {
+            langActual = document.getElementById('select-lang').value;
+            const res = locales[langActual];
             
-            const data = historiaAventuras[epoca];
-            document.getElementById('titulo-maquina').innerText = data.titulo;
-            document.getElementById('aventura-emoji').innerText = data.emoji;
-            document.getElementById('aventura-texto').innerHTML = data.texto;
-            document.getElementById('resultado-feedback').innerText = "";
-
-            let contOpciones = document.getElementById('aventura-opciones');
-            contOpciones.innerHTML = "";
-
-            // Mezclar opciones para que no sea predecible
-            let opcionesMezcladas = [...data.opciones].sort(() => 0.5 - Math.random());
-
-            opcionesMezcladas.forEach(op => {
-                let btn = document.createElement('button');
-                btn.className = "btn-opcion";
-                btn.innerText = op.t;
-                btn.onclick = () => verificarRespuesta(op.c);
-                contOpciones.appendChild(btn);
-            });
+            document.getElementById('lbl-volver').innerText = res.volver;
+            document.getElementById('main-title').innerText = res.title;
+            document.getElementById('user-badge').innerText = res.badge;
+            document.getElementById('lbl-puntos').innerText = res.puntos;
+            document.getElementById('btn-verificar').innerText = res.verificar;
+            document.getElementById('sec1-title').innerText = res.sec1;
+            document.getElementById('sec2-title').innerText = res.sec2;
+            document.getElementById('sec3-title').innerText = res.sec3;
+            document.getElementById('texto-chat-tutora').innerText = res.chat;
+            document.getElementById('opt-truco').innerText = res.opt1;
+            document.getElementById('opt-miedo').innerText = res.opt2;
+            document.getElementById('opt-examen').innerText = res.opt3;
+            
+            document.getElementById('card-t1').innerText = res.t1; document.getElementById('card-d1').innerText = res.d1;
+            document.getElementById('card-t2').innerText = res.t2; document.getElementById('card-d2').innerText = res.d2;
+            document.getElementById('card-t3').innerText = res.t3; document.getElementById('card-d3').innerText = res.d3;
+            document.getElementById('card-t4').innerText = res.t4; document.getElementById('card-d4').innerText = res.d4;
+            document.getElementById('card-t5').innerText = res.t5; document.getElementById('card-d5').innerText = res.d5;
+            document.getElementById('card-t6').innerText = res.t6; document.getElementById('card-d6').innerText = res.d6;
+            
+            document.getElementById('game-t1').innerText = res.gt1; document.getElementById('game-d1').innerText = res.gd1;
+            document.getElementById('game-t2').innerText = res.gt2; document.getElementById('game-d2').innerText = res.gd2;
+            document.getElementById('game-t3').innerText = res.gt3; document.getElementById('game-d3').innerText = res.gd3;
+            document.getElementById('game-t4').innerText = res.gt4; document.getElementById('game-d4').innerText = res.gd4;
+            document.getElementById('game-t5').innerText = res.gt5; document.getElementById('game-d5').innerText = res.gd5;
+            document.getElementById('game-t6').innerText = res.gt6; document.getElementById('game-d6').innerText = res.gd6;
+            
+            if (document.getElementById('zona-de-juego').style.display === 'block') {
+                generarPreguntaJuego();
+            }
+            sonarSintetizador('clic');
         }
 
-        function verificarRespuesta(esCorrecto) {
-            let feed = document.getElementById('resultado-feedback');
-            // Bloquear botones provisionalmente
-            document.querySelectorAll('#aventura-opciones button').forEach(b => b.disabled = true);
+        // --- SINTETIZADOR AUDIO FX ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let puntosTotales = 0;
+
+        function sonarSintetizador(tipo) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+
+            if (tipo === 'clic') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+            } else if (tipo === 'correcto') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.08);
+                osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.16);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (tipo === 'error') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+        function sonarBoton() { sonarSintetizador('clic'); }
+
+        // --- BASE DE DATOS DE HISTORIA Y CIENCIA ---
+        const dbJuegos = {
+            es: {
+                linea: [{p: 'Descubrimiento de América (1492)', r: 'moderna'}, {p: 'Caída de Roma (476 d.C.)', r: 'media'}, {p: 'Revolución Francesa (1789)', r: 'contemporanea'}],
+                laboratorio: [{p: 'Mirar bacterias en el microscopio sin opinar', r: 'observacion'}, {p: 'Hacer reaccionar dos gases en un entorno controlado', r: 'experimentacion'}],
+                geologia: [{p: 'Reinado del Tyrannosaurus Rex', r: 'mesozoica'}, {p: 'Aparición del Homo Sapiens moderno', r: 'cenozoica'}],
+                inventos: [{p: 'Imprenta de Gutenberg', r: '15'}, {p: 'Máquina de vapor de Watt', r: '18'}, {p: 'Internet (World Wide Web)', r: '20'}],
+                civilizaciones: [{p: 'Construcción del Partenón', r: 'grecia'}, {p: 'Momificación de Tutankamón', r: 'egipto'}, {p: 'Acueducto de Segovia', r: 'roma'}],
+                quimica: [{p: 'Hielo seco transformándose en humo gaseoso', r: 'sublimacion'}, {p: 'Fundición del hierro a altas temperaturas', r: 'fusion'}]
+            },
+            en: {
+                linea: [{p: 'Columbus reaches America (1492)', r: 'modern'}, {p: 'Fall of Western Rome (476 AD)', r: 'medieval'}, {p: 'French Revolution (1789)', r: 'contemporary'}],
+                laboratorio: [{p: 'Looking closely at cell walls under a lens', r: 'observation'}, {p: 'Mixing reactive components under exact heat', r: 'experimentation'}],
+                geologia: [{p: 'Era of the Tyrannosaurus Rex', r: 'mesozoic'}, {p: 'Rise of modern Homo Sapiens', r: 'cenozoic'}],
+                inventos: [{p: 'Gutenberg Printing Press', r: '15'}, {p: 'Watt Steam Engine', r: '18'}, {p: 'The Internet network setup', r: '20'}],
+                civilizaciones: [{p: 'Building the Parthenon temples', r: 'greece'}, {p: 'Mummification of Pharaohs', r: 'egypt'}, {p: 'The Roman Colosseum stadium', r: 'rome'}],
+                quimica: [{p: 'Dry ice turning instantly into vapor gas', r: 'sublimation'}, {p: 'Iron turning liquid under high furnace heat', r: 'melting'}]
+            },
+            fr: {
+                linea: [{p: 'Découverte de l\'Amérique (1492)', r: 'moderne'}, {p: 'Chute de Rome (476 ap. J.-C.)', r: 'medievale'}, {p: 'Révolution Française (1789)', r: 'contemporaine'}],
+                laboratorio: [{p: 'Observer des microbes au microscope', r: 'observation'}, {p: 'Mélanger deux réactifs en tube à essai', r: 'experimentation'}],
+                geologia: [{p: 'Règne du Tyrannosaurus Rex', r: 'mesozoique'}, {p: 'Apparition de l\'Homo Sapiens', r: 'cenozoique'}],
+                inventos: [{p: 'L\'imprimerie de Gutenberg', r: '15'}, {p: 'Machine à vapeur de Watt', r: '18'}, {p: 'Lancement du World Wide Web', r: '20'}],
+                civilizaciones: [{p: 'Construction du Parthénon', r: 'grece'}, {p: 'Momification de Toutânkhamon', r: 'egypte'}, {p: 'Le Colisée de Rome', r: 'rome'}],
+                quimica: [{p: 'Le CO2 solide devenant un gaz direct', r: 'sublimation'}, {p: 'Le fer devenant liquide dans un haut fourneau', r: 'fusion'}]
+            }
+        };
+
+        let juegoActual = '';
+        let respuestasAceptables = [];
+
+        function iniciarJuego(tipo) {
+            sonarSintetizador('clic');
+            juegoActual = tipo;
+            document.getElementById('zona-de-juego').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            generarPreguntaJuego();
+        }
+
+        function generarPreguntaJuego() {
+            const pantalla = document.getElementById('pantalla-tiempo');
+            const input = document.getElementById('respuesta-usuario');
+            const instrucciones = document.getElementById('instrucciones-juego-activo');
+            const res = locales[langActual];
+            input.value = ''; input.focus();
+            respuestasAceptables = [];
+
+            if (juegoActual === 'linea') {
+                document.getElementById('titulo-juego-activo').innerText = "⏳ " + res.gt1;
+                instrucciones.innerText = res.inst_linea;
+            } else if (juegoActual === 'laboratorio') {
+                document.getElementById('titulo-juego-activo').innerText = "🔬 " + res.gt2;
+                instrucciones.innerText = res.inst_lab;
+            } else if (juegoActual === 'geologia') {
+                document.getElementById('titulo-juego-activo').innerText = "🌋 " + res.gt3;
+                instrucciones.innerText = res.inst_geo;
+            } else if (juegoActual === 'inventos') {
+                document.getElementById('titulo-juego-activo').innerText = "💡 " + res.gt4;
+                instrucciones.innerText = res.inst_inv;
+            } else if (juegoActual === 'civilizaciones') {
+                document.getElementById('titulo-juego-activo').innerText = "🛡️ " + res.gt5;
+                instrucciones.innerText = res.inst_civ;
+            } else if (juegoActual === 'quimica') {
+                document.getElementById('titulo-juego-activo').innerText = "🧪 " + res.gt6;
+                instrucciones.innerText = res.inst_quim;
+            }
+
+            const lista = dbJuegos[langActual][juegoActual];
+            let elegida = lista[Math.floor(Math.random() * lista.length)];
+            
+            pantalla.innerText = elegida.p;
+            respuestasAceptables.push(elegida.r);
+        }
+
+        function validarRespuestaJuego() {
+            const inputVal = document.getElementById('respuesta-usuario').value.trim().toLowerCase();
+            if (inputVal === "") return;
+
+            const limpiarTexto = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            let esCorrecto = respuestasAceptables.some(resp => limpiarTexto(resp) === limpiarTexto(inputVal));
+            const res = locales[langActual];
 
             if (esCorrecto) {
-                sonido('cristal');
-                cristales += 1;
-                localStorage.setItem('cristales_tiempo_v1', cristales);
-                document.getElementById('cristales-contador').innerText = cristales;
-                feed.innerText = "💎 ¡Línea temporal reparada! ¡Has ganado un cristal! 🌀";
-                feed.style.color = "#1dd1a1";
-                setTimeout(volverAlMenuEpocas, 2500);
+                sonarSintetizador('correcto');
+                puntosTotales += 10;
+                document.getElementById('marcador-puntos').innerText = puntosTotales;
+                alert(res.ok);
+                generarPreguntaJuego();
             } else {
-                sonido('error');
-                feed.innerText = "❌ ¡Paradoja Temporal! Esa respuesta altera la historia. ¡Inténtalo de nuevo! ⚡";
-                feed.style.color = "#ee5253";
-                setTimeout(() => {
-                    document.querySelectorAll('#aventura-opciones button').forEach(b => b.disabled = false);
-                    feed.innerText = "";
-                }, 2000);
+                sonarSintetizador('error');
+                alert(`${res.err} "${respuestasAceptables[0]}"`);
+                generarPreguntaJuego();
             }
         }
 
-        function volverAlMenuEpocas() {
-            document.getElementById('pantalla-aventura').classList.add('oculto');
-            document.getElementById('menu-epocas').classList.remove('oculto');
-            document.getElementById('titulo-maquina').innerText = "⏳ Máquina del Tiempo 🚀";
+        document.getElementById('respuesta-usuario').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') validarRespuestaJuego();
+        });
+
+        // --- MENTOR INTERACTIVO ---
+        function charlarTutora(opcion) {
+            sonarSintetizador('clic');
+            const cajaTexto = document.getElementById('texto-chat-tutora');
+            
+            const tips = {
+                es: {
+                    truco: "💡 Un gran truco histórico: los siglos siempre van un número por delante del año. El año 1492 pertenece al siglo XV (15).",
+                    miedo: "🌋 Cambiar el pasado crearía una paradoja. Pero entenderlo nos permite predecir el futuro ecológico y climático de nuestro planeta.",
+                    examen: "📝 ¡Fases del laboratorio activadas! Vamos a comprobar tu dominio del método científico."
+                },
+                en: {
+                    truco: "💡 Century rule calculation: take the year string (e.g., 1789), drop the last two digits (17) and add 1. 1789 belongs to the 18th century!",
+                    miedo: "🌋 Don't fear temporal loops! Focus on tracking standard paleoclimate records to shield our present ecological biodiversity maps.",
+                    examen: "📝 Academic laboratory trial active! Proceeding straight to the Scientific Method booth."
+                },
+                fr: {
+                    truco: "💡 Pour calculer un siècle : prenez les deux premiers chiffres de l'année et ajoutez 1. L'année 1492 correspond au XVe siècle (14+1=15).",
+                    miedo: "🌋 Modifier le passé briserait la causalité. Analysons plutôt les strates géologiques pour sauver notre futur.",
+                    examen: "📝 Examen de sciences ouvert ! Analysons les étapes fondamentales de la méthode scientifique."
+                }
+            };
+
+            cajaTexto.innerText = tips[langActual][opcion];
+            if(opcion === 'examen') {
+                iniciarJuego('laboratorio');
+            }
+        }
+
+        // --- ENCICLOPEDIA TEÓRICA ---
+        function abrirTeoria(tema) {
+            sonarSintetizador('clic');
+            const modal = document.getElementById('modal-teoria');
+            const titulo = document.getElementById('modal-titulo-teoria');
+            const cuerpo = document.getElementById('modal-cuerpo-teoria');
+            modal.style.display = 'flex';
+
+            const biblioteca = {
+                es: {
+                    metodo: {t:"🧪 Los Pasos del Método Científico", c:"<p>El pilar fundamental de la ciencia moderna:</p><ol><li><b>Observación:</b> Examinar y registrar un fenómeno natural de forma objetiva.</li><li><b>Hipótesis:</b> Formular una explicación provisional lógica.</li><li><b>Experimentación:</b> Realizar pruebas controladas para comprobar la hipótesis.</li><li><b>Conclusión:</b> Publicar resultados que confirmen o refuten la hipótesis generando teorías o leyes.</li></ol>"},
+                    eras: {t:"🏛️ Las 4 Grandes Eras de la Historia", c:"<ul><li><b>Edad Antigua:</b> Desde la invención de la escritura (3500 a.C.) hasta la caída de Roma (476 d.C.).</li><li><b>Edad Media:</b> Del 476 d.C. hasta el descubrimiento de América (1492).</li><li><b>Edad Moderna:</b> De 1492 hasta la Revolución Francesa (1789).</li><li><b>Edad Contemporánea:</b> Desde 1789 hasta nuestros días.</li></ul>"},
+                    materia: {t:"⚛️ Estados Agregados de la Materia", c:"<p>La materia se organiza según la energía térmica de sus partículas:</p><ul><li><b>Sólido:</b> Forma y volumen constantes, partículas fijas compactas.</li><li><b>Líquido:</b> Volumen fijo pero forma variable adaptada al recipiente.</li><li><b>Gaseoso:</b> Sin forma ni volumen fijos, partículas libres expansivas.</li><li><b>Plasma:</b> Gas ionizado conductor donde los electrones se han separado del núcleo bajo temperaturas extremas (como las estrellas).</li></ul>"},
+                    egipto: {t:"☥ La Estructura del Imperio del Nilo", c:"<p>El Antiguo Egipto floreció gracias al control de las crecidas del río Nilo, permitiendo una agricultura fértil masiva. Su sociedad estaba rígidamente jerarquizada bajo el mando del Faraón (considerado un dios viviente), desarrollando la escritura jeroglífica, complejos sistemas de cálculo de ingeniería y templos eternos orientados astronómicamente.</p>"},
+                    universo: {t:"🌌 El Nacimiento del Espacio y el Tiempo", c:"<p>La teoría del Big Bang postula que hace unos $13.8$ mil millones de años toda la materia y energía del cosmos se concentraba en un punto de densidad infinita que se expandió de forma masiva. Carl Sagan diseñó el <b>Calendario Cósmico</b> para entender esta escala, condensando la historia del universo en un año terrestre, donde la humanidad aparece recién el 31 de diciembre a las 23:52.</p>"},
+                    revolucion: {t:"⚙️ La Revolución Industrial y Fabril", c:"<p>Iniciada en Gran Bretaña durante la segunda mitad del siglo XVIII, supuso el paso de una economía agraria y artesanal a otra dominada por la industria y la producción mecanizada. La invención de la máquina de vapor transformó el transporte (ferrocarril) y los talleres textiles, originando el crecimiento urbano masivo y una nueva división de clases sociales.</p>"}
+                },
+                en: {
+                    metodo: {t:"🧪 Steps of the Scientific Method", c:"<p>The core structural backbone of empirical human progress:</p><ol><li><b>Observation:</b> Spotting and recording data points neutrally.</li><li><b>Hypothesis:</b> Crafting an educated predictive rule profile.</li><li><b>Experimentation:</b> Isolating variables in a lab setup to stress-test the model.</li><li><b>Analysis & Conclusion:</b> Reviewing metrics to establish facts, laws, or theories.</li></ol>"},
+                    eras: {t:"🏛️ The 4 Epochs of Human Civilization", c:"<ul><li><b>Ancient History:</b> From the rise of cuneiform writing ($c. 3500$ BC) to the Fall of Rome (476 AD).</li><li><b>The Middle Ages:</b> From 476 AD to the cross-ocean passage of Columbus (1492).</li><li><b>The Modern Era:</b> From 1492 up to the storming of the Bastille (1789).</li><li><b>Contemporary Era:</b> From the French Revolution (1789) to the digital age.</li></ul>"},
+                    materia: {t:"⚛️ States & Structural Matter Layouts", c:"<p>Matter aligns shapes according to particle thermal kinetic metrics:</p><ul><li><b>Solid:</b> Rigid shape and volume, ultra-dense crystalline or amorphous bonds.</li><li><b>Liquid:</b> Fixed fluid volume that takes the contour of its container.</li><li><b>Gas:</b> Completely volatile volume and shape, high particle collision rates.</li><li><b>Plasma:</b> Superheated ion gas where electrons roam free from nuclei (found in stars).</li></ul>"},
+                    egipto: {t:"☥ The Nile River Civilization Node", c:"<p>Ancient Egypt thrived by engineering systems around the predictable floods of the Nile River. Ruled by the Pharaoh, this highly advanced culture introduced hieroglyphic codes, advanced architectural survey calculations, and solar-aligned structural complexes built to survive millennia.</p>"},
+                    universo: {t:"🌌 Cosmology and Cosmic Chronology", c:"<p>The Big Bang model outlines that around $13.8$ billion years ago, the universe expanded from an ultra-dense singular point. Carl Sagan's <b>Cosmic Calendar</b> condenses this timeline into a single calendar year to help humans visualize it: here, the entire recorded human timeline takes up only the final seconds of December 31st.</p>"},
+                    revolucion: {t:"⚙️ The Industrial Mechanization Leap", c:"<p>Originating in Great Britain during the late 18th century, this shift moved humanity from rural farming guilds to mechanized factory networks. Driven by the coal-powered steam engine, it revolutionized loom textile output, birthed global rail links, and completely reshaped urban demographic blueprints.</p>"}
+                },
+                fr: {
+                    metodo: {t:"🧪 Les Paliers de la Méthode Scientifique", c:"<p>Le pilier de la rationalité cartésienne :</p><ol><li><b>Observation :</b> Recueil de données empiriques sans a priori.</li><li><b>Hypothèse :</b> Formulation d'une explication théorique provisoire.</li><li><b>Expérimentation :</b> Tests rigoureux en faisant varier les variables.</li><li><b>Conclusion :</b> Validation ou rejet, menant à l'établissement de lois.</li></ol>"},
+                    eras: {t:"🏛️ Les 4 Grandes Époques Historiques", c:"<ul><li><b>Antiquité :</b> De l'apparition de l'écriture (3500 av. J.-C.) à la chute de Rome (476).</li><li><b>Moyen Âge :</b> De 476 à l'arrivée de Christophe Colomb aux Amériques (1492).</li><li><b>Époque Moderne :</b> De 1492 à la Révolution Française (1789).</li><li><b>Époque Contemporaine :</b> De 1789 jusqu'à aujourd'hui.</li></ul>"},
+                    materia: {t:"⚛️ Les États d'Agrégation de la Matière", c:"<ul><li><b>Solide :</b> Molécules compactes, forme et volume fixes.</li><li><b>Liquide :</b> Volume fixe, mais prend la forme du contenant.</li><li><b>Gazeux :</b> Particules très mobiles, expansion maximale.</li><li><b>Plasma :</b> Gaz fortement ionisé soumis à de très hautes températures (ex: le Soleil).</li></ul>"},
+                    egipto: {t:"☥ L'Empire du Nil et des Pharaons", c:"<p>L'Égypte antique s'est développée grâce à la maîtrise des crues du Nil. Dirigée par un Pharaon, cette société a bâti de gigantesques temples alignés sur les astres, inventé les hiéroglyphes y développé une ingénierie de pointe pour ériger les pyramides.</p>"},
+                    universo: {t:"🌌 Le Big Bang et le Calendrier de Sagan", c:"<p>Le Big Bang s'est produit il y a environ $13.8$ milliards d'années. Pour concevoir cette échelle, le physicien Carl Sagan a créé un calendrier condensant l'histoire du cosmos en une année : l'humanité n'y apparaît que le 31 décembre à 23h52.</p>"},
+                    revolucion: {t:"⚙️ La Révolution Industrielle et Technologique", c:"<p>Née en Grande-Bretagne au XVIIIe siècle, elle marque la transition d'une économie agraire vers une production mécanique de masse. La machine à vapeur a bouleversé les transports (chemins de fer) et le textile, provoquant un exode rural massif et l'émergence du prolétariat.</p>"}
+                }
+            };
+
+            const nodo = biblioteca[langActual][tema];
+            titulo.innerText = nodo.t;
+            cuerpo.innerHTML = nodo.c;
+        }
+
+        function cerrarTeoria() {
+            sonarSintetizador('clic');
+            document.getElementById('modal-teoria').style.display = 'none';
         }
     </script>
 </body>
