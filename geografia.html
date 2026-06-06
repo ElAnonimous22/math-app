@@ -3,203 +3,754 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geo-Discovery Arcade 🌍</title>
+    <title>Isla de la Tierra y la Geografía</title>
     <style>
         :root {
-            --color-principal: #10ac84;
-            --bg-juego: #2f3542;
+            --primary: #74b9ff;
+            --accent-geo: #2ecc71;
+            --bg-gradient: linear-gradient(135deg, #0984e3 0%, #2ecc71 100%);
+            --glass-bg: rgba(255, 255, 255, 0.96);
+            --text-dark: #2d3436;
         }
 
         body {
             font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
-            background: linear-gradient(135deg, #78e08f 0%, #60a3bc 100%);
-            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #333;
-            overflow-x: hidden;
+            background: var(--bg-gradient);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: var(--text-dark);
+            box-sizing: border-box;
+            user-select: none;
         }
 
-        .contenedor-principal {
-            background: rgba(255, 255, 255, 0.96); padding: 25px; border-radius: 30px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            max-width: 480px; width: 92%; text-align: center; box-sizing: border-box;
-            position: relative;
+        *, *::before, *::after {
+            box-sizing: border-box;
         }
 
-        h1 { color: #2f3542; margin: 10px 0; font-weight: 900; }
-
-        .btn-volver { 
-            background-color: #576574; color: white; border: none; padding: 8px 18px; border-radius: 50px; 
-            cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 3px 0 #2f3542;
+        /* --- BOTÓN VOLVER --- */
+        .btn-volver {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border: 2px solid var(--accent-geo);
+            color: var(--accent-geo);
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            z-index: 100;
         }
-        .btn-volver:active { transform: translateY(2px); box-shadow: none; }
-
-        .marcador {
-            background: #f1f2f6; padding: 12px; border-radius: 20px; margin-bottom: 20px; 
-            border: 3px dashed var(--color-principal); font-weight: bold; font-size: 18px; color: #10ac84;
+        .btn-volver:hover {
+            background: var(--accent-geo);
+            color: white;
+            transform: translateY(-2px);
         }
 
-        .pantalla-pregunta {
-            background: var(--bg-juego); color: white; border-radius: 25px; padding: 20px; margin: 15px 0;
-            box-shadow: inset 0 5px 15px rgba(0,0,0,0.3);
+        /* --- SELECTOR DE IDIOMA --- */
+        .selector-idioma {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            border: 2px solid #0984e3;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        .selector-idioma select {
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+            color: #0984e3;
         }
 
-        .pista-visual { font-size: 70px; margin: 10px 0; animation: flotar 3s ease-in-out infinite; }
-
-        .btn-geo {
-            background: linear-gradient(45deg, #48dbfb, #1dd1a1); color: white; border: none; 
-            padding: 15px; font-size: 17px; font-weight: bold; border-radius: 20px; cursor: pointer;
-            width: 100%; margin-bottom: 12px; border-bottom: 5px solid #10ac84; transition: transform 0.1s;
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .hub-container {
+            max-width: 1200px;
+            margin: 80px auto 0 auto;
             text-align: center;
         }
-        .btn-geo:hover { filter: brightness(1.05); transform: scale(1.01); }
-        .btn-geo:active { transform: translateY(4px); border-bottom-width: 1px; }
 
-        .feedback { font-size: 19px; font-weight: bold; min-height: 35px; margin-top: 15px; }
+        h1 {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+            animation: flotar 3s ease-in-out infinite;
+        }
+
+        .sub-bar {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .puntos-badge {
+            color: #0984e3;
+            margin-left: 15px;
+            background: #e1f5fe;
+            padding: 5px 15px;
+            border-radius: 15px;
+            border: 2px solid #0984e3;
+        }
+
+        /* --- PANELES DE SECCIONES --- */
+        .seccion-bloque {
+            background: var(--glass-bg);
+            border-radius: 35px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 2px solid rgba(255,255,255,0.8);
+            text-align: left;
+        }
+
+        .seccion-bloque h2 {
+            font-size: 2rem;
+            color: #0984e3;
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 3px dashed var(--accent-geo);
+            padding-bottom: 10px;
+        }
+
+        /* --- GRILLA ADAPTIVA --- */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card-actividad {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.03);
+            border: 2px solid #dfe6e9;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card-actividad:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 25px rgba(9, 132, 227, 0.15);
+            border-color: var(--accent-geo);
+        }
+
+        .card-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .card-actividad h3 {
+            margin: 10px 0;
+            font-size: 1.4rem;
+            color: #2d3436;
+        }
+
+        .card-actividad p {
+            margin: 0;
+            color: #636e72;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        /* --- ZONA DE JUEGO ACTIVA --- */
+        .zona-juego-activa {
+            display: none;
+            background: white;
+            border-radius: 35px;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border: 3px solid #0984e3;
+            text-align: center;
+            animation: entrada 0.4s ease-out;
+        }
+
+        .pantalla-operacion {
+            font-size: 2.4rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #2d3436;
+            letter-spacing: 1px;
+            word-break: break-word;
+        }
+
+        .input-respuesta {
+            font-size: 1.8rem;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            padding: 12px;
+            border: 3px solid #b2bec3;
+            border-radius: 20px;
+            outline: none;
+            font-family: inherit;
+            margin-bottom: 20px;
+        }
+        .input-respuesta:focus { border-color: #0984e3; }
+
+        .btn-comprobar {
+            display: block;
+            margin: 0 auto;
+            background: linear-gradient(45deg, #0984e3, var(--accent-geo));
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(9, 132, 227, 0.3);
+        }
+
+        /* --- SECCIÓN MENTOR GEOGRÁFICO --- */
+        .contenedor-tutora {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 20px;
+            align-items: center;
+            background: #fff;
+            padding: 25px;
+            border-radius: 25px;
+            border: 2px solid #0984e3;
+        }
+
+        .avatar-ia { font-size: 90px; text-align: center; animation: flotar 4s ease-in-out infinite; }
+
+        .bocadillo-chat {
+            background: #f9fbfd;
+            padding: 20px;
+            border-radius: 25px;
+            position: relative;
+            border: 1px solid #dfe6e9;
+        }
+
+        .bocadillo-chat::before {
+            content: ''; position: absolute; left: -15px; top: 50%;
+            transform: translateY(-50%); border-width: 15px 15px 15px 0;
+            border-style: solid; border-color: transparent #f9fbfd transparent transparent;
+        }
+
+        .opciones-tutora { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-opcion-chat {
+            background: white; border: 2px solid #0984e3; color: #0984e3;
+            padding: 8px 16px; border-radius: 15px; cursor: pointer;
+            font-weight: bold; transition: all 0.2s;
+        }
+        .btn-opcion-chat:hover { background: #0984e3; color: white; }
+
+        /* --- MODAL DE TEORÍA --- */
+        .modal-teoria {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+
+        .modal-teoria-contenido {
+            background: white; padding: 40px; border-radius: 35px;
+            max-width: 650px; width: 90%; max-height: 85vh; overflow-y: auto;
+            position: relative; text-align: left; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: entrada 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-cerrar-modal {
+            position: absolute; top: 20px; right: 20px; background: #ff7675;
+            color: white; border: none; width: 35px; height: 35px; border-radius: 50%;
+            cursor: pointer; font-weight: bold;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 820px) {
+            h1 { font-size: 2.2rem; }
+            .contenedor-tutora { grid-template-columns: 1fr; text-align: center; }
+            .bocadillo-chat::before { display: none; }
+            .avatar-ia { margin-bottom: 10px; }
+            .pantalla-operacion { font-size: 1.9rem; }
+            .selector-idioma { position: static; display: inline-block; margin-top: 10px; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.6rem; }
+            .seccion-bloque { padding: 20px; border-radius: 25px; }
+            .seccion-bloque h2 { font-size: 1.3rem; }
+            .btn-volver { position: static; display: inline-block; margin-bottom: 15px; }
+            .hub-container { margin-top: 10px; }
+        }
 
         @keyframes flotar {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-8px) rotate(3deg); }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
-        .animar-exito { animation: sacudir 0.5s ease-in-out; }
-        @keyframes sacudir {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        @keyframes entrada {
+            from { opacity: 0; transform: scale(0.95) translateY(15px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    <div class="contenedor-principal" id="bloque-modulo">
-        <button class="btn-volver" onclick="window.location.href='index.html'">🔙 Ir al Mapa</button>
-        <h1>🌍 Geo-Discovery Arcade ✈️</h1>
+    <a href="menuprincipal.html" class="btn-volver" id="lbl-volver" onclick="sonarBoton()">⬅ Volver al Mapa</a>
 
-        <div class="marcador">
-            <span>🛂 Sellos en el Pasaporte: <span id="sellos-contador">0</span> 🛃</span>
+    <div class="selector-idioma">
+        🌐 <select id="select-lang" onchange="cambiarIdioma()">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+        </select>
+    </div>
+
+    <div class="hub-container">
+        <h1 id="main-title">🌍 Isla de la Tierra y la Geografía 🧭</h1>
+        <div class="sub-bar">
+            <span id="user-badge">Cartógrafo de la Biosfera 🗺️</span>
+            <span class="puntos-badge">⭐ <span id="marcador-puntos">0</span> <span id="lbl-puntos">Puntos</span></span>
         </div>
 
-        <div class="pantalla-pregunta">
-            <div id="geo-emoji" class="pista-visual">✈️</div>
-            <h2 id="geo-pregunta" style="font-size: 20px; margin: 0;">¿A qué país pertenece esta bandera?</h2>
+        <div id="zona-de-juego" class="zona-juego-activa">
+            <h2 id="titulo-juego-activo">Radar Satelital</h2>
+            <p id="instrucciones-juego-activo">Analiza el relieve o coordenadas indicadas:</p>
+            <div id="pantalla-geo" class="pantalla-operacion">Map Data</div>
+            <input type="text" id="respuesta-usuario" class="input-respuesta" placeholder="..." autocomplete="off" spellcheck="false">
+            <button class="btn-comprobar" id="btn-verificar" onclick="validarRespuestaJuego()">Fijar Coordenada 🚀</button>
         </div>
 
-        <div id="geo-opciones"></div>
-        <div id="geo-feedback" class="feedback"></div>
+        <div class="seccion-bloque">
+            <h2 id="sec1-title">🤖 Tu Mentor de Climas y Ecosistemas</h2>
+            <div class="contenedor-tutora">
+                <div class="avatar-ia">🧭</div>
+                <div class="bocadillo-chat">
+                    <p id="texto-chat-tutora">¡Hola, explorador! La Tierra no es estática: los continentes viajan milímetros por año, las corrientes mueven el calor y la atmósfera nos protege del vacío. ¿Qué relieve analizaremos hoy?</p>
+                    <div class="opciones-tutora">
+                        <button class="btn-opcion-chat" id="opt-truco" onclick="charlarTutora('truco')">💡 Regla de Coordenadas</button>
+                        <button class="btn-opcion-chat" id="opt-miedo" onclick="charlarTutora('miedo')">🌋 El cinturón de fuego</button>
+                        <button class="btn-opcion-chat" id="opt-examen" onclick="charlarTutora('examen')">📝 Desafío de Mapamundi (+50 XP)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="seccion-bloque">
+            <h2 id="sec2-title">📚 Tratado de Geografía Física y Cartografía</h2>
+            <div class="grid-cards">
+                <div class="card-actividad" onclick="abrirTeoria('coordenadas')">
+                    <div class="card-icon">🌐</div>
+                    <h3 id="card-t1">Líneas y Coordenadas</h3>
+                    <p id="card-d1">Latitud, Longitud, el Ecuador y el Meridiano de Greenwich.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('estructuras')">
+                    <div class="card-icon">🌋</div>
+                    <h3 id="card-t2">Capas Planetarias</h3>
+                    <p id="card-d2">La estructura de la Tierra: Núcleo, Manto, Corteza y Atmósfera.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('relieve')">
+                    <div class="card-icon">🏔️</div>
+                    <h3 id="card-t3">Accidentes del Relieve</h3>
+                    <p id="card-d3">Cordilleras, mesetas, golfos, cabos y llanuras fluviales.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('biomas')">
+                    <div class="card-icon">🌲</div>
+                    <h3 id="card-t4">Biomas y Ecosistemas</h3>
+                    <p id="card-d4">La distribución climática: Selva, Tundra, Taiga y Desiertos.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('ciclo')">
+                    <div class="card-icon">💧</div>
+                    <h3 id="card-t5">Dinámica Hidrológica</h3>
+                    <p id="card-d5">El ciclo integral del agua: Evaporación, Condensación y Escorrentía.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('poblacion')">
+                    <div class="card-icon">📊</div>
+                    <h3 id="card-t6">Demografía Global</h3>
+                    <p id="card-d6">Cómo se mide la densidad de población y las pirámides sociales.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="seccion-bloque">
+            <h2 id="sec3-title">🎮 Arcade del Mapa Mundi (6 Juegos)</h2>
+            <div class="grid-cards">
+                <div class="card-actividad" onclick="iniciarJuego('lineas')">
+                    <div class="card-icon">📍</div>
+                    <h3 id="game-t1">Línea de Orientación</h3>
+                    <p id="game-d1">Identifica la línea imaginaria de referencia propuesta.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('capas')">
+                    <div class="card-icon">☁️</div>
+                    <h3 id="game-t2">Inspector del Aire y Suelo</h3>
+                    <p id="game-d2">Ubica a qué capa de la estructura terrestre pertenece el fenómeno.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('accidentes')">
+                    <div class="card-icon">⛰️</div>
+                    <h3 id="game-t3">Filtro Orográfico</h3>
+                    <p id="game-d3">Identifica el accidente geográfico según la descripción.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('ecosistemas')">
+                    <div class="card-icon">🐪</div>
+                    <h3 id="game-t4">Localizador de Biomas</h3>
+                    <p id="game-d4">¿Qué gran bioma tiene inviernos polares y subsuelo congelado?</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('politica')">
+                    <div class="card-icon">🏳️</div>
+                    <h3 id="game-t5">Gabinete de Capitales</h3>
+                    <p id="game-d5">¿Cuál es la capital del país que aparece en pantalla?</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('demografia')">
+                    <div class="card-icon">📈</div>
+                    <h3 id="game-t6">Estadística Humana</h3>
+                    <p id="game-d6">Responde rápido sobre términos demográficos de la población.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-teoria" class="modal-teoria">
+        <div class="modal-teoria-contenido">
+            <button class="btn-cerrar-modal" onclick="cerrarTeoria()">X</button>
+            <h2 id="modal-titulo-teoria">Estudio Geográfico</h2>
+            <div id="modal-cuerpo-teoria">Contenido...</div>
+        </div>
     </div>
 
     <script>
-        // --- EFECTOS DE SONIDO SYNTH NATIVOS ---
+        // --- MOTOR DE LOCALIZACIÓN MULTILINGÜE ---
+        let langActual = 'es';
+        const locales = {
+            es: {
+                volver: "⬅ Volver al Mapa", title: "🌍 Isla de la Tierra y la Geografía 🧭",
+                badge: "Cartógrafo de la Biosfera 🗺️", puntos: "Puntos", verificar: "Fijar Coordenada 🚀",
+                sec1: "🤖 Tu Mentor de Climas y Ecosistemas", sec2: "📚 Tratado de Geografía Física y Cartografía", sec3: "🎮 Arcade del Mapa Mundi (6 Juegos)",
+                chat: "¡Hola, explorador! La Tierra no es estática: los continentes viajan milímetros por año, las corrientes mueven el calor y la atmósfera nos protege del vacío. ¿Qué relieve analizaremos hoy?",
+                opt1: "💡 Regla de Coordenadas", opt2: "🌋 El cinturón de fuego", opt3: "📝 Desafío de Mapamundi (+50 XP)",
+                t1: "Líneas y Coordenadas", d1: "Latitud, Longitud, el Ecuador y el Meridiano de Greenwich.",
+                t2: "Capas Planetarias", d2: "La estructura de la Tierra: Núcleo, Manto, Corteza y Atmósfera.",
+                t3: "Accidentes del Relieve", d3: "Cordilleras, mesetas, golfos, cabos y llanuras fluviales.",
+                t4: "Biomas y Ecosistemas", d4: "La distribución climática: Selva, Tundra, Taiga y Desiertos.",
+                t5: "Dinámica Hidrológica", d5: "El ciclo integral del agua: Evaporación, Condensación y Escorrentía.",
+                t6: "Demografía Global", d6: "Cómo se mide la densidad de población y las pirámides sociales.",
+                gt1: "Línea de Orientación", gd1: "Identifica la línea imaginaria de referencia propuesta.",
+                gt2: "Inspector del Aire y Suelo", gd2: "Ubica a qué capa de la estructura terrestre pertenece el fenómeno.",
+                gt3: "Filtro Orográfico", gd3: "Identifica el accidente geográfico según la descripción.",
+                gt4: "Localizador de Biomas", gd4: "¿Qué gran bioma tiene inviernos polares y subsuelo congelado?",
+                gt5: "Gabinete de Capitales", gd5: "¿Cuál es la capital del país que aparece en pantalla?",
+                gt6: "Estadística Humana", gd6: "Responde rápido sobre términos demográficos de la población.",
+                inst_lineas: "¿Qué línea divide el planeta en Hemisferio Norte y Sur? (ecuador / greenwich)",
+                inst_capas: "La capa gaseosa más baja donde ocurren la lluvia y las nubes es la... (troposfera / estratosfera)",
+                inst_acc: "Una gran extensión de terreno plano situado a gran altura sobre el nivel del mar es una...",
+                inst_bio: "¿Qué bioma árido se caracteriza por poquísimas lluvias y cactus? (desierto / selva / tundra)",
+                inst_pol: "¿Cuál es la capital oficial de España?",
+                inst_demo: "El número de habitantes por kilómetro cuadrado mide la... (densidad / natalidad / migracion)",
+                err: "❌ ¡Ruta perdida! La coordenada exacta del mapa era:", ok: "✨ ¡Fijado perfecto! Cartografía validada. +10 puntos ⭐"
+            },
+            en: {
+                volver: "⬅ Back to Map", title: "🌍 Earth and Geography Island 🧭",
+                badge: "Biosphere Cartographer 🗺️", puntos: "Points", verificar: "Lock Coordinate 🚀",
+                sec1: "🤖 Your Mentor of Climates & Ecosystems", sec2: "📚 Treatise on Physical Geography & Mapping", sec3: "🎮 World Map Arcade (6 Games)",
+                chat: "Hello, explorer! Earth is dynamic: continents travel millimeters per year, oceanic currents redistribute heat, and the atmosphere seals us from the void. What landform shall we map today?",
+                opt1: "💡 Coordinates Rule", opt2: "🌋 Ring of Fire", opt3: "📝 World Map Challenge (+50 XP)",
+                t1: "Lines & Coordinates", d1: "Latitude, Longitude, Equator line metrics, and Greenwich Meridian.",
+                t2: "Planetary Layers", d2: "The internal structural mesh: Core, Mantle, Crust, and Atmosphere.",
+                t3: "Landforms & Relief", d3: "Mountain ranges, elevated plateaus, gulfs, capes, and valleys.",
+                t4: "Biomes & Ecosystems", d4: "Climatic macrozones: Rainforest, Tundra, Taiga, and Deserts.",
+                t5: "Hydrological Balance", d5: "The comprehensive water loop: Evaporation, Condensation, and Runoff.",
+                t6: "Global Demographics", d6: "Measuring population density setups and social age pyramids.",
+                gt1: "Orientation Line", gd1: "Identify the proposed imaginary line reference template.",
+                gt2: "Air & Soil Inspector", gd2: "Classify which layer of Earth's anatomy holds the noted event.",
+                gt3: "Orography Filter", gd3: "Identify the specific physical landform from its text definition.",
+                gt4: "Biome Tracker", gd4: "Which macrozone features polar winters and permanently frozen subsoil?",
+                gt5: "Capital Chamber", gd5: "What is the official capital city of the displayed nation?",
+                gt6: "Human Statistics", gd6: "Quick quiz regarding demographic population parameters.",
+                inst_lineas: "Which line cuts the globe into Northern and Southern Hemispheres? (equator / greenwich)",
+                inst_capas: "The lowest gaseous air layer where clouds and rain form is the... (troposphere / stratosphere)",
+                inst_acc: "A broad, elevated flat area rising sharply above surrounding land is a...",
+                inst_bio: "Which dry biome features near-zero rainfall and adaptive cacti? (desert / rainforest / tundra)",
+                inst_pol: "What is the capital city of Spain?",
+                inst_demo: "The total number of citizens living per square kilometer defines population... (density / birthrate)",
+                err: "❌ Out of route! The accurate archive coordinate map trace was:", ok: "✨ Coordinate locked! Grid accurately calibrated. +10 points ⭐"
+            },
+            fr: {
+                volver: "⬅ Retour a la Carte", title: "🌍 L'Île de la Terre et de la Géographie 🧭",
+                badge: "Cartographe de la Biosphère 🗺️", puntos: "Points", verificar: "Fixer la Coordonnée 🚀",
+                sec1: "🤖 Votre Mentor des Climats et Biomes", sec2: "📚 Traité de Géographie Physique Fondamentale", sec3: "🎮 Arcade de la Carte du Monde (6 Jeux)",
+                chat: "Bonjour, explorateur ! La Terre bouge : les continents dérivent, les courants régulent les températures et l'atmosphère nous protège du vide. Quel relief allons-nous étudier ?",
+                opt1: "💡 Règle des Repères", opt2: "🌋 Ceinture de Feu", opt3: "📝 Défi du Mappemonde (+50 XP)",
+                t1: "Lignes et Coordonnées", d1: "Latitude, Longitude, Équateur et Méridien de Greenwich.",
+                t2: "Couches Planétaires", d2: "La structure de la Terre : Noyau, Manteau, Croûte et Atmosphère.",
+                t3: "Accidents du Relief", d3: "Chaînes de montagnes, plateaux, golfes, caps et plaines.",
+                t4: "Biomes et Écosystèmes", d4: "Répartition climatique : Forêt tropicale, Tundra, Taïga et Déserts.",
+                t5: "Dynamique Hydrologique", d5: "Le cycle de l'eau : Évaporation, Condensation et Ruissellement.",
+                t6: "Démographie Globale", d6: "Mesurer la densité de population et analyser les pyramides des âges.",
+                gt1: "Ligne d'Orientation", gd1: "Identifiez la ligne imaginaire de référence demandée.",
+                gt2: "Inspecteur de l'Air et du Sol", gd2: "Situez dans quelle couche de la Terre se déroule le phénomène.",
+                gt3: "Filtre Orographique", gd3: "Identifiez le relief correspondant à la description physique.",
+                gt4: "Localisateur de Biomes", gd4: "Quel grand biome présente des hivers polaires et un sol gelé (permafrost) ?",
+                gt5: "Cabinet des Capitales", gd5: "Quelle est la capitale du pays affiché à l'écran ?",
+                gt6: "Statistiques Humaines", gd6: "Réponses rapides sur les indicateurs démographiques de population.",
+                inst_lineas: "Quelle ligne divise la Terre en Hémisphère Nord et Sud ? (equateur / greenwich)",
+                inst_capas: "La couche atmosphérique la plus basse où se forment la pluie et les nuages est la... (troposphere / stratosphere)",
+                inst_acc: "Un vaste espace de terrain plat situé à une altitude élevée est un...",
+                inst_bio: "Quel biome aride se caractérise par des pluies quasi inexistantes et des cactus ? (desert / foret / tundra)",
+                inst_pol: "Quelle est la capitale de l'Espagne ?",
+                inst_demo: "Le nombre d'habitants par kilomètre carré définit la... (densite / natalite / migration)",
+                err: "❌ Cap perdu ! La coordonnée exacte du cadran était :", ok: "✨ Positionnement parfait ! Cartographie validée. +10 points ⭐"
+            }
+        };
+
+        function cambiarIdioma() {
+            langActual = document.getElementById('select-lang').value;
+            const res = locales[langActual];
+            
+            document.getElementById('lbl-volver').innerText = res.volver;
+            document.getElementById('main-title').innerText = res.title;
+            document.getElementById('user-badge').innerText = res.badge;
+            document.getElementById('lbl-puntos').innerText = res.puntos;
+            document.getElementById('btn-verificar').innerText = res.verificar;
+            document.getElementById('sec1-title').innerText = res.sec1;
+            document.getElementById('sec2-title').innerText = res.sec2;
+            document.getElementById('sec3-title').innerText = res.sec3;
+            document.getElementById('texto-chat-tutora').innerText = res.chat;
+            document.getElementById('opt-truco').innerText = res.opt1;
+            document.getElementById('opt-miedo').innerText = res.opt2;
+            document.getElementById('opt-examen').innerText = res.opt3;
+            
+            document.getElementById('card-t1').innerText = res.t1; document.getElementById('card-d1').innerText = res.d1;
+            document.getElementById('card-t2').innerText = res.t2; document.getElementById('card-d2').innerText = res.d2;
+            document.getElementById('card-t3').innerText = res.t3; document.getElementById('card-d3').innerText = res.d3;
+            document.getElementById('card-t4').innerText = res.t4; document.getElementById('card-d4').innerText = res.d4;
+            document.getElementById('card-t5').innerText = res.t5; document.getElementById('card-d5').innerText = res.d5;
+            document.getElementById('card-t6').innerText = res.t6; document.getElementById('card-d6').innerText = res.d6;
+            
+            document.getElementById('game-t1').innerText = res.gt1; document.getElementById('game-d1').innerText = res.gd1;
+            document.getElementById('game-t2').innerText = res.gt2; document.getElementById('game-d2').innerText = res.gd2;
+            document.getElementById('game-t3').innerText = res.gt3; document.getElementById('game-d3').innerText = res.gd3;
+            document.getElementById('game-t4').innerText = res.gt4; document.getElementById('game-d4').innerText = res.gd4;
+            document.getElementById('game-t5').innerText = res.gt5; document.getElementById('game-d5').innerText = res.gd5;
+            document.getElementById('game-t6').innerText = res.gt6; document.getElementById('game-d6').innerText = res.gd6;
+            
+            if (document.getElementById('zona-de-juego').style.display === 'block') {
+                generarPreguntaJuego();
+            }
+            sonarSintetizador('clic');
+        }
+
+        // --- SINTETIZADOR DE AUDIO INTERACTIVO ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function sonido(tipo) {
+        let puntosTotales = 0;
+
+        function sonarSintetizador(tipo) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
-            if (tipo === 'vuelo') {
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-            } else if (tipo === 'sello') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(500, audioCtx.currentTime);
-                osc.frequency.setValueAtTime(900, audioCtx.currentTime + 0.15);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+
+            if (tipo === 'clic') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(350, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+            } else if (tipo === 'correcto') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime); // La4
+                osc.frequency.setValueAtTime(554.37, audioCtx.currentTime + 0.08); // Do#5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.16); // Mi5
+                gain.gain.setValueAtTime(0.09, audioCtx.currentTime);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.3);
             } else if (tipo === 'error') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.25);
             }
         }
+        function sonarBoton() { sonarSintetizador('clic'); }
 
-        // --- BANCO DE PREGUNTAS ---
-        const retosGeo Originales = [
-            { q: "¿A qué país pertenece esta bandera?", e: "🇲🇽", r: "México", f: ["España", "Colombia"] },
-            { q: "¿Cuál es la famosa capital de Francia, conocida por la Torre Eiffel?", e: "🗼", r: "París", f: ["Roma", "Londres"] },
-            { q: "¿A qué país corresponden la pizza, el coliseo y esta bandera?", e: "🇮🇹", r: "Italia", f: ["Portugal", "Grecia"] },
-            { q: "¿En qué país se encuentran las gigantescas y antiguas Pirámides?", e: "🐫", r: "Egipto", f: ["China", "Brasil"] },
-            { q: "¿Cuál es la capital de España?", e: "🇪🇸", r: "Madrid", f: ["Barcelona", "Sevilla"] },
-            { q: "¿A qué país pertenece esta bandera donde viven los koalas y canguros?", e: "🇦🇺", r: "Australia", f: ["Canadá", "Japón"] },
-            { q: "¿Qué país es famoso por su Gran Muralla gigante que se ve desde el espacio?", e: "🐉", r: "China", f: ["India", "Rusia"] }
-        ];
-
-        // Copia de la lista que iremos vaciando poco a poco
-        let mazoPreguntas = [];
-        let retoActual = null;
-
-        let sellos = parseInt(localStorage.getItem('sellos_geo_v1')) || 0;
-        document.getElementById('sellos-contador').innerText = sellos;
-
-        // Función clave para barajar el mazo (Algoritmo Fisher-Yates)
-        function barajarMazo() {
-            mazoPreguntas = [...retosGeoOriginales];
-            for (let i = mazoPreguntas.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [mazoPreguntas[i], mazoPreguntas[j]] = [mazoPreguntas[j], mazoPreguntas[i]];
+        // --- BANCO DE DATOS GEOGRÁFICOS TRILINGÜE ---
+        const dbJuegos = {
+            es: {
+                lineas: [{p: 'Línea horizontal grado 0', r: 'ecuador'}, {p: 'Línea vertical grado 0 de referencia temporal', r: 'greenwich'}],
+                capas: [{p: 'Donde vuelan los aviones comerciales y se condensa la lluvia', r: 'troposfera'}, {p: 'Capa sólida externa fragmentada en placas tectónicas', r: 'corteza'}],
+                accidentes: [{p: 'Elevación plana rodeada de laderas empinadas', r: 'meseta'}, {p: 'Entrada profunda del mar en la costa', r: 'golfo'}],
+                ecosistemas: [{p: 'Clima extremadamente helado, sin árboles, típico de los polos', r: 'tundra'}, {p: 'Bosque tropical perennifolio hiperhúmedo', r: 'selva'}, {p: 'Entorno de precipitaciones insignificantes y alta evaporación', r: 'desierto'}],
+                politica: [{p: 'España', r: 'madrid'}, {p: 'Francia', r: 'paris'}, {p: 'Italia', r: 'roma'}],
+                demografia: [{p: 'Habitantes por unidad de superficie', r: 'densidad'}, {p: 'Media de hijos por mujer en una región', r: 'natalidad'}]
+            },
+            en: {
+                lineas: [{p: 'Horizontal baseline 0-degrees line', r: 'equator'}, {p: 'Vertical prime longitudinal grid reference', r: 'greenwich'}],
+                capas: [{p: 'Where domestic flights cruise and rain forms', r: 'troposphere'}, {p: 'The solid exterior brittle shell split into structural plates', r: 'crust'}],
+                accidentes: [{p: 'An elevated, flat-topped tableland structure', r: 'plateau'}, {p: 'A deep oceanic ingress cutting inland', r: 'gulf'}],
+                ecosistemas: [{p: 'Frozen, treeless subarctic plain ecosystem', r: 'tundra'}, {p: 'Dense evergreen jungle matrix with extreme rainfall', r: 'rainforest'}, {p: 'Arid climate zone lacking continuous water sheets', r: 'desert'}],
+                politica: [{p: 'Spain', r: 'madrid'}, {p: 'France', r: 'paris'}, {p: 'United Kingdom', r: 'london'}],
+                demografia: [{p: 'Citizens counted per layout area size unit', r: 'density'}, {p: 'Standard balance of local births within a community', r: 'birthrate'}]
+            },
+            fr: {
+                lineas: [{p: 'Ligne horizontale de référence à 0 degré', r: 'equateur'}, {p: 'Méridien d\'origine pour les fuseaux horaires', r: 'greenwich'}],
+                capas: [{p: 'Lieu de formation des perturbations météo', r: 'troposphere'}, {p: 'Enveloppe rocheuse superficielle de la Terre', r: 'croute'}],
+                accidentes: [{p: 'Vaste surface plane surélevée par rapport au niveau de la mer', r: 'plateau'}, {p: 'Grande avancée de la mer à l\'intérieur de la terre', r: 'golfe'}],
+                ecosistemas: [{p: 'Plaine stérile et gelée des régions circumpolaires', r: 'tundra'}, {p: 'Forêt tropicale humide dense et permanente', r: 'foret'}, {p: 'Région hyper-aride caractérisée par un manque d\'eau', r: 'desert'}],
+                politica: [{p: 'Espagne', r: 'madrid'}, {p: 'France', r: 'paris'}, {p: 'Allemagne', r: 'berlin'}],
+                demografia: [{p: 'Rapport entre le nombre d\'habitants et la superficie', r: 'densite'}, {p: 'Nombre de naissances par rapport à la population total', r: 'natalite'}]
             }
+        };
+
+        let juegoActual = '';
+        let respuestasAceptables = [];
+
+        function iniciarJuego(tipo) {
+            sonarSintetizador('clic');
+            juegoActual = tipo;
+            document.getElementById('zona-de-juego').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            generarPreguntaJuego();
         }
 
-        function cargarNuevaMision() {
-            document.getElementById('geo-feedback').innerText = "";
+        function generarPreguntaJuego() {
+            const pantalla = document.getElementById('pantalla-geo');
+            const input = document.getElementById('respuesta-usuario');
+            const instrucciones = document.getElementById('instrucciones-juego-activo');
+            const res = locales[langActual];
+            input.value = ''; input.focus();
+            respuestasAceptables = [];
+
+            if (juegoActual === 'lineas') {
+                document.getElementById('titulo-juego-activo').innerText = "📍 " + res.gt1;
+                instrucciones.innerText = res.inst_lineas;
+            } else if (juegoActual === 'capas') {
+                document.getElementById('titulo-juego-activo').innerText = "☁️ " + res.gt2;
+                instrucciones.innerText = res.inst_capas;
+            } else if (juegoActual === 'accidentes') {
+                document.getElementById('titulo-juego-activo').innerText = "⛰️ " + res.gt3;
+                instrucciones.innerText = res.inst_acc;
+            } else if (juegoActual === 'ecosistemas') {
+                document.getElementById('titulo-juego-activo').innerText = "🐪 " + res.gt4;
+                instrucciones.innerText = res.inst_bio;
+            } else if (juegoActual === 'politica') {
+                document.getElementById('titulo-juego-activo').innerText = "🏳️ " + res.gt5;
+                instrucciones.innerText = res.inst_pol;
+            } else if (juegoActual === 'demografia') {
+                document.getElementById('titulo-juego-activo').innerText = "📈 " + res.gt6;
+                instrucciones.innerText = res.inst_demo;
+            }
+
+            const lista = dbJuegos[langActual][juegoActual];
+            let elegida = lista[Math.floor(Math.random() * lista.length)];
             
-            // Si el mazo se queda vacío, volvemos a barajar todas las preguntas
-            if (mazoPreguntas.length === 0) {
-                barajarMazo();
-            }
-
-            // Sacamos la última pregunta del mazo (así nunca se repiten)
-            retoActual = mazoPreguntas.pop();
-
-            // Inyectar datos en la pantalla
-            document.getElementById('geo-pregunta').innerText = retoActual.q;
-            document.getElementById('geo-emoji').innerText = retoActual.e;
-
-            // Mezclar opciones de respuesta
-            let opciones = [retoActual.r, ...retoActual.f].sort(() => 0.5 - Math.random());
-            
-            let contOpciones = document.getElementById('geo-opciones');
-            contOpciones.innerHTML = "";
-
-            opciones.forEach(op => {
-                let b = document.createElement('button');
-                b.className = "btn-geo";
-                b.innerText = op;
-                b.onclick = () => verificarRespuesta(op);
-                contOpciones.appendChild(b);
-            });
+            pantalla.innerText = elegida.p;
+            respuestasAceptables.push(elegida.r);
         }
 
-        function verificarRespuesta(seleccion) {
-            let feed = document.getElementById('geo-feedback');
-            document.querySelectorAll('.btn-geo').forEach(b => b.style.pointerEvents = 'none');
+        function validarRespuestaJuego() {
+            const inputVal = document.getElementById('respuesta-usuario').value.trim().toLowerCase();
+            if (inputVal === "") return;
 
-            if (seleccion === retoActual.r) {
-                sonido('sello');
-                sellos += 1;
-                localStorage.setItem('sellos_geo_v1', sellos);
-                document.getElementById('sellos-contador').innerText = sellos;
-                
-                feed.innerText = "🛫 ¡Buen vuelo! ¡Pasaporte sellado! 🎫";
-                feed.style.color = "#1dd1a1";
-                document.getElementById('bloque-modulo').classList.add('animar-exito');
+            const limpiarTexto = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            let esCorrecto = respuestasAceptables.some(resp => limpiarTexto(resp) === limpiarTexto(inputVal));
+            const res = locales[langActual];
 
-                setTimeout(() => {
-                    document.getElementById('bloque-modulo').classList.remove('animar-exito');
-                    sonido('vuelo');
-                    cargarNuevaMision();
-                }, 1800);
+            if (esCorrecto) {
+                sonarSintetizador('correcto');
+                puntosTotales += 10;
+                document.getElementById('marcador-puntos').innerText = puntosTotales;
+                alert(res.ok);
+                generarPreguntaJuego();
             } else {
-                sonido('error');
-                feed.innerText = "❌ ¡Avión desviado! Intenta otra ruta.";
-                feed.style.color = "#ff4757";
-
-                setTimeout(() => {
-                    document.querySelectorAll('.btn-geo').forEach(b => b.style.pointerEvents = 'auto');
-                    feed.innerText = "";
-                }, 1500);
+                sonarSintetizador('error');
+                alert(`${res.err} "${respuestasAceptables[0]}"`);
+                generarPreguntaJuego();
             }
         }
 
-        // Arrancar el juego barajando primero
-        barajarMazo();
-        cargarNuevaMision();
+        document.getElementById('respuesta-usuario').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') validarRespuestaJuego();
+        });
+
+        // --- MENTOR INTEGRADO DE BIÓSFERA ---
+        function charlarTutora(opcion) {
+            sonarSintetizador('clic');
+            const cajaTexto = document.getElementById('texto-chat-tutora');
+            
+            const tips = {
+                es: {
+                    truco: "💡 La latitud mide tu distancia al Ecuador (norte/sur), mientras que la longitud mide tu distancia al meridiano de Greenwich (este/oeste).",
+                    miedo: "🌋 El Cinturón de Fuego del Pacífico concentra el 75% de los volcanes activos del mundo debido a las colisiones constantes de placas tectónicas.",
+                    examen: "📝 ¡Geolocalizador activado! Demuestra tus conocimientos en el panel de capitales mundiales."
+                },
+                en: {
+                    truco: "💡 Latitude runs horizontally mapping North/South ranges from the Equator. Longitude measures vertical lines tracking East/West zones.",
+                    miedo: "🌋 The Pacific Ring of Fire hosts over 75% of Earth's open volcanic vents due to subduction events where dense oceanic plates plunge under crust profiles.",
+                    examen: "📝 Cartographic map challenge is active! Proceeding directly to the Political Geography Chamber."
+                },
+                fr: {
+                    truco: "💡 La latitude mesure la position Nord/Sud par rapport à l'Équateur. La longitude mesure l'Est/Ouest depuis le méridien de Greenwich.",
+                    miedo: "🌋 Le Ceinture de Feu du Pacifique concentre plus de 75% des volcans actifs de la planète en raison du chevauchement des plaques tectoniques.",
+                    examen: "📝 Le test de cartographie est lancé ! Entrons tout de suite dans le jeu d'analyse des Capitales."
+                }
+            };
+
+            cajaTexto.innerText = tips[langActual][opcion];
+            if(opcion === 'examen') {
+                iniciarJuego('politica');
+            }
+        }
+
+        // --- BIBLIOTECA GEOGRÁFICA INTERNACIONAL ---
+        function abrirTeoria(tema) {
+            sonarSintetizador('clic');
+            const modal = document.getElementById('modal-teoria');
+            const titulo = document.getElementById('modal-titulo-teoria');
+            const cuerpo = document.getElementById('modal-cuerpo-teoria');
+            modal.style.display = 'flex';
+
+            const biblioteca = {
+                es: {
+                    coordenadas: {t:"🌐 Sistema de Redes Cartográficas", c:"<p>Para localizar cualquier punto exacto sobre la esfera planetaria se utiliza una red de líneas imaginarias:</p><ul><li><b>Ecuador:</b> El paralelo de referencia (grado 0) que divide la Tierra en Hemisferio Norte y Hemisferio Sur.</li><li><b>Meridiano de Greenwich:</b> El eje longitudinal de referencia (grado 0) que separa los hemisferios Este y Oeste.</li><li><b>Latitud:</b> Distancia angular medida en grados desde el Ecuador.</li><li><b>Longitud:</b> Distancia angular medida en grados desde Greenwich.</li></ul>"},
+                    estructuras: {t:"🌋 Capas del Núcleo a la Atmósfera", c:"<p>Nuestro planeta se divide en capas geológicas y atmosféricas según su densidad química:</p><ul><li><b>Corteza:</b> La capa sólida superficial donde habitamos, dividida en placas dinámicas.</li><li><b>Manto:</b> Capa intermedia de roca silicatada semisólida pastosa donde nacen las corrientes magmáticas.</li><li><b>Núcleo:</b> El centro esférico metálico (Hierro y Níquel), responsable del campo magnético protector.</li><li><b>Troposfera:</b> La primera capa del aire donde se genera la meteorología (nubes, viento, tormentas).</li></ul>"},
+                    relieve: {t:"🏔️ Accidentes de la Corteza Continental", c:"<p>El relieve es el resultado de fuerzas internas (tectónica de placas) y fuerzas externas (erosión del agua y viento):</p><ul><li><b>Cordillera:</b> Una cadena continua de montañas altas unidas en una estructura lineal.</li><li><b>Meseta:</b> Planicie extensa elevada a considerable altitud sobre el relieve circundante.</li><li><b>Golfo:</b> Gran porción de mar que penetra profundamente en la línea de la costa continental.</li></ul>"},
+                    biomas: {t:"🌲 Distribución Global de Ecosistemas y Biomas", c:"<p>Un bioma es un gran conjunto ecológico definido por factores climáticos dominantes:</p><ul><li><b>Selva Tropical:</b> Clima cálido, precipitaciones constantes anuales y biodiversidad hiperbólica.</li><li><b>Tundra:</b> Bioma de regiones polares árticas con suelo congelado permanentemente (permafrost) y sin árboles.</li><li><b>Taiga:</b> Extensos bosques subárticos formados por coníferas (pinos y abetos).</li></ul>"},
+                    ciclo: {t:"💧 El Ciclo Hidrológico Permanente", c:"<p>El agua se mueve de forma cerrada a través de estados físicos impulsada por la energía del Sol:</p><ol><li><b>Evaporación:</b> El calor del sol convierte el agua líquida de ríos y mares en gas atmosférico.</li><li><b>Condensación:</b> El vapor de agua se enfría al ascender y forma las microgotas de las nubes.</li><li><b>Precipitación:</b> Las nubes descargan en forma de lluvia, granizo o nieve.</li><li><b>Escorrentía e Infiltración:</b> El agua fluye sobre el terreno o penetra en el subsuelo alimentando acuíferos.</li></ol>"},
+                    poblacion: {t:"📊 Indicadores Demográficos de la Población", c:"<p>La demografía analiza las dinámicas de las sociedades humanas usando variables estadísticas claves:</p><ul><li><b>Densidad de Población:</b> El número promedio de habitantes por kilómetro cuadrado de superficie habitable.</li><li><b>Tasa de Natalidad:</b> Número proporcional de nacimientos vivos por cada mil ciudadanos en un año.</li><li><b>Saldo Migratorio:</b> La resta matemática exacta entre los inmigrantes que entran y los emigrantes que salen.</li></ul>"}
+                },
+                en: {
+                    coordenadas: {t:"🌐 Cartographic Grid Systems", c:"<p>To pinpoint any geometric coordinate on the planetary sphere, cartographers track a structured system of reference lines:</p><ul><li><b>Equator:</b> The central baseline parallel (0° latitude) that divides Earth into Northern and Southern Hemispheres.</li><li><b>Greenwich Meridian:</b> The primary longitudinal line (0° longitude) tracking Eastern and Western grids.</li><li><b>Latitude:</b> Angular distance measured North or South of the Equator line.</li><li><b>Longitude:</b> Angular distance measured East or West of the Greenwich Meridian.</li></ul>"},
+                    estructuras: {t:"🌋 Planetary Framework: Core to Troposphere", c:"<p>Earth is stratified into distinct geological and gaseous structural shells sorted by density layers:</p><ul><li><b>Crust:</b> The solid exterior rocky envelope where ecosystem webs operate, split into drifting tectonic plates.</li><li><b>Mantle:</b> Semi-fluid silicate rock layer driven by massive thermodynamic convection cycles.</li><li><b>Core:</b> Solid iron-nickel inner layer and liquid outer layer that generate Earth's protecting magnetosphere grid.</li><li><b>Troposphere:</b> The lowest atmospheric layer holding 75% of air mass, where rain, snow, and winds occur.</li></ul>"},
+                    relieve: {t:"🏔️ Landforms and Orographic Topography", c:"<p>Relief configuration results from internal tectonic shifting colliding with external surface weather erosion patterns:</p><ul><li><b>Mountain Range:</b> A continuous linear series of elevated peaks linked structurally together.</li><li><b>Plateau:</b> A broad flat highland zone rising abruptly above adjacent lowland layouts.</li><li><b>Gulf:</b> A massive ocean indentation carving deeply into a continental shoreline belt.</li></ul>"},
+                    biomas: {t:"🌲 Distribution of Macro biomes & Climates", c:"<p>Biomes represent major global ecological complexes categorized by temperature ranges and vegetation layouts:</p><ul><li><b>Rainforest:</b> Hot climate zone tracking near-constant daily rain grids, hosting maximal species density.</li><li><b>Tundra:</b> Polar circle landscape featuring subsoil frost barriers (permafrost) restricting standard tree growth.</li><li><b>Taiga:</b> Subarctic evergreen coniferous forest matrix packed with pine, fir, and spruce species.</li></ul>"},
+                    ciclo: {t:"💧 The Hydrological Cycle Blueprint", c:"<p>Water transitions constantly between states across a closed global track powered by solar radiation:</p><ol><li><b>Evaporation:</b> Surface liquid water expands into gaseous atmospheric vapor driven by solar heat.</li><li><b>Condensation:</b> Gaseous particles cool down as they rise, forming dense cloud droplets.</li><li><b>Precipitation:</b> Overloaded atmospheric water fields fall back to land as rain, sleet, or snow.</li><li><b>Infiltration & Runoff:</b> Water flows along terrain paths or enters subterranean water tables.</li></ol>"},
+                    poblacion: {t:"📊 Human Statistical Demographic Metrics", c:"<p>Demography studies global human population trends utilizing specific metric data points:</p><ul><li><b>Population Density:</b> The average human headcount measured per square kilometer of land area.</li><li><b>Birth Rate:</b> Total live births occurring per 1,000 citizens within a standard calendar year interval.</li><li><b>Net Migration:</b> The exact mathematical delta between inward immigrant entry and outward emigrant departures.</li></ul>"}
+                },
+                fr: {
+                    coordenadas: {t:"🌐 Réseau de Repères Cartographiques", c:"<p>Pour géo-localiser une coordonnée exacte sur l'ellipsoïde terrestre, on s'appuie sur des lignes géométriques :</p><ul><li><b>Équateur :</b> Le parallèle de référence (degré 0) séparant l'Hémisphère Nord de l'Hémisphère Sud.</li><li><b>Méridien de Greenwich :</b> L'axe de longitude de base (degré 0) fixant la séparation Est/Ouest.</li><li><b>Latitude :</b> Mesure angulaire de l'écart par rapport à l'Équateur.</li><li><b>Longitude :</b> Mesure angulaire de l'écart par rapport à Greenwich.</li></ul>"},
+                    estructuras: {t:"🌋 Couches Géologiques et Atmosphériques", c:"<p>Notre planète s'organise en enveloppes concentriques de densités distinctes :</p><ul><li><b>Croûte Terrestre :</b> Pellicule solide superficielle découpée en plaques tectoniques en mouvement.</li><li><b>Manteau :</b> Zone intermédiaire rocheuse animée par de gigantesques boucles de convection thermique.</li><li><b>Noyau :</b> Centre métallique dense (Fer-Nickel) à l'origine du bouclier magnétique terrestre.</li><li><b>Troposphère :</b> Couche basse de l'atmosphère qui concentre la quasi-totalité de la vapeur d'eau et génère la météo.</li></ul>"},
+                    relieve: {t:"🏔️ Typologie des Accidents Orographiques", c:"<p>Le relief terrestre résulte de la tectonique interne conjuguée à l'action érosive du climat :</p><ul><li><b>Chaîne de Montagnes :</b> Alignement continu de sommets élevés nés de la collision de plaques.</li><li><b>Plateau :</b> Surface topographique plane d'altitude élevée bordée par des versants abrupts.</li><li><b>Golfe :</b> Vaste avancée marine s'enfonçant profondément dans la bande littorale continentale.</li></ul>"},
+                    biomas: {t:"🌲 Grands Ensembles Écologiques Globaux", c:"<p>Un biome désigne une macro-zone biologique régie par des constantes climatiques :</p><ul><li><b>Forêt Tropicale Humide :</b> Zone chaude caractérisée par des pluies quotidiennes et une biodiversité inégalée.</li><li><b>Tundra :</b> Paysage des hautes latitudes nord dont le sous-sol reste gelé en permanence (permafrost).</li><li><b>Taïga :</b> Immense forêt boréale de conifères adaptée aux longs hivers glaciaires.</li></ul>"},
+                    ciclo: {t:"💧 Le Cycle Naturel de l'Eau", c:"<p>L'eau circule continuellement à travers différents états physiques sous l'action du Soleil :</p><ol><li><b>Évaporation :</b> L'eau des océans chauffe et s'élève sous forme gazeuse dans l'atmosphère.</li><li><b>Condensation :</b> Le gaz se refroidit en altitude et s'agglomère pour former les nuages.</li><li><b>Précipitations :</b> L'eau condensée retombe au sol sous forme de pluie, de grêle ou de neige.</li><li><b>Infiltration et Ruissellement :</b> L'eau s'écoule vers les fleuves ou pénètre les nappes phréatiques.</li></ol>"},
+                    poblacion: {t:"📊 Indicateurs et Variables Démographiques", c:"<p>La démographie étudie l'état y l'évolution des populations à l'aide d'outils statistiques :</p><ul><li><b>Densité de Population :</b> Nombre moyen d'habitants résidant par kilomètre carré de territoire.</li><li><b>Taux de Natalité :</b> Rapport du nombre de naissances vivantes de l'année à la population moyenne, pour 1000 habitants.</li><li><b>Solde Migrateur :</b> Différence entre le nombre de personnes entrées (immigrants) et sorties (émigrants).</li></ul>"}
+                }
+            };
+
+            const nodo = biblioteca[langActual][tema];
+            titulo.innerText = nodo.t;
+            cuerpo.innerHTML = nodo.c;
+        }
+
+        function cerrarTeoria() {
+            sonarSintetizador('clic');
+            document.getElementById('modal-teoria').style.display = 'none';
+        }
     </script>
 </body>
 </html>
