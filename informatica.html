@@ -3,192 +3,755 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Informatica Arcade 🤖</title>
+    <title>Isla de la Computación e Informática</title>
     <style>
         :root {
-            --color-principal: #38ef7d;
-            --bg-juego: #1e272e;
+            --primary: #00cec9;
+            --accent-dev: #6c5ce7;
+            --bg-gradient: linear-gradient(135deg, #2d3436 0%, #6c5ce7 100%);
+            --glass-bg: rgba(255, 255, 255, 0.97);
+            --text-dark: #2d3436;
         }
 
         body {
             font-family: 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif;
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff;
-            overflow-x: hidden;
+            background: var(--bg-gradient);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: var(--text-dark);
+            box-sizing: border-box;
+            user-select: none;
         }
 
-        .contenedor-principal {
-            background: rgba(30, 39, 46, 0.98); padding: 25px; border-radius: 30px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 3px solid var(--color-principal);
-            max-width: 480px; width: 92%; text-align: center; box-sizing: border-box;
-            position: relative;
+        *, *::before, *::after {
+            box-sizing: border-box;
         }
 
-        h1 { color: #fff; margin: 10px 0; font-weight: 900; text-shadow: 0 0 10px var(--color-principal); }
-        p { color: #dcdde1; }
-
-        .btn-volver { 
-            background-color: #576574; color: white; border: none; padding: 8px 18px; border-radius: 50px; 
-            cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 3px 0 #000;
+        /* --- BOTÓN VOLVER --- */
+        .btn-volver {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border: 2px solid var(--accent-dev);
+            color: var(--accent-dev);
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+            z-index: 100;
+        }
+        .btn-volver:hover {
+            background: var(--accent-dev);
+            color: white;
+            transform: translateY(-2px);
         }
 
-        .marcador {
-            background: rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; margin-bottom: 20px; 
-            border: 2px dashed var(--color-principal); font-weight: bold; font-size: 18px; color: var(--color-principal);
+        /* --- SELECTOR DE IDIOMA --- */
+        .selector-idioma {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            border: 2px solid #00cec9;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+        .selector-idioma select {
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+            color: var(--accent-dev);
         }
 
-        /* --- PANTALLA DEL ROBOT --- */
-        .pantalla-robot {
-            background: #2f3542; border-radius: 20px; padding: 20px; margin: 15px 0;
-            box-shadow: inset 0 5px 15px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.1);
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .hub-container {
+            max-width: 1200px;
+            margin: 80px auto 0 auto;
+            text-align: center;
         }
 
-        .robot-visual { font-size: 65px; margin: 10px 0; animation: flotar 3s ease-in-out infinite; }
-        .mision-texto { font-size: 16px; color: #f1f2f6; line-height: 1.4; margin-bottom: 15px; text-align: left; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; }
+        h1 {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            animation: flotar 3s ease-in-out infinite;
+        }
 
-        /* --- BLOQUES DE CÓDIGO (OPCIONES) --- */
-        .bloque-codigo {
-            background: #22a6b3; color: white; border: none; padding: 14px; font-size: 15px; 
-            font-weight: bold; border-radius: 15px; cursor: pointer; width: 100%; margin-bottom: 12px;
-            border-bottom: 4px solid #178792; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 10px;
+        .sub-bar {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .puntos-badge {
+            color: var(--accent-dev);
+            margin-left: 15px;
+            background: #f4f2ff;
+            padding: 5px 15px;
+            border-radius: 15px;
+            border: 2px solid var(--accent-dev);
+        }
+
+        /* --- PANELES DE SECCIONES --- */
+        .seccion-bloque {
+            background: var(--glass-bg);
+            border-radius: 35px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.9);
+            text-align: left;
+        }
+
+        .seccion-bloque h2 {
+            font-size: 2rem;
+            color: #2d3436;
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 3px dashed var(--primary);
+            padding-bottom: 10px;
+        }
+
+        /* --- GRILLA ADAPTIVA --- */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card-actividad {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+            border: 2px solid #dfe6e9;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card-actividad:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 25px rgba(108, 92, 231, 0.2);
+            border-color: var(--primary);
+        }
+
+        .card-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .card-actividad h3 {
+            margin: 10px 0;
+            font-size: 1.4rem;
+            color: #2d3436;
+        }
+
+        .card-actividad p {
+            margin: 0;
+            color: #636e72;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        /* --- ZONA DE JUEGO ACTIVA --- */
+        .zona-juego-activa {
+            display: none;
+            background: white;
+            border-radius: 35px;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 3px solid var(--primary);
+            text-align: center;
+            animation: entrada 0.4s ease-out;
+        }
+
+        .pantalla-operacion {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #2d3436;
             font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 2px;
+            word-break: break-word;
         }
-        .bloque-codigo:hover { background: #3c6382; transform: scale(1.02); }
-        .bloque-codigo:active { transform: translateY(2px); border-bottom-width: 1px; }
 
-        .feedback { font-size: 18px; font-weight: bold; min-height: 35px; margin-top: 15px; }
+        .input-respuesta {
+            font-size: 1.8rem;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            padding: 12px;
+            border: 3px solid #b2bec3;
+            border-radius: 20px;
+            outline: none;
+            font-family: inherit;
+            margin-bottom: 20px;
+        }
+        .input-respuesta:focus { border-color: var(--accent-dev); }
+
+        .btn-comprobar {
+            display: block;
+            margin: 0 auto;
+            background: linear-gradient(45deg, var(--accent-dev), var(--primary));
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        /* --- SECCIÓN MENTOR INFORMÁTICO --- */
+        .contenedor-tutora {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 20px;
+            align-items: center;
+            background: #fff;
+            padding: 25px;
+            border-radius: 25px;
+            border: 2px solid var(--accent-dev);
+        }
+
+        .avatar-ia { font-size: 90px; text-align: center; animation: flotar 4s ease-in-out infinite; }
+
+        .bocadillo-chat {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 25px;
+            position: relative;
+            border: 1px solid #dfe6e9;
+        }
+
+        .bocadillo-chat::before {
+            content: ''; position: absolute; left: -15px; top: 50%;
+            transform: translateY(-50%); border-width: 15px 15px 15px 0;
+            border-style: solid; border-color: transparent #fafafa transparent transparent;
+        }
+
+        .opciones-tutora { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-opcion-chat {
+            background: white; border: 2px solid var(--accent-dev); color: var(--accent-dev);
+            padding: 8px 16px; border-radius: 15px; cursor: pointer;
+            font-weight: bold; transition: all 0.2s;
+        }
+        .btn-opcion-chat:hover { background: var(--accent-dev); color: white; }
+
+        /* --- MODAL DE TEORÍA --- */
+        .modal-teoria {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+
+        .modal-teoria-contenido {
+            background: white; padding: 40px; border-radius: 35px;
+            max-width: 650px; width: 90%; max-height: 85vh; overflow-y: auto;
+            position: relative; text-align: left; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            animation: entrada 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-cerrar-modal {
+            position: absolute; top: 20px; right: 20px; background: #6c5ce7;
+            color: white; border: none; width: 35px; height: 35px; border-radius: 50%;
+            cursor: pointer; font-weight: bold;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 820px) {
+            h1 { font-size: 2.2rem; }
+            .contenedor-tutora { grid-template-columns: 1fr; text-align: center; }
+            .bocadillo-chat::before { display: none; }
+            .avatar-ia { margin-bottom: 10px; }
+            .pantalla-operacion { font-size: 1.8rem; }
+            .selector-idioma { position: static; display: inline-block; margin-top: 10px; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.5rem; }
+            .seccion-bloque { padding: 20px; border-radius: 25px; }
+            .seccion-bloque h2 { font-size: 1.3rem; }
+            .btn-volver { position: static; display: inline-block; margin-bottom: 15px; }
+            .hub-container { margin-top: 10px; }
+        }
 
         @keyframes flotar {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes entrada {
+            from { opacity: 0; transform: scale(0.95) translateY(15px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    <div class="contenedor-principal">
-        <button class="btn-volver" onclick="window.location.href='index.html'">🔙 Volver al Mapa</button>
-        <h1>🤖 Misión: Código Robot 💻</h1>
+    <a href="menuprincipal.html" class="btn-volver" id="lbl-volver" onclick="sonarBoton()">⬅ Volver al Mapa</a>
 
-        <div class="marcador">
-            <span>⚙️ Bugs Arreglados: <span id="bugs-contador">0</span></span>
+    <div class="selector-idioma">
+        🌐 <select id="select-lang" onchange="cambiarIdioma()">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+        </select>
+    </div>
+
+    <div class="hub-container">
+        <h1 id="main-title">💻 Isla de la Computación e Informática ⚡</h1>
+        <div class="sub-bar">
+            <span id="user-badge">Superusuario / Dev Core 🚀</span>
+            <span class="puntos-badge">⭐ <span id="marcador-puntos">0</span> <span id="lbl-puntos">Puntos</span></span>
         </div>
 
-        <div class="pantalla-robot">
-            <div id="robot-emoji" class="robot-visual">🤖</div>
-            <div id="mision-instrucciones" class="mision-texto">Cargando algoritmo...</div>
+        <div id="zona-de-juego" class="zona-juego-activa">
+            <h2 id="titulo-juego-activo">Consola de Depuración</h2>
+            <p id="instrucciones-juego-activo">Analiza el fragmento o parámetro solicitado:</p>
+            <div id="pantalla-info" class="pantalla-operacion">stdout: ok</div>
+            <input type="text" id="respuesta-usuario" class="input-respuesta" placeholder="..." autocomplete="off" spellcheck="false">
+            <button class="btn-comprobar" id="btn-verificar" onclick="validarRespuestaJuego()">Ejecutar Script ⚡</button>
         </div>
 
-        <div id="codigo-opciones"></div>
-        <div id="codigo-feedback" class="feedback"></div>
+        <div class="seccion-bloque">
+            <h2 id="sec1-title">🤖 Tu Mentor de Código y Algoritmos</h2>
+            <div class="contenedor-tutora">
+                <div class="avatar-ia">⚡</div>
+                <div class="bocadillo-chat">
+                    <p id="texto-chat-tutora">¡Sistemas en línea! En esta terminal aprenderás que todo software complejo no es más que una cadena estructurada de decisiones e impulsos lógicos. ¿Compilamos tu conocimiento?</p>
+                    <div class="opciones-tutora">
+                        <button class="btn-opcion-chat" id="opt-truco" onclick="charlarTutora('truco')">💡 Truco de Bits</button>
+                        <button class="btn-opcion-chat" id="opt-miedo" onclick="charlarTutora('miedo')">🔒 Bugs de Memoria</button>
+                        <button class="btn-opcion-chat" id="opt-examen" onclick="charlarTutora('examen')">📝 Hackathon de Algoritmos (+50 XP)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="seccion-bloque">
+            <h2 id="sec2-title">📚 Manual del Desarrollador y Redes</h2>
+            <div class="grid-cards">
+                <div class="card-actividad" onclick="abrirTeoria('binario')">
+                    <div class="card-icon">🔢</div>
+                    <h3 id="card-t1">El Sistema Binario</h3>
+                    <p id="card-d1">Cómo las computadoras entienden el mundo con ceros y unos.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('hardware')">
+                    <div class="card-icon">🎛️</div>
+                    <h3 id="card-t2">Hardware Esencial</h3>
+                    <p id="card-d2">Roles de la CPU, la memoria RAM y las unidades SSD de almacenamiento.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('web')">
+                    <div class="card-icon">🌐</div>
+                    <h3 id="card-t3">Cómo Funciona la Web</h3>
+                    <p id="card-d3">La trinidad del desarrollo frontal: HTML, CSS y JavaScript.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('algoritmos')">
+                    <div class="card-icon">📐</div>
+                    <h3 id="card-t4">Pensamiento Algorítmico</h3>
+                    <p id="card-d4">Variables, estructuras lógicas, bucles repetitivos y árboles de decisión.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('redes')">
+                    <div class="card-icon">🔌</div>
+                    <h3 id="card-t5">Internet y Protocolos</h3>
+                    <p id="card-d5">Direcciones IP, servidores DNS y la ruta segura HTTPS de paquetes.</p>
+                </div>
+                <div class="card-actividad" onclick="abrirTeoria('seguridad')">
+                    <div class="card-icon">🛡️</div>
+                    <h3 id="card-t6">Principios de Ciberseguridad</h3>
+                    <p id="card-d6">Cifrado de datos, virus informáticos, ingeniería social y protección.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="seccion-bloque">
+            <h2 id="sec3-title">🎮 Arcade de Programación y Lógica (6 Juegos)</h2>
+            <div class="grid-cards">
+                <div class="card-actividad" onclick="iniciarJuego('bits')">
+                    <div class="card-icon">👾</div>
+                    <h3 id="game-t1">Convertidor de Bits</h3>
+                    <p id="game-d1">Traduce pequeños valores decimales directos a base binaria básica.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('componentes')">
+                    <div class="card-icon">🧩</div>
+                    <h3 id="game-t2">Arquitecto de Placas</h3>
+                    <p id="game-d2">Identifica qué pieza física ejecuta la instrucción descrita.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('etiquetas')">
+                    <div class="card-icon">📝</div>
+                    <h3 id="game-t3">Filtro de Etiquetas HTML</h3>
+                    <p id="game-d3">¿Qué elemento o etiqueta estructural de la web genera la salida planteada?</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('bucles')">
+                    <div class="card-icon">🔄</div>
+                    <h3 id="game-t4">Rastreador de Bucles</h3>
+                    <p id="game-d4">Predice cuántas veces se repetirá una tarea bajo una condición fija.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('redes_game')">
+                    <div class="card-icon">📡</div>
+                    <h3 id="game-t5">Terminal de Red</h3>
+                    <p id="game-d5">Descubre el protocolo o servicio detrás de la acción web.</p>
+                </div>
+                <div class="card-actividad" onclick="iniciarJuego('seguridad_game')">
+                    <div class="card-icon">🔐</div>
+                    <h3 id="game-t6">Cortafuegos Activo</h3>
+                    <p id="game-d6">Discrimina si el escenario es una amenaza o una práctica segura.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-teoria" class="modal-teoria">
+        <div class="modal-teoria-contenido">
+            <button class="btn-cerrar-modal" onclick="cerrarTeoria()">X</button>
+            <h2 id="modal-titulo-teoria">Consola Teórica</h2>
+            <div id="modal-cuerpo-teoria">Contenido...</div>
+        </div>
     </div>
 
     <script>
-        // --- EFECTOS DE SONIDO SYNTH NATIVOS (Estilo 8-bits) ---
+        // --- MOTOR DE LOCALIZACIÓN MULTILINGÜE ---
+        let langActual = 'es';
+        const locales = {
+            es: {
+                volver: "⬅ Volver al Mapa", title: "💻 Isla de la Computación e Informática ⚡",
+                badge: "Superusuario / Dev Core 🚀", puntos: "Puntos", verificar: "Ejecutar Script ⚡",
+                sec1: "🤖 Tu Mentor de Código y Algoritmos", sec2: "📚 Manual del Desarrollador y Redes", sec3: "🎮 Arcade de Programación y Lógica (6 Juegos)",
+                chat: "¡Sistemas en línea! En esta terminal aprenderás que todo software complejo no es más que una cadena estructurada de decisiones e impulsos lógicos. ¿Compilamos tu conocimiento?",
+                opt1: "💡 Truco de Bits", opt2: "🔒 Bugs de Memoria", opt3: "📝 Hackathon de Algoritmos (+50 XP)",
+                t1: "El Sistema Binario", d1: "Cómo las computadoras entienden el mundo con ceros y unos.",
+                t2: "Hardware Esencial", d2: "Roles de la CPU, la memoria RAM y las unidades SSD de almacenamiento.",
+                t3: "Cómo Funciona la Web", d3: "La trinidad del desarrollo frontal: HTML, CSS y JavaScript.",
+                t4: "Pensamiento Algorítmico", d4: "Variables, estructuras lógicas, bucles repetitivos y árboles de decisión.",
+                t5: "Internet y Protocolos", d5: "Direcciones IP, servidores DNS y la ruta segura HTTPS de paquetes.",
+                t6: "Principios de Ciberseguridad", d6: "Cifrado de datos, virus informáticos, ingeniería social y protección.",
+                gt1: "Convertidor de Bits", gd1: "Traduce pequeños valores decimales directos a base binaria básica.",
+                gt2: "Arquitecto de Placas", gd2: "Identifica qué pieza física ejecuta la instrucción descrita.",
+                gt3: "Filtro de Etiquetas HTML", gd3: "¿Qué elemento o etiqueta estructural de la web genera la salida planteada?",
+                gt4: "Rastreador de Bucles", gd4: "Predice cuántas veces se repetirá una tarea bajo una condición fija.",
+                gt5: "Terminal de Red", gd5: "Descubre el protocolo o servicio detrás de la acción web.",
+                gt6: "Cortafuegos Activo", gd6: "Discrimina si el escenario es una amenaza o una práctica segura.",
+                inst_bits: "¿Cuál es el valor binario del número decimal 5? (Respuesta en 3 bits, ej: 101)",
+                inst_comp: "Almacena los programas abiertos a corto plazo de forma ultra veloz: (cpu / ram / ssd)",
+                inst_et: "¿Qué etiqueta HTML define el título principal de mayor tamaño de una página web? (ej: h1)",
+                inst_buc: "Si ejecuto un bucle desde i=0 hasta i<3 sumando 1, ¿cuántas vueltas dará? (Escribe el número entero)",
+                inst_red: "¿Qué protocolo cifra una página web para que aparezca el candado seguro? (http / https)",
+                inst_seg: "Un correo falso que te pide urgentemente la contraseña de tu banco es... (phishing / firewall)",
+                err: "❌ ¡Error de compilación! La respuesta correcta esperada era:", ok: "✨ ¡Script ejecutado con éxito! Código optimizado. +10 puntos ⭐"
+            },
+            en: {
+                volver: "⬅ Back to Map", title: "💻 Computer Science & IT Island ⚡",
+                badge: "Root / Core Developer 🚀", puntos: "Points", verificar: "Execute Script ⚡",
+                sec1: "🤖 Your Mentor of Code & Algorithms", sec2: "📚 Developer Manual & Networking", sec3: "🎮 Programming & Logic Arcade (6 Games)",
+                chat: "Systems online! In this terminal, you'll discover that all complex software boils down to a structured chain of logical electrical pulses. Shall we compile your knowledge?",
+                opt1: "💡 Bit Trick", opt2: "🔒 Memory Leak Bugs", opt3: "📝 Algorithm Hackathon (+50 XP)",
+                t1: "The Binary System", d1: "How computers represent numbers, texts, and colors using 0s and 1s.",
+                t2: "Core Hardware", d2: "Roles of the CPU processor, active RAM blocks, and fast solid-state SSDs.",
+                t3: "How the Web Operates", d3: "The front-end rendering framework trinitarian model: HTML, CSS, and JS.",
+                t4: "Algorithmic Logic", d4: "Variables, boolean branching statements, finite loops, and trees.",
+                t5: "Internet & Protocols", d5: "IP targeting schemas, DNS mapping nodes, and secure HTTPS pipelines.",
+                t6: "Cybersecurity Principles", d6: "Data encryption math, virus definitions, phishing hooks, and firewalls.",
+                gt1: "Bit Converter", gd1: "Translate minor integer values into basic binary base representations.",
+                gt2: "Board Architect", gd2: "Identify which hardware component answers the given process request.",
+                gt3: "HTML Tag Filter", gd3: "Which structural element tags text into standard document blocks?",
+                gt4: "Loop Tracker", gd4: "Predict the explicit loop iteration headcount from a fixed control index condition.",
+                gt5: "Network Terminal", gd5: "Uncover the specific protocol layer running the active web action.",
+                gt6: "Active Firewall", gd6: "Filter whether the current cyber scenario presents a vector threat or safety.",
+                inst_bits: "What is the binary string for decimal number 5? (Answer in 3 bits format, e.g., 101)",
+                inst_comp: "Holds currently working app datasets temporarily with high access speed: (cpu / ram / ssd)",
+                inst_et: "Which HTML tag designs the largest default headline layout for a page? (e.g., h1)",
+                inst_buc: "If a loop increments an index from i=0 while i<3, how many cycles run? (Type the integer)",
+                inst_red: "Which network protocol wraps web requests into encrypted streams? (http / https)",
+                inst_seg: "A deceptive email demanding banking password updates represents... (phishing / firewall)",
+                err: "❌ Compilation failure! The expected executable return string was:", ok: "✨ Script executed successfully! Code fully optimized. +10 points ⭐"
+            },
+            fr: {
+                volver: "⬅ Retour a la Carte", title: "💻 L'Île d'Informatique et de Logique ⚡",
+                badge: "Superutilisateur / Dev Core 🚀", puntos: "Points", verificar: "Lancer le Script ⚡",
+                sec1: "🤖 Votre Mentor de Code et d'Algorithmes", sec2: "📚 Manuel du Développeur et Réseaux", sec3: "🎮 Arcade de Programmation et Logique (6 Jeux)",
+                chat: "Systèmes opérationnels ! Dans ce terminal, vous découvrirez que tout logiciel complexe n'est qu'une suite logique de tensions électriques. On compile vos connaissances ?",
+                opt1: "💡 Astuce de Bits", opt2: "🔒 Bugs de Mémoire", opt3: "📝 Hackathon d'Algorithmes (+50 XP)",
+                t1: "Le Système Binaire", d1: "Comment les ordinateurs encodent le monde réel avec des 0 et des 1.",
+                t2: "Hardware Essentiel", d2: "Rôles du processeur CPU, de la mémoire vive RAM et des disques SSD.",
+                t3: "Fonctionnement du Web", d3: "Le trio incontournable du développement front-end : HTML, CSS et JavaScript.",
+                t4: "Pensée Algorithmique", d4: "Variables, conditions SI-SINON, boucles répétitives et structures.",
+                t5: "Internet et Protocoles", d5: "Adresses IP, routage des paquets, serveurs DNS et sécurité HTTPS.",
+                t6: "Sécurité Informatique", d6: "Chiffrement des données, logiciels malveillants, phishing et pare-feu.",
+                gt1: "Convertisseur de Bits", gd1: "Traduisez de petits nombres décimaux en leur équivalent binaire.",
+                gt2: "Architecte Matériel", gd2: "Identifiez quel composant physique exécute la tâche décrite.",
+                gt3: "Filtre de Balises HTML", gd3: "Quelle balise web structure l'en-tête principal d'un document ?",
+                gt4: "Analyseur de Boucles", gd4: "Déterminez le nombre de répétitions exactes d'une boucle donnée.",
+                gt5: "Terminal de Réseau", gd5: "Découvrez le protocole réseau masqué derrière l'action web.",
+                gt6: "Pare-feu Activé", gd6: "Évaluez si la situation constitue une cyber-menace ou un usage sûr.",
+                inst_bits: "Quelle est la valeur binaire du nombre décimal 5 ? (Format 3 bits, ex: 101)",
+                inst_comp: "Mémoire volatile ultra-rapide stockant momentanément les données de travail : (cpu / ram / ssd)",
+                inst_et: "Quelle balise HTML est utilisée pour afficher le titre le plus important ? (Ex: h1)",
+                inst_buc: "Si une boucle tourne de i=0 tant que i<3 avec un pas de +1, combien de cycles fait-elle ? (Entrez l'entier)",
+                inst_red: "Quel protocole sécurise l'affichage d'un site à l'aide d'un chiffrement ? (http / https)",
+                inst_seg: "Un faux e-mail imitant votre banque pour voler vos codes d'accès est du... (phishing / firewall)",
+                err: "❌ Erreur de syntaxe ! La valeur de retour attendue était :", ok: "✨ Script compilé sans erreur ! Code optimisé. +10 points ⭐"
+            }
+        };
+
+        function cambiarIdioma() {
+            langActual = document.getElementById('select-lang').value;
+            const res = locales[langActual];
+            
+            document.getElementById('lbl-volver').innerText = res.volver;
+            document.getElementById('main-title').innerText = res.title;
+            document.getElementById('user-badge').innerText = res.badge;
+            document.getElementById('lbl-puntos').innerText = res.puntos;
+            document.getElementById('btn-verificar').innerText = res.verificar;
+            document.getElementById('sec1-title').innerText = res.sec1;
+            document.getElementById('sec2-title').innerText = res.sec2;
+            document.getElementById('sec3-title').innerText = res.sec3;
+            document.getElementById('texto-chat-tutora').innerText = res.chat;
+            document.getElementById('opt-truco').innerText = res.opt1;
+            document.getElementById('opt-miedo').innerText = res.opt2;
+            document.getElementById('opt-examen').innerText = res.opt3;
+            
+            document.getElementById('card-t1').innerText = res.t1; document.getElementById('card-d1').innerText = res.d1;
+            document.getElementById('card-t2').innerText = res.t2; document.getElementById('card-d2').innerText = res.d2;
+            document.getElementById('card-t3').innerText = res.t3; document.getElementById('card-d3').innerText = res.d3;
+            document.getElementById('card-t4').innerText = res.t4; document.getElementById('card-d4').innerText = res.d4;
+            document.getElementById('card-t5').innerText = res.t5; document.getElementById('card-d5').innerText = res.d5;
+            document.getElementById('card-t6').innerText = res.t6; document.getElementById('card-d6').innerText = res.d6;
+            
+            document.getElementById('game-t1').innerText = res.gt1; document.getElementById('game-d1').innerText = res.gd1;
+            document.getElementById('game-t2').innerText = res.gt2; document.getElementById('game-d2').innerText = res.gd2;
+            document.getElementById('game-t3').innerText = res.gt3; document.getElementById('game-d3').innerText = res.gd3;
+            document.getElementById('game-t4').innerText = res.gt4; document.getElementById('game-d4').innerText = res.gd4;
+            document.getElementById('game-t5').innerText = res.gt5; document.getElementById('game-d5').innerText = res.gd5;
+            document.getElementById('game-t6').innerText = res.gt6; document.getElementById('game-d6').innerText = res.gd6;
+            
+            if (document.getElementById('zona-de-juego').style.display === 'block') {
+                generarPreguntaJuego();
+            }
+            sonarSintetizador('clic');
+        }
+
+        // --- OSCILADOR DE AUDIO NATIVO ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function sonido(tipo) {
+        let puntosTotales = 0;
+
+        function sonarSintetizador(tipo) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
-            if (tipo === 'win') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-                osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.1);
-                osc.frequency.setValueAtTime(900, audioCtx.currentTime + 0.2);
+
+            if (tipo === 'clic') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.04);
+            } else if (tipo === 'correcto') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // Do5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.06); // Mi5
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.12); // Sol5
+                osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.18); // Do6
                 gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.35);
-            } else if (tipo === 'run') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-            } else if (tipo === 'bug') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+            } else if (tipo === 'error') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(80, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
             }
         }
+        function sonarBoton() { sonarSintetizador('clic'); }
 
-        // --- BANCO DE ACERTIJOS LOGICOS (SIN REPETICIONES) ---
-        const misionesOriginales = [
-            { m: "El robot está delante de un charco de agua 💧. Quiere llegar al otro lado sin mojarse los circuitos. ¿Qué instrucciones debe seguir?", e: "🤖💧🔋", r: "1. Avanzar ⬆️<br>2. Saltar 🦘<br>3. Avanzar ⬆️", f: ["1. Girar ↩️<br>2. Avanzar ⬆️<br>3. Girar ↪️", "1. Avanzar ⬆️<br>2. Avanzar ⬆️<br>3. Agacharse ⬇️"] },
-            { m: "El robot camina recto y se choca con un muro de ladrillos 🧱. La batería de energía 🔋 está a su derecha. ¿Cuál es el código correcto para ir a por ella?", e: "🧱🤖👉🔋", r: "1. Girar a la derecha ↪️<br>2. Avanzar ⬆️", f: ["1. Avanzar ⬆️<br>2. Saltar 🦘", "1. Girar a la izquierda ↩️<br>2. Retroceder ⬇️"] },
-            { m: "¡Alerta de virus! 👾 El robot tiene un virus justo delante. Tiene que retroceder dos pasos y encender su escudo de seguridad 🛡️. ¿Qué hacemos?", e: "🛡️⏪🤖👾", r: "1. Retroceder ⬇️<br>2. Retroceder ⬇️<br>3. Activar Escudo 🛡️", f: ["1. Avanzar ⬆️<br>2. Activar Escudo 🛡️", "1. Saltar 🦘<br>2. Girar ↩️<br>3. Agacharse ⬇️"] },
-            { m: "Queremos que el robot dibuje un cuadrado perfecto en el suelo. ¿Qué comandos se tienen que repetir cuatro veces seguidas?", e: "🟩🤖⚙️", r: "1. Avanzar un paso ⬆️<br>2. Girar 90° a la derecha ↪️", f: ["1. Avanzar un paso ⬆️<br>2. Retroceder un paso ⬇️", "1. Saltar alto 🦘<br>2. Agacharse ⬇️"] },
-            { m: "El robot necesita entrar a la base secreta, pero la puerta tiene un candado digital 🔒. ¿Qué herramienta informática debe usar para abrirla?", e: "🤖🔒💻", r: "1. Usar clave secreta (Password) 🔑", f: ["1. Lanzar agua a la pantalla 💧", "1. Golpear el candado con un martillo 🔨"] }
-        ];
-
-        let mazoMisiones = [];
-        let misionActual = null;
-        let bugsArreglados = parseInt(localStorage.getItem('bugs_info_v1')) || 0;
-        document.getElementById('bugs-contador').innerText = bugsArreglados;
-
-        function barajarMisiones() {
-            mazoMisiones = [...misionesOriginales];
-            for (let i = mazoMisiones.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [mazoMisiones[i], mazoMisiones[j]] = [mazoMisiones[j], mazoMisiones[i]];
+        // --- BANCO DE DATOS DE INFORMÁTICA ---
+        const dbJuegos = {
+            es: {
+                bits: [{p: 'Número decimal 5 en binario', r: '101'}, {p: 'Número decimal 2 en binario', r: '10'}],
+                componentes: [{p: 'El cerebro lógico que procesa todos los cálculos por segundo', r: 'cpu'}, {p: 'Módulo volátil que almacena datos de aplicaciones abiertas', r: 'ram'}],
+                etiquetas: [{p: 'Crea un hipervínculo o enlace a otra URL web', r: 'a'}, {p: 'Inserta una imagen en el documento estructurado', r: 'img'}],
+                bucles: [{p: 'Vueltas del bucle for(int i=0; i<5; i++)', r: '5'}, {p: 'Vueltas del bucle for(int i=1; i<=3; i++)', r: '3'}],
+                redes_game: [{p: 'Traduce nombres de dominio legibles (google.com) a direcciones IP numéricas', r: 'dns'}, {p: 'Protocolo base de transferencia de hipertexto no cifrado', r: 'http'}],
+                seguridad_game: [{p: 'Técnica de suplantación de identidad mediante correos falsos corporativos', r: 'phishing'}, {p: 'Barrera de red que filtra conexiones entrantes sospechosas', r: 'firewall'}]
+            },
+            en: {
+                bits: [{p: 'Decimal integer 5 to base-2 string', r: '101'}, {p: 'Decimal integer 2 to base-2 string', r: '10'}],
+                componentes: [{p: 'The silicone logic wafer doing operational computing', r: 'cpu'}, {p: 'The rapid access memory banks hosting active execution contexts', r: 'ram'}],
+                etiquetas: [{p: 'Anchor tag generating hyperlinks to external websites', r: 'a'}, {p: 'Embeds graphics or visual layout blocks in HTML doc flows', r: 'img'}],
+                bucles: [{p: 'Total cycles run by statement: for(let i=0; i<5; i++)', r: '5'}, {p: 'Total cycles run by statement: for(let i=1; i<=3; i++)', r: '3'}],
+                redes_game: [{p: 'Resolves structural hostnames to numeric routing network interfaces', r: 'dns'}, {p: 'Standard plaintext web transfer pipeline rule', r: 'http'}],
+                seguridad_game: [{p: 'Social engineering vector using masked email templates', r: 'phishing'}, {p: 'Security traffic shield monitoring port requests', r: 'firewall'}]
+            },
+            fr: {
+                bits: [{p: 'Entier décimal 5 converti en binaire', r: '101'}, {p: 'Entier décimal 2 converti en binaire', r: '10'}],
+                componentes: [{p: 'Le circuit logique principal cadencé en GHz', r: 'cpu'}, {p: 'Espace de stockage volatil effacé lors d\'une coupure électrique', r: 'ram'}],
+                etiquetas: [{p: 'Balise d\'ancrage générant un lien hypertexte', r: 'a'}, {p: 'Balise intégrant un fichier image matriciel ou vectoriel', r: 'img'}],
+                bucles: [{p: 'Nombre d\'itérations de la boucle : for(let i=0; i<5; i++)', r: '5'}, {p: 'Nombre d\'itérations de la boucle : for(let i=1; i<=3; i++)', r: '3'}],
+                redes_game: [{p: 'Service convertissant un nom de domaine en adresse IP', r: 'dns'}, {p: 'Protocole de base du web non sécurisé', r: 'http'}],
+                seguridad_game: [{p: 'Hacking par usurpation d\'identité via courriel frauduleux', r: 'phishing'}, {p: 'Dispositif logiciel filtrant les paquets entrants et sortants', r: 'firewall'}]
             }
+        };
+
+        let juegoActual = '';
+        let respuestasAceptables = [];
+
+        function iniciarJuego(tipo) {
+            sonarSintetizador('clic');
+            juegoActual = tipo;
+            document.getElementById('zona-de-juego').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            generarPreguntaJuego();
         }
 
-        function cargarNuevaMision() {
-            document.getElementById('codigo-feedback').innerText = "";
+        function generarPreguntaJuego() {
+            const pantalla = document.getElementById('pantalla-info');
+            const input = document.getElementById('respuesta-usuario');
+            const instrucciones = document.getElementById('instrucciones-juego-activo');
+            const res = locales[langActual];
+            input.value = ''; input.focus();
+            respuestasAceptables = [];
+
+            if (juegoActual === 'bits') {
+                document.getElementById('titulo-juego-activo').innerText = "👾 " + res.gt1;
+                instrucciones.innerText = res.inst_bits;
+            } else if (juegoActual === 'componentes') {
+                document.getElementById('titulo-juego-activo').innerText = "🧩 " + res.gt2;
+                instrucciones.innerText = res.inst_comp;
+            } else if (juegoActual === 'etiquetas') {
+                document.getElementById('titulo-juego-activo').innerText = "📝 " + res.gt3;
+                instrucciones.innerText = res.inst_et;
+            } else if (juegoActual === 'bucles') {
+                document.getElementById('titulo-juego-activo').innerText = "🔄 " + res.gt4;
+                instrucciones.innerText = res.inst_buc;
+            } else if (juegoActual === 'redes_game') {
+                document.getElementById('titulo-juego-activo').innerText = "📡 " + res.gt5;
+                instrucciones.innerText = res.inst_red;
+            } else if (juegoActual === 'seguridad_game') {
+                document.getElementById('titulo-juego-activo').innerText = "🔐 " + res.gt6;
+                instrucciones.innerText = res.inst_seg;
+            }
+
+            const lista = dbJuegos[langActual][juegoActual];
+            let elegida = lista[Math.floor(Math.random() * lista.length)];
             
-            if (mazoMisiones.length === 0) {
-                barajarMisiones();
-            }
-
-            misionActual = mazoMisiones.pop();
-
-            document.getElementById('mision-instrucciones').innerHTML = misionActual.m;
-            document.getElementById('robot-emoji').innerText = misionActual.e;
-
-            // Mezclar secuencias de comandos
-            let opciones = [misionActual.r, ...misionActual.f].sort(() => 0.5 - Math.random());
-            
-            let contOpciones = document.getElementById('codigo-opciones');
-            contOpciones.innerHTML = "";
-
-            opciones.forEach(op => {
-                let b = document.createElement('button');
-                b.className = "bloque-codigo";
-                b.innerHTML = `<code>${op}</code>`;
-                b.onclick = () => verificarCodigo(op);
-                contOpciones.appendChild(b);
-            });
+            pantalla.innerText = elegida.p;
+            respuestasAceptables.push(elegida.r);
         }
 
-        function verificarCodigo(seleccion) {
-            let feed = document.getElementById('codigo-feedback');
-            document.querySelectorAll('.bloque-codigo').forEach(b => b.style.pointerEvents = 'none');
+        function validarRespuestaJuego() {
+            const inputVal = document.getElementById('respuesta-usuario').value.trim().toLowerCase();
+            if (inputVal === "") return;
 
-            if (seleccion === misionActual.r) {
-                sonido('win');
-                bugsArreglados += 1;
-                localStorage.setItem('bugs_info_v1', bugsArreglados);
-                document.getElementById('bugs-contador').innerText = bugsArreglados;
-                
-                feed.innerText = "🚀 ¡Algoritmo correcto! El robot ejecuta la misión.";
-                feed.style.color = "#38ef7d";
+            let esCorrecto = respuestasAceptables.some(resp => resp === inputVal);
+            const res = locales[langActual];
 
-                setTimeout(() => {
-                    sonido('run');
-                    cargarNuevaMision();
-                }, 2000);
+            if (esCorrecto) {
+                sonarSintetizador('correcto');
+                puntosTotales += 10;
+                document.getElementById('marcador-puntos').innerText = puntosTotales;
+                alert(res.ok);
+                generarPreguntaJuego();
             } else {
-                sonido('bug');
-                feed.innerText = "❌ ¡Error de sintaxis! El robot no entiende esa orden.";
-                feed.style.color = "#ff4757";
-
-                setTimeout(() => {
-                    document.querySelectorAll('.bloque-codigo').forEach(b => b.style.pointerEvents = 'auto');
-                    feed.innerText = "";
-                }, 1500);
+                sonarSintetizador('error');
+                alert(`${res.err} "${respuestasAceptables[0]}"`);
+                generarPreguntaJuego();
             }
         }
 
-        // Inicializar juego
-        barajarMisiones();
-        cargarNuevaMision();
+        document.getElementById('respuesta-usuario').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') validarRespuestaJuego();
+        });
+
+        // --- CONSOLA DEL INTERPRETE ---
+        function charlarTutora(opcion) {
+            sonarSintetizador('clic');
+            const cajaTexto = document.getElementById('texto-chat-tutora');
+            
+            const tips = {
+                es: {
+                    truco: "💡 Contar en binario es fácil si usas potencias de 2: las posiciones valen 8, 4, 2 y 1. Por tanto, el 5 es un 4 activo y un 1 activo: 101.",
+                    miedo: "🔒 Un bug clásico es el desbordamiento de memoria (Buffer Overflow), que ocurre cuando un programa escribe más datos de los que caben en su contenedor asignado.",
+                    examen: "📝 ¡Entorno de desarrollo listo! Compilando el set de pruebas algorítmicas en terminal."
+                },
+                en: {
+                    truco: "💡 Binary math works over base-2 positional weight flags: 8, 4, 2, 1. To map a 5, activate the 4-bit and the 1-bit flags, yielding 101.",
+                    miedo: "🔒 Buffer Overflow loops trigger critical security breaks when data allocation packages bleed past local memory registry matrices.",
+                    examen: "📝 Sandbox testing terminal loaded! Routing logic threads to the Iteration Tracker node."
+                },
+                fr: {
+                    truco: "💡 En binaire, chaque rang vaut le double du précédent (8, 4, 2, 1). Pour faire 5, il suffit d'activer le 4 y le 1, ce qui nous donne 101.",
+                    miedo: "🔒 Un débordement de tampon (Buffer Overflow) survient lorsqu'un programme écrit au-delà de la mémoire vive qui lui a été allouée.",
+                    examen: "📝 Environnement de production prêt ! Passons immédiatement au test d'analyse de Boucles."
+                }
+            };
+
+            cajaTexto.innerText = tips[langActual][opcion];
+            if(opcion === 'examen') {
+                iniciarJuego('bucles');
+            }
+        }
+
+        // --- ENCICLOPEDIA TÉCNICA CORE ---
+        function abrirTeoria(tema) {
+            sonarSintetizador('clic');
+            const modal = document.getElementById('modal-teoria');
+            const titulo = document.getElementById('modal-titulo-teoria');
+            const cuerpo = document.getElementById('modal-cuerpo-teoria');
+            modal.style.display = 'flex';
+
+            const biblioteca = {
+                es: {
+                    binario: {t:"🔢 El Sistema Numérico Base 2", c:"<p>Las computadoras operan internamente con transistores eléctricos que solo tienen dos estados: encendido (1) o apagado (0). Un bit es la unidad mínima de información. Un grupo ordenado de 8 bits forma un <b>Byte</b>, capaz de representar hasta 256 combinaciones distintas de datos (caracteres, colores o instrucciones numéricas).</p>"},
+                    hardware: {t:"🎛️ Anatomía Física del Computador", c:"<ul><li><b>CPU (Procesador):</b> Ejecuta operaciones aritméticas y lógicas interpretando instrucciones de software.</li><li><b>Memoria RAM:</b> Almacén de lectura y escritura ultrarrápido que guarda los procesos en ejecución de forma volátil.</li><li><b>SSD / Disco Duro:</b> Unidad de almacenamiento masivo permanente donde el sistema operativo y archivos residen sin corriente eléctrica.</li></ul>"},
+                    web: {t:"🌐 Estructura Frontal del Desarrollo Web", c:"<p>Cualquier página web moderna se construye usando tres lenguajes complementarios:</p><ul><li><b>HTML:</b> Define el esqueleto conceptual y semántico del documento mediante etiquetas jerárquicas (headings, párrafos, tablas).</li><li><b>CSS:</b> El motor estético que aplica reglas visuales, colores, márgenes y adaptabilidad responsiva.</li><li><b>JavaScript:</b> El lenguaje dinámico de programación que gestiona interacciones, animaciones y cálculo lógico del lado del cliente.</li></ul>"},
+                    algoritmos: {t:"📐 Lógica Algorítmica y Control de Flujo", c:"<p>Un algoritmo es una serie ordenada y finita de instrucciones lógicas para resolver un problema estructurado:</p><ul><li><b>Condicionales (IF-ELSE):</b> Bifurcan la ejecución del código según el cumplimiento de una premisa lógica booleana.</li><li><b>Bucles (FOR / WHILE):</b> Repiten un bloque secuencial de código de forma automática mientras se cumpla una condición matemática explícita.</li></ul>"},
+                    redes: {t:"🔌 La Arquitectura de Red de Internet", c:"<p>Internet es una red descentralizada de nodos globales interconectados. Las direcciones IP identifican de forma unívoca a cada dispositivo en la red. Los servidores <b>DNS</b> actúan como la libreta de direcciones de internet, traduciendo nombres de dominio de texto legible a IPs de servidores para posibilitar el enrutamiento de paquetes.</p>"},
+                    seguridad: {t:"🛡️ Reglas Fundamentales de Ciberseguridad", c:"<p>La protección de datos en entornos interconectados se apoya en políticas críticas:</p><ul><li><b>Cifrado:</b> Algoritmos matemáticos que encriptan el texto legible para que solo los extremos autorizados con la clave simétrica puedan decodificarlo (HTTPS).</li><li><b>Phishing:</b> Vector malicioso que imita marcas legítimas para engañar al usuario final y robar credenciales críticas.</li></ul>"}
+                },
+                en: {
+                    binario: {t:"🔢 The Logic of Base-2 Binary Systems", c:"<p>Computers manipulate parameters via micro-transistors configured into two native physical electrical values: high voltage (1) or grounded zero (0). A single binary flag represents a Bit. Coupling 8 sequential bits forms a <b>Byte</b>, mapping up to 256 unique character configurations.</p>"},
+                    hardware: {t:"🎛️ Hardware Components Blueprint", c:"<ul><li><b>CPU (Processor):</b> The central math and control core executing instruction pipelines.</li><li><b>RAM Module:</b> High-speed volatile memory registers caching data structures for immediate program execution tasks.</li><li><b>SSD Units:</b> Persistent flash block arrays organizing datasets and file clusters without requiring an active energy loop.</li></ul>"},
+                    web: {t:"🌐 The Front-End Client Web Stack", c:"<p>Standard web rendering processes utilize three integrated compilation layers:</p><ul><li><b>HTML:</b> Encodes the document's semantic skeletal hierarchy utilizing standard tag nodes.</li><li><b>CSS:</b> The design matrix governing style rules, typography, layouts, and responsive responsive viewpoints.</li><li><b>JavaScript:</b> The procedural client-side coding layer managing runtime events, animations, and mathematical operations.</p>"},
+                    algoritmos: {t:"📐 Algorithmic Structure & Flow Contours", c:"<p>An algorithm outlines a finite, linear sequence of structured operations designed to handle distinct computing goals:</p><ul><li><b>Conditionals (IF-ELSE):</b> Branch program tracks depending on whether a given boolean parameter evaluates to true or false.</li><li><b>Loops (FOR / WHILE):</b> Re-run specific code blocks automatically until counter variables violate the threshold check.</ul>"},
+                    redes: {t:"🔌 Internet Packet Engineering & Routing", c:"<p>Internet scales as a global matrix of inter-connected networking targets. Every host node broadcasts a distinct numeric IP label. Distributed <b>DNS</b> directory databases map textual domain strings into numerical target routing parameters to request pages accurately.</p>"},
+                    seguridad: {t:"🛡️ Fundamental Cyber Defence Frameworks", c:"<p>Securing computing nodes involves implementing active structural protocols:</p><ul><li><b>Encryption:</b> Re-coding data payloads using specialized key math, making intercept traces unreadable unless paired with keys (HTTPS).</li><li><b>Phishing:</b> Attack vector engineering fraudulent communication templates to exploit user authentication workflows.</li></ul>"}
+                },
+                fr: {
+                    binario: {t:"🔢 Principes de l'Architecture Binaire", c:"<p>Les ordinateurs traitent les données à l'aide de transistors fonctionnant comme des interrupteurs logiques : allumé (1) ou éteint (0). Un bit représente l'unité élémentaire. L'assemblage de 8 bits forme un <b>Octet</b> (Byte), autorisant 256 configurations distinctes de données.</p>"},
+                    hardware: {t:"🎛️ Anatomie et Composants d'un Ordinateur", c:"<ul><li><b>CPU (Processeur) :</b> Puce effectuant les calculs arithmétiques et coordonnant l'exécution des instructions logicielles.</li><li><b>Mémoire RAM :</b> Mémoire de travail à accès direct ultra-rapide, vidée lors de l'extinction.</li><li><b>Disque SSD :</b> Stockage flash persistant hébergeant de manière permanente le système d'exploitation et les fichiers utilisateur.</li></ul>"},
+                    web: {t:"🌐 Architecture du Développement Web Front-End", c:"<p>Les interfaces web s'articulent autour de trois technologies standardisées :</p><ul><li><b>HTML :</b> Gère l'ossature sémantique et la hiérarchie du document via des balises de structure.</li><li><b>CSS :</b> Stylise le document en appliquant les chartes graphiques, couleurs y règles d'affichage adaptatif.</li><li><b>JavaScript :</b> Ajoute de la dynamique, pilote le comportement de la page y orchestre l'échange asynchrone de données.</li></ul>"},
+                    algoritmos: {t:"📐 Algorithmique y Structures de Contrôle", c:"<p>Un algorithme est une suite ordonnée et finie d'opérations résolvant un problème déterminé :</p><ul><li><b>Les Conditions (SI-SINON) :</b> Aiguillent le flux du code selon la validation d'une expression booléenne.</li><li><b>Les Boucles (POUR / TANT QUE) :</b> Répètent l'exécution d'une séquence d'instructions tant qu'un compteur ou un indicateur reste valide.</li></ul>"},
+                    redes: {t:"🔌 Routage de Paquets sur l'Infrastructure Internet", c:"<p>Internet est un réseau mondial de machines interconnectées. Chaque machine dispose d'une adresse IP propre. Le système <b>DNS</b> opère la traduction des adresses textuelles (ex: google.com) en adresses numériques routables pour acheminer vos requêtes de paquets de données.</p>"},
+                    seguridad: {t:"🛡️ Les Fondamentaux de la Cybersécurité", c:"<p>La protection de l'espace numérique repose sur des briques de chiffrement et de prévention :</p><ul><li><b>Chiffrement :</b> Transformation d'un texte clair en texte chiffré illisible sans clé cryptographique secrète (HTTPS).</li><li><b>Hameçonnage (Phishing) :</b> Usurpation d'identité numérique visant à soutirer vos données confidentielles.</li></ul>"}
+                }
+            };
+
+            const nodo = biblioteca[langActual][tema];
+            titulo.innerText = nodo.t;
+            cuerpo.innerHTML = nodo.c;
+        }
+
+        function cerrarTeoria() {
+            sonarSintetizador('clic');
+            document.getElementById('modal-teoria').style.display = 'none';
+        }
     </script>
 </body>
 </html>
