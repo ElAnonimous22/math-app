@@ -28,6 +28,37 @@
             100% { background-position: 0% 50%; }
         }
 
+        /* --- BOTÓN OTRAS APPS (NUEVO) --- */
+        .contenedor-navegacion {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            z-index: 30;
+        }
+
+        .btn-otras-apps {
+            background: rgba(255, 255, 255, 0.85);
+            color: #ff4757;
+            border: 2px solid #ff6b81;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 6px 15px rgba(255, 71, 87, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        .btn-otras-apps:hover {
+            background: linear-gradient(45deg, #ff4757, #ff6b81);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3);
+        }
+
         /* --- CONTENEDOR EFECTO CRISTAL DE ALTA CALIDAD --- */
         .contenedor-inicio {
             text-align: center;
@@ -201,6 +232,10 @@
     </style>
 </head>
 <body>
+
+    <div class="contenedor-navegacion">
+        <a href="https://elanonimous22.github.io/juegos-de-mesa/" class="btn-otras-apps" onclick="sonarClickEfecto()">🚀 Otras Apps</a>
+    </div>
 
     <div class="contenedor-inicio">
         <h1>✨ ¡Súper Aventuras! ✨</h1>
